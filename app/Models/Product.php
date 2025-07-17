@@ -21,6 +21,8 @@ class Product extends Model
         'category_id',
         'is_featured',
         'is_active',
+        'is_healthy',
+        'is_deal_of_week',
         'rating',
         'reviews_count',
         'sort_order'
@@ -33,6 +35,8 @@ class Product extends Model
         'gallery' => 'array',
         'is_featured' => 'boolean',
         'is_active' => 'boolean',
+        'is_healthy' => 'boolean',
+        'is_deal_of_week' => 'boolean',
     ];
 
     // Automatically generate slug from name
@@ -97,5 +101,17 @@ class Product extends Model
     public function scopeOrdered($query)
     {
         return $query->orderBy('sort_order')->orderBy('name');
+    }
+
+    // Scope for healthy products
+    public function scopeHealthy($query)
+    {
+        return $query->where('is_healthy', true);
+    }
+
+    // Scope for deal of the week
+    public function scopeDealOfWeek($query)
+    {
+        return $query->where('is_deal_of_week', true);
     }
 }

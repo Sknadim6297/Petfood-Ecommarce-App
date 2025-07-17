@@ -255,10 +255,9 @@ arr.map(function (item) {
 
 /* 12. Cart Popup Start */
 
+    // Legacy cart popup toggle - now integrated with new cart system
     jQuery('.pr-cart').on('click', function() {
-
       jQuery('.cart-popup').toggleClass('show-cart');
-
     });
 
 // Cart Popup End
@@ -311,26 +310,43 @@ $('.accordion-item .heading').on('click', function(e) {
     });
 
 
-    /* 16. overlay */
+    /* 16. overlay - Updated for new cart system */
         var boxWidth = $("#lightbox").width();
-                $(".white_content").animate({
-                    opacity: 0,
-                    width:0,
-                    right : -10000
-            });
-            $("#close").on('click',function(){ 
-            $(".white_content").animate({
-                opacity: 0,
-                width:0,
-                right : -1000
-            });
-            });
-            $("#show").on('click',function(){ 
+        
+        // Initialize cart popup as hidden
+        $("#lightbox").hide();
+        $(".white_content").css({
+            opacity: 0,
+            width: 0,
+            right: -10000
+        });
+        
+        // Define lightbox functions for cart system
+        window.lightbox_open = function() {
+            $("#lightbox").fadeIn(300);
             $(".white_content").animate({
                 opacity: 1,
-                right :0
-            });
-
+                width: boxWidth,
+                right: 50
+            }, 300);
+        };
+        
+        window.lightbox_close = function() {
+            $("#lightbox").fadeOut(300);
+            $(".white_content").animate({
+                opacity: 0,
+                width: 0,
+                right: -1000
+            }, 300);
+        };
+        
+        $("#close").on('click', lightbox_close);
+        
+        // Close on backdrop click
+        $("#lightbox").on('click', function(e) {
+            if (e.target === this) {
+                lightbox_close();
+            }
         });
 
     /* 17. scrollTop */

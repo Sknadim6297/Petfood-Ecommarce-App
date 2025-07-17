@@ -6,36 +6,36 @@
         </div>
             <ul class="image-gallery">
               <li>
-                <a href="assets/img/gallery-1.jpg" data-fancybox="gallery"><figure><img alt="girl" src="assets/img/gallery-1.jpg"></figure></a>
+                <a href="{{ asset('assets/img/gallery-1.jpg') }}" data-fancybox="gallery"><figure><img alt="girl" src="{{ asset('assets/img/gallery-1.jpg') }}"></figure></a>
               </li>
               <li>
-                <a href="assets/img/gallery-2.jpg" data-fancybox="gallery"><figure><img alt="girl" src="assets/img/gallery-2.jpg"></figure></a>
+                <a href="{{ asset('assets/img/gallery-2.jpg') }}" data-fancybox="gallery"><figure><img alt="girl" src="{{ asset('assets/img/gallery-2.jpg') }}"></figure></a>
               </li>
               <li>
-                <a href="assets/img/gallery-3.jpg" data-fancybox="gallery"><figure><img alt="girl" src="assets/img/gallery-3.jpg"></figure></a>
+                <a href="{{ asset('assets/img/gallery-3.jpg') }}" data-fancybox="gallery"><figure><img alt="girl" src="{{ asset('assets/img/gallery-3.jpg') }}"></figure></a>
               </li>
               <li>
-                <a href="assets/img/gallery-4.jpg" data-fancybox="gallery"><figure><img alt="girl" src="assets/img/gallery-4.jpg"></figure></a>
+                <a href="{{ asset('assets/img/gallery-4.jpg') }}" data-fancybox="gallery"><figure><img alt="girl" src="{{ asset('assets/img/gallery-4.jpg') }}"></figure></a>
               </li>
               <li>
-                <a href="assets/img/gallery-5.jpg" data-fancybox="gallery"><figure><img alt="girl" src="assets/img/gallery-5.jpg"></figure></a>
+                <a href="{{ asset('assets/img/gallery-5.jpg') }}" data-fancybox="gallery"><figure><img alt="girl" src="{{ asset('assets/img/gallery-5.jpg') }}"></figure></a>
               </li>
               <li>
-                <a href="assets/img/gallery-6.jpg" data-fancybox="gallery"><figure><img alt="girl" src="assets/img/gallery-6.jpg"></figure></a>
+                <a href="{{ asset('assets/img/gallery-6.jpg') }}" data-fancybox="gallery"><figure><img alt="girl" src="{{ asset('assets/img/gallery-6.jpg') }}"></figure></a>
               </li>
               <li>
-                <a href="assets/img/gallery-7.jpg" data-fancybox="gallery"><figure><img alt="girl" src="assets/img/gallery-7.jpg"></figure></a>
+                <a href="{{ asset('assets/img/gallery-7.jpg') }}" data-fancybox="gallery"><figure><img alt="girl" src="{{ asset('assets/img/gallery-7.jpg') }}"></figure></a>
               </li>
             </ul>
     </div>
 </div>
-<footer style="background-color: #fff8e5; background-image:url(assets/img/background.png)">
+<footer style="background-color: #fff8e5; background-image:url({{ asset('assets/img/background.png') }})">
     <div class="container">
         <div class="row">
             <div class="col-xl-4 col-lg-6">
                 <div class="logo">
-                    <a href="index.html">
-                        <img src="assets/img/logo.png" alt="logo">
+                    <a href="{{ url('/') }}">
+                        <img src="{{ asset('assets/img/logo.png') }}" alt="logo">
                     </a>
                     <p>At vero eos et accusam justo duo dolo res et ea rebum. Stet clita kasd guber gren. Aenean sollici tudin lorem qsben elit clita.</p>
                     <div class="phone">
@@ -78,7 +78,7 @@
                           <h6 class="pt-0">Monday - Saturday <span>08AM - 10PM</span></h6>
                           <h6>Sunday<span>08AM - 10PM</span></h6>
                           <div class="call-us">
-                              <img src="assets/img/hadphon.png" alt="hadphon">
+                              <img src="{{ asset('assets/img/hadphon.png') }}" alt="hadphon">
                               <div>
                                   <a href="#">+021 01283492</a>
                                   <span>Got Questions? Call us 24/7</span>
@@ -96,10 +96,10 @@
         </div>
         <div class="copyright">
             <p>Patte Pet Care - Copyright 2023. Design by Winsfolio</p>
-            <a href="#"><img src="assets/img/visa.jpg" alt="cad"></a>
+            <a href="#"><img src="{{ asset('assets/img/visa.jpg') }}" alt="cad"></a>
         </div>
     </div>
-    <img src="assets/img/hero-shaps-1.png" alt="hero-shaps" class="img-2">
-    <img src="assets/img/dabal-foot-1.png" alt="hero-shaps" class="img-3">
-    <img src="assets/img/hero-shaps-1.png" alt="hero-shaps" class="img-4">
+    <img src="{{ asset('assets/img/hero-shaps-1.png') }}" alt="hero-shaps" class="img-2">
+    <img src="{{ asset('assets/img/dabal-foot-1.png') }}" alt="hero-shaps" class="img-3">
+    <img src="{{ asset('assets/img/hero-shaps-1.png') }}" alt="hero-shaps" class="img-4">
 </footer>

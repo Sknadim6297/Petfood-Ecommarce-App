@@ -1,8 +1,8 @@
- @extends('frontend.layouts.layout')
+@extends('frontend.layouts.layout')
 @section('style')
 
 @section('content')
-<section class="hero-section" style="background-color: #fff8e5; background-image:url(assets/img/background.png)">
+<section class="hero-section" style="background-color: #fff8e5; background-image:url({{ asset('assets/img/background.png') }})">
     <div class="container">
         <div class="row hero-one-slider owl-carousel owl-theme">
             <div class="col-lg-12">
@@ -16,8 +16,8 @@
                     </div>
                     <div class="col-lg-7">
                         <div class="hero-img">
-                            <img src="assets/img/hero-img-1.png" alt="img">
-                            <img src="assets/img/hero-shaps.png" alt="hero-shaps" class="img-1">
+                            <img src="{{ asset('assets/img/hero-img-1.png') }}" alt="img">
+                            <img src="{{ asset('assets/img/hero-shaps.png') }}" alt="hero-shaps" class="img-1">
                         </div>
                     </div>
                 </div>
@@ -33,8 +33,8 @@
                     </div>
                     <div class="col-lg-7">
                         <div class="hero-img">
-                            <img src="assets/img/slide-3.png" alt="img">
-                            <img src="assets/img/hero-shaps.png" alt="hero-shaps" class="img-1">
+                            <img src="{{ asset('assets/img/slide-3.png') }}" alt="img">
+                            <img src="{{ asset('assets/img/hero-shaps.png') }}" alt="hero-shaps" class="img-1">
                         </div>
                     </div>
                 </div>
@@ -50,17 +50,17 @@
                     </div>
                     <div class="col-lg-7">
                         <div class="hero-img">
-                            <img src="assets/img/slide-2.png" alt="img">
-                            <img src="assets/img/hero-shaps.png" alt="hero-shaps" class="img-1">
+                            <img src="{{ asset('assets/img/slide-2.png') }}" alt="img">
+                            <img src="{{ asset('assets/img/hero-shaps.png') }}" alt="hero-shaps" class="img-1">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <img src="assets/img/hero-shaps-1.png" alt="hero-shaps" class="img-2">
-    <img src="assets/img/dabal-foot-1.png" alt="hero-shaps" class="img-3">
-    <img src="assets/img/hero-shaps-1.png" alt="hero-shaps" class="img-4">
+    <img src="{{ asset('assets/img/hero-shaps-1.png') }}" alt="hero-shaps" class="img-2">
+    <img src="{{ asset('assets/img/dabal-foot-1.png') }}" alt="hero-shaps" class="img-3">
+    <img src="{{ asset('assets/img/hero-shaps-1.png') }}" alt="hero-shaps" class="img-4">
 </section> 
 <section class="gap no-bottom">
     <div class="container">
@@ -68,7 +68,7 @@
             <div class="col-lg-4 col-md-6">
                 <div class="we-provide">
                     <div class="we-provide-img">
-                        <img src="assets/img/we-provide-1.jpg" alt="we-provide-1">
+                        <img src="{{ asset('assets/img/we-provide-1.jpg') }}" alt="we-provide-1">
                         <svg width="326" height="326" viewBox="0 0 673 673" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M9.82698 416.603C-19.0352 298.701 18.5108 173.372 107.497 90.7633L110.607 96.5197C24.3117 177.199 -12.311 298.935 15.0502 413.781L9.82698 416.603ZM89.893 565.433C172.674 654.828 298.511 692.463 416.766 663.224L414.077 658.245C298.613 686.363 175.954 649.666 94.9055 562.725L89.893 565.433ZM656.842 259.141C685.039 374.21 648.825 496.492 562.625 577.656L565.413 582.817C654.501 499.935 691.9 374.187 662.536 256.065L656.842 259.141ZM581.945 107.518C499.236 18.8371 373.997 -18.4724 256.228 10.5134L259.436 16.4515C373.888 -10.991 495.248 25.1518 576.04 110.708L581.945 107.518Z" fill="#fedc4f"/>
                         </svg>
@@ -81,7 +81,7 @@
             <div class="col-lg-4 col-md-6">
                 <div class="we-provide">
                     <div class="we-provide-img">
-                        <img src="assets/img/we-provide-2.jpg" alt="we-provide-1">
+                        <img src="{{ asset('assets/img/we-provide-2.jpg') }}" alt="we-provide-1">
                         <svg width="326" height="326" viewBox="0 0 673 673" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M9.82698 416.603C-19.0352 298.701 18.5108 173.372 107.497 90.7633L110.607 96.5197C24.3117 177.199 -12.311 298.935 15.0502 413.781L9.82698 416.603ZM89.893 565.433C172.674 654.828 298.511 692.463 416.766 663.224L414.077 658.245C298.613 686.363 175.954 649.666 94.9055 562.725L89.893 565.433ZM656.842 259.141C685.039 374.21 648.825 496.492 562.625 577.656L565.413 582.817C654.501 499.935 691.9 374.187 662.536 256.065L656.842 259.141ZM581.945 107.518C499.236 18.8371 373.997 -18.4724 256.228 10.5134L259.436 16.4515C373.888 -10.991 495.248 25.1518 576.04 110.708L581.945 107.518Z" fill="#fb5e3c"/>
                         </svg>
@@ -93,7 +93,7 @@
             <div class="col-lg-4 col-md-6">
                 <div class="we-provide mb-0">
                     <div class="we-provide-img">
-                        <img src="assets/img/we-provide-3.jpg" alt="we-provide-1">
+                        <img src="{{ asset('assets/img/we-provide-3.jpg') }}" alt="we-provide-1">
                         <svg width="326" height="326" viewBox="0 0 673 673" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd" d="M9.82698 416.603C-19.0352 298.701 18.5108 173.372 107.497 90.7633L110.607 96.5197C24.3117 177.199 -12.311 298.935 15.0502 413.781L9.82698 416.603ZM89.893 565.433C172.674 654.828 298.511 692.463 416.766 663.224L414.077 658.245C298.613 686.363 175.954 649.666 94.9055 562.725L89.893 565.433ZM656.842 259.141C685.039 374.21 648.825 496.492 562.625 577.656L565.413 582.817C654.501 499.935 691.9 374.187 662.536 256.065L656.842 259.141ZM581.945 107.518C499.236 18.8371 373.997 -18.4724 256.228 10.5134L259.436 16.4515C373.888 -10.991 495.248 25.1518 576.04 110.708L581.945 107.518Z" fill="#fedc4f"/>
                         </svg>
@@ -115,7 +115,7 @@
                     <div class="row mt-lg-5">
                         <div class="col-md-6">
                             <div class="pet-grooming">
-                            <i><img src="assets/img/welcome-to-1.png" alt="icon"></i>
+                            <i><img src="{{ asset('assets/img/welcome-to-1.png') }}" alt="icon"></i>
                             <svg width="138" height="138" viewBox="0 0 673 673" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M9.82698 416.603C-19.0352 298.701 18.5108 173.372 107.497 90.7633L110.607 96.5197C24.3117 177.199 -12.311 298.935 15.0502 413.781L9.82698 416.603ZM89.893 565.433C172.674 654.828 298.511 692.463 416.766 663.224L414.077 658.245C298.613 686.363 175.954 649.666 94.9055 562.725L89.893 565.433ZM656.842 259.141C685.039 374.21 648.825 496.492 562.625 577.656L565.413 582.817C654.501 499.935 691.9 374.187 662.536 256.065L656.842 259.141ZM581.945 107.518C499.236 18.8371 373.997 -18.4724 256.228 10.5134L259.436 16.4515C373.888 -10.991 495.248 25.1518 576.04 110.708L581.945 107.518Z" fill="#940c69"/>
                             </svg>
@@ -125,7 +125,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="pet-grooming mb-0">
-                            <i><img src="assets/img/welcome-to-2.png" alt="icon"></i>
+                            <i><img src="{{ asset('assets/img/welcome-to-2.png') }}" alt="icon"></i>
                             <svg width="138" height="138" viewBox="0 0 673 673" xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" clip-rule="evenodd" d="M9.82698 416.603C-19.0352 298.701 18.5108 173.372 107.497 90.7633L110.607 96.5197C24.3117 177.199 -12.311 298.935 15.0502 413.781L9.82698 416.603ZM89.893 565.433C172.674 654.828 298.511 692.463 416.766 663.224L414.077 658.245C298.613 686.363 175.954 649.666 94.9055 562.725L89.893 565.433ZM656.842 259.141C685.039 374.21 648.825 496.492 562.625 577.656L565.413 582.817C654.501 499.935 691.9 374.187 662.536 256.065L656.842 259.141ZM581.945 107.518C499.236 18.8371 373.997 -18.4724 256.228 10.5134L259.436 16.4515C373.888 -10.991 495.248 25.1518 576.04 110.708L581.945 107.518Z" fill="#940c69"/>
                             </svg>
@@ -138,11 +138,11 @@
             </div>
             <div class="col-lg-6">
                 <div class="dog-walker two d-block">
-                    <img src="assets/img/puppies.png" class="puppies" alt="puppies">
-                    <img src="assets/img/dog-walker-1.png" class="w-100" alt="dog walker">
-                    <img src="assets/img/line.png" class="line" alt="line">
-                    <img src="assets/img/dabal-foot.png" class="dabal-foot" alt="dabal-foot">
-                    <img src="assets/img/haddi.png" class="haddi" alt="haddi">
+                    <img src="{{ asset('assets/img/puppies.png') }}" class="puppies" alt="puppies">
+                    <img src="{{ asset('assets/img/dog-walker-1.png') }}" class="w-100" alt="dog walker">
+                    <img src="{{ asset('assets/img/line.png') }}" class="line" alt="line">
+                    <img src="{{ asset('assets/img/dabal-foot.png') }}" class="dabal-foot" alt="dabal-foot">
+                    <img src="{{ asset('assets/img/haddi.png') }}" class="haddi" alt="haddi">
                 </div>
             </div>
         </div>
@@ -151,190 +151,115 @@
 <section class="gap">
     <div class="container">
         <div class="heading">
-            <img src="assets/img/heading-img.png" alt="heading-img">
+            <img src="{{ asset('assets/img/heading-img.png') }}" alt="heading-img">
             <h6>Find Healthy Product By Category</h6>
             <h2>Browse By Categories</h2>
         </div>
         <div class="row slider-categorie owl-carousel owl-theme">
+            @forelse($categories as $category)
             <div class="col-lg-12 item">
                 <div class="food-categorie">
-                    <img src="assets/img/food-categorie-1.png" alt="food-categorie">
-                    <a href="our-products.html">Cat Supplies</a>
+                    @if($category->image)
+                        <img src="{{ asset($category->image) }}" alt="{{ $category->name }}">
+                    @else
+                        <img src="{{ asset('assets/img/food-categorie-' . (($loop->index % 5) + 1) . '.png') }}" alt="{{ $category->name }}">
+                    @endif
+                    <a href="{{ route('products.index', ['category' => $category->slug]) }}">{{ $category->name }}</a>
+                </div>
+            </div>
+            @empty
+            <!-- Fallback static categories if no dynamic data -->
+            <div class="col-lg-12 item">
+                <div class="food-categorie">
+                    <img src="{{ asset('assets/img/food-categorie-1.png') }}" alt="food-categorie">
+                    <a href="{{ route('products.index') }}">Pet Supplies</a>
                 </div>
             </div>
             <div class="col-lg-12 item">
                 <div class="food-categorie">
-                    <img src="assets/img/food-categorie-2.png" alt="food-categorie">
-                    <a href="our-products.html">Dog Supplies</a>
+                    <img src="{{ asset('assets/img/food-categorie-2.png') }}" alt="food-categorie">
+                    <a href="{{ route('products.index') }}">Dog Supplies</a>
                 </div>
             </div>
-            <div class="col-lg-12 item">
-                <div class="food-categorie">
-                    <img src="assets/img/food-categorie-3.png" alt="food-categorie">
-                    <a href="our-products.html">Animal Feed</a>
-                </div>
-            </div>
-            <div class="col-lg-12 item">
-                <div class="food-categorie">
-                    <img src="assets/img/food-categorie-4.png" alt="food-categorie">
-                    <a href="our-products.html">Accessories</a>
-                </div>
-            </div>
-            <div class="col-lg-12 item">
-                <div class="food-categorie">
-                    <img src="assets/img/food-categorie-5.png" alt="food-categorie">
-                    <a href="our-products.html">Horse Care</a>
-                </div>
-            </div>
+            @endforelse
         </div>
     </div>
 </section>
-<section class="gap section-healthy-product" style="background-image: url(assets/img/healthy-product.png); background-color: #f5f5f5;">
+<section class="gap section-healthy-product" style="background-image: url({{ asset('assets/img/healthy-product.png') }}); background-color: #f5f5f5;">
     <div class="container">
         <div class="heading">
-            <img src="assets/img/heading-img.png" alt="heading-img">
+            <img src="{{ asset('assets/img/heading-img.png') }}" alt="heading-img">
             <h6>Find Healthy Product</h6>
             <h2>Healthy Products</h2>
         </div>
         <div class="row">
+            @foreach($healthyProducts as $product)
             <div class="col-lg-3 col-md-4 col-sm-6">
                 <div class="healthy-product">
                     <div class="healthy-product-img">
-                        <img src="assets/img/food-1.png" alt="food">
+                        <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('assets/img/food-1.png') }}" alt="{{ $product->name }}">
                         <ul class="star">
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
+                            @for($i = 1; $i <= 5; $i++)
+                                @if($i <= $product->rating)
+                                    <li><i class="fa-solid fa-star"></i></li>
+                                @else
+                                    <li><i class="fa-regular fa-star"></i></li>
+                                @endif
+                            @endfor
                         </ul>
                         <div class="add-to-cart">
-                          <a href="#">Add to Cart</a>
+                          <a href="#" class="add-to-cart-btn" data-product-id="{{ $product->id }}">Add to Cart</a>
                           <a href="#" class="heart-wishlist">
                             <i class="fa-regular fa-heart"></i>
                           </a>
                         </div>
+                        @if($product->sale_price)
+                            <h4>-{{ round((($product->price - $product->sale_price) / $product->price) * 100) }}%</h4>
+                        @endif
                     </div>
-                    <span>Animal Feed</span>
-                    <a href="our-products.html">Procan Adult Dog Food</a>
-                    <h6>$32.00</h6>
+                    <span>{{ $product->category->name ?? 'Animal Feed' }}</span>
+                    <a href="{{ route('product.show', $product->slug) }}">{{ $product->name }}</a>
+                    <h6>
+                        @if($product->sale_price)
+                            <del>₹{{ number_format($product->price, 2) }}</del>₹{{ number_format($product->sale_price, 2) }}
+                        @else
+                            ₹{{ number_format($product->price, 2) }}
+                        @endif
+                    </h6>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="healthy-product">
-                    <div class="healthy-product-img">
-                        <img src="assets/img/food-2.png" alt="food">
-                        <ul class="star">
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                        </ul>
-                        <div class="add-to-cart">
-                          <a href="#">Add to Cart</a>
-                          <a href="#" class="heart-wishlist">
-                            <i class="fa-regular fa-heart"></i>
-                          </a>
-                        </div>
-                        <h4>-24%</h4>
-                    </div>
-                    <span>Animal Feed</span>
-                    <a href="our-products.html">Best Organic Feeds</a>
-                    <h6><del>$32.00</del>$22.00</h6>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="healthy-product">
-                    <div class="healthy-product-img">
-                        <img src="assets/img/food-3.png" alt="food">
-                        <ul class="star">
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                        </ul>
-                        <div class="add-to-cart">
-                          <a href="#">Add to Cart</a>
-                          <a href="#" class="heart-wishlist">
-                            <i class="fa-regular fa-heart"></i>
-                          </a>
-                        </div>
-                    </div>
-                    <span>Animal Feed</span>
-                    <a href="our-products.html">Green Papaya Fruit</a>
-                    <h6>$32.00</h6>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-6">
-                <div class="healthy-product">
-                    <div class="healthy-product-img">
-                        <img src="assets/img/food-4.png" alt="food">
-                        <ul class="star">
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                        </ul>
-                        <div class="add-to-cart">
-                          <a href="#">Add to Cart</a>
-                          <a href="#" class="heart-wishlist">
-                            <i class="fa-regular fa-heart"></i>
-                          </a>
-                        </div>
-                        <h4>-24%</h4>
-                    </div>
-                    <span>Animal Feed</span>
-                    <a href="our-products.html">KMR Pwdr 12oz</a>
-                    <h6><del>$32.00</del>$22.00</h6>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-6">
-                <div class="healthy-product mb-lg-0">
-                    <div class="healthy-product-img">
-                        <img src="assets/img/food-5.png" alt="food">
-                        <ul class="star">
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                        </ul>
-                        <div class="add-to-cart">
-                          <a href="#">Add to Cart</a>
-                          <a href="#" class="heart-wishlist">
-                            <i class="fa-regular fa-heart"></i>
-                          </a>
-                        </div>
-                        <h4>-24%</h4>
-                    </div>
-                    <span>Animal Feed</span>
-                    <a href="our-products.html">Cattle Feed</a>
-                    <h6><del>$32.00</del>$22.00</h6>
-                </div>
-            </div>
+            @endforeach
             <div class="col-lg-9">
+                @if($dealOfWeek)
                 <div class="deal-of-the-week">
                     <div class="healthy-product-img">
                         <h6>Deal of the Week</h6>
-                        <img src="assets/img/food-6.png" alt="food">
+                        <img src="{{ $dealOfWeek->image ? asset('storage/' . $dealOfWeek->image) : asset('assets/img/food-6.png') }}" alt="{{ $dealOfWeek->name }}">
                         <ul class="star">
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
-                            <li><i class="fa-solid fa-star"></i></li>
+                            @for($i = 1; $i <= 5; $i++)
+                                @if($i <= $dealOfWeek->rating)
+                                    <li><i class="fa-solid fa-star"></i></li>
+                                @else
+                                    <li><i class="fa-regular fa-star"></i></li>
+                                @endif
+                            @endfor
                         </ul>
                     </div>
                     <div class="healthy-product">
-                        <span>Animal Feed</span>
-                        <a href="our-products.html">Healthy Dog Food Roaster Chicken</a>
-                        <h6><del>$32.00</del>$22.00</h6>
-                        <h5>up to 14% off</h5>
+                        <span>{{ $dealOfWeek->category->name ?? 'Animal Feed' }}</span>
+                        <a href="{{ route('product.show', $dealOfWeek->slug) }}">{{ $dealOfWeek->name }}</a>
+                        <h6>
+                            @if($dealOfWeek->sale_price)
+                                <del>₹{{ number_format($dealOfWeek->price, 2) }}</del>₹{{ number_format($dealOfWeek->sale_price, 2) }}
+                            @else
+                                ₹{{ number_format($dealOfWeek->price, 2) }}
+                            @endif
+                        </h6>
+                        @if($dealOfWeek->sale_price)
+                            <h5>up to {{ round((($dealOfWeek->price - $dealOfWeek->sale_price) / $dealOfWeek->price) * 100) }}% off</h5>
+                        @endif
                         <div class="add-to-cart">
-                          <a href="#" class="button">Add to Cart</a>
+                          <a href="#" class="button add-to-cart-btn" data-product-id="{{ $dealOfWeek->id }}">Add to Cart</a>
                           <a href="#" class="heart-wishlist">
                             <i class="fa-regular fa-heart"></i>
                           </a>
@@ -349,6 +274,12 @@
                            </div>
                     </div>
                 </div>
+                @endif
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-12 text-center">
+                <a href="{{ route('products.index') }}" class="button">View More Products</a>
             </div>
         </div>
     </div>
@@ -629,3 +560,4 @@
     </div>
 </section> 
 @endsection
+ 

@@ -1,0 +1,247 @@
+/* Checkout Page Styles */
+.checkout-meta {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+.checkout-meta h3 {
+    color: #333;
+    margin-bottom: 30px;
+    font-weight: 600;
+    border-bottom: 2px solid #fa441d;
+    padding-bottom: 10px;
+}
+
+.checkout-meta .form-group {
+    margin-bottom: 20px;
+}
+
+.checkout-meta label {
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.checkout-meta .form-control {
+    border: 2px solid #e1e1e1;
+    border-radius: 5px;
+    padding: 12px 15px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.checkout-meta .form-control:focus {
+    border-color: #fa441d;
+    box-shadow: 0 0 0 0.2rem rgba(250, 68, 29, 0.25);
+}
+
+.checkout-side {
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 10px;
+    border: 2px solid #e1e1e1;
+}
+
+.checkout-side h3 {
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.shop_table_responsive {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.shop_table_responsive th,
+.shop_table_responsive td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #e1e1e1;
+}
+
+.shop_table_responsive thead th {
+    background: #fa441d;
+    color: white;
+    font-weight: 600;
+}
+
+.shop_table_responsive .product-quantity {
+    color: #fa441d;
+}
+
+.shop_table_responsive .order-total th,
+.shop_table_responsive .order-total td {
+    border-top: 2px solid #fa441d;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.payment-methods {
+    margin-top: 30px;
+}
+
+.payment-methods h4 {
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.payment-method {
+    border: 2px solid #e1e1e1;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    padding: 15px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.payment-method:hover {
+    border-color: #fa441d;
+    background: #fff8f5;
+}
+
+.payment-method.selected {
+    border-color: #fa441d;
+    background: #fff8f5;
+}
+
+.payment-method input[type="radio"] {
+    margin-right: 10px;
+}
+
+.payment-method label {
+    cursor: pointer;
+    margin-bottom: 0;
+    font-weight: 500;
+}
+
+.payment-method label i {
+    margin-right: 8px;
+    color: #fa441d;
+}
+
+.payment-description {
+    margin-top: 10px;
+    padding-left: 25px;
+}
+
+.payment-description p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.privacy-policy {
+    border: 1px solid #e1e1e1;
+    padding: 15px;
+    border-radius: 5px;
+    background: #f8f9fa;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: flex-start;
+    font-size: 14px;
+}
+
+.checkbox-container input[type="checkbox"] {
+    margin-right: 10px;
+    margin-top: 2px;
+}
+
+.checkbox-container a {
+    color: #fa441d;
+    text-decoration: none;
+}
+
+.checkbox-container a:hover {
+    text-decoration: underline;
+}
+
+.button {
+    background: #fa441d;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.button:hover {
+    background: #e63912;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(250, 68, 29, 0.3);
+}
+
+.button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .checkout-meta {
+        padding: 20px;
+    }
+    
+    .checkout-side {
+        padding: 20px;
+        margin-top: 30px;
+    }
+    
+    .shop_table_responsive {
+        font-size: 14px;
+    }
+    
+    .shop_table_responsive th,
+    .shop_table_responsive td {
+        padding: 8px;
+    }
+}
+
+/* Form validation styles */
+.form-control:invalid {
+    border-color: #dc3545;
+}
+
+.form-control:valid {
+    border-color: #28a745;
+}
+
+/* Loading animation for place order button */
+.button.loading {
+    position: relative;
+    color: transparent;
+}
+
+.button.loading::after {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

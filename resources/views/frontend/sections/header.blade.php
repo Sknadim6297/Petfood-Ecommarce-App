@@ -21,33 +21,42 @@
           </div>
         </div>
         <div>
-          <div class="time">
-            <div class="ordering">
-                <a href="#">Ordering</a>
-                <div class="line"></div>
-                <a href="#">Shipping</a>
-                <div class="line"></div>
-                <a href="#">Returns</a>
-              </div>
+          <div class="social-links">
+            <ul class="social-icon">
+              <li><a href="#"><i class="fa-brands fa-facebook-f"></i></a></li>
+              <li><a href="#"><i class="fa-brands fa-twitter"></i></a></li>
+              <li><a href="#"><i class="fa-brands fa-instagram"></i></a></li>
+            </ul>
             <div class="login">
-                <i class="fa-solid fa-user"></i>
                 @auth
-                    <div class="dropdown">
-                        <a href="#" class="dropdown-toggle">{{ Auth::user()->name }}</a>
+                    <div class="dropdown" id="userDropdown">
+                        <a href="#" class="dropdown-toggle" id="userDropdownToggle">
+                            <i class="fa-solid fa-user"></i>
+                            {{ Auth::user()->name }}
+                        </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
                             <li>
-                                <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                                <a class="dropdown-item" href="{{ route('profile.edit') }}">
+                                    <i class="fa-solid fa-user-gear"></i>
+                                    Profile Settings
+                                </a>
+                            </li>
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}" style="display: contents;">
                                     @csrf
-                                    <button type="submit" class="dropdown-item">Logout</button>
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="fa-solid fa-right-from-bracket"></i>
+                                        Logout
+                                    </button>
                                 </form>
                             </li>
                         </ul>
                     </div>
                 @else
+                    <i class="fa-solid fa-user"></i>
                     <a href="{{ route('login') }}">Login / Register</a>
                 @endauth
-              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -84,10 +93,7 @@
                     <li class="navbar-dropdown menu-item-children">
                       <a href="javascript:void(0)">Shop</a>
                       <div class="dropdown">
-                        <a href="our-products.html">our products</a>
-                        <a href="product-details.html">product details</a>
-                        <a href="shop-cart.html">shop cart</a>
-                        <a href="cart-checkout.html">cart checkout</a>
+                        <a href="{{ route('products.index') }}">our products</a>
                       </div>
                     </li>
                     <li class="navbar-dropdown menu-item-children">
@@ -115,11 +121,9 @@
                <a href="#"><i class="fa-regular fa-heart"></i></a>
                <div class="hamburger-icon">
                   <div class="donation">
-
                 <a href="JavaScript:void(0)" class="mx-0" id="show">
-
                   <svg enable-background="new 0 0 512 512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><g><path d="m452 120h-60.946c-7.945-67.478-65.477-120-135.054-120s-127.109 52.522-135.054 120h-60.946c-11.046 0-20 8.954-20 20v352c0 11.046 8.954 20 20 20h392c11.046 0 20-8.954 20-20v-352c0-11.046-8.954-20-20-20zm-196-80c47.484 0 87.019 34.655 94.659 80h-189.318c7.64-45.345 47.175-80 94.659-80zm176 432h-352v-312h40v60c0 11.046 8.954 20 20 20s20-8.954 20-20v-60h192v60c0 11.046 8.954 20 20 20s20-8.954 20-20v-60h40z"></path></g></svg>
-
+                  <span class="cart-count">0</span>
                 </a>
 
               </div>
@@ -170,10 +174,10 @@
           <li class="menu-item-has-children"><a href="JavaScript:void(0)">shop</a>
 
               <ul class="sub-menu">
-                <li><a href="our-products.html">our products</a></li>
+                <li><a href="{{ route('products.index') }}">our products</a></li>
                 <li><a href="product-details.html">product details</a></li>
-                <li><a href="shop-cart.html">shop cart</a></li>
-                <li><a href="cart-checkout.html">cart checkout</a></li>
+                <li><a href="{{ route('cart.index') }}">shop cart</a></li>
+                <li><a href="{{ route('checkout.index') }}">cart checkout</a></li>
               
               </ul>
 
@@ -195,17 +199,25 @@
           <!-- Mobile User Authentication Section -->
           <div class="login">
               @auth
-                  <div class="dropdown">
-                      <a href="#" class="dropdown-toggle">
+                  <div class="dropdown" id="mobileUserDropdown">
+                      <a href="#" class="dropdown-toggle" id="mobileUserDropdownToggle">
                           <i class="fa-solid fa-user"></i>
                           {{ Auth::user()->name }}
                       </a>
                       <ul class="dropdown-menu">
-                          <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
                           <li>
-                              <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                              <a class="dropdown-item" href="{{ route('profile.edit') }}">
+                                  <i class="fa-solid fa-user-gear"></i>
+                                  Profile Settings
+                              </a>
+                          </li>
+                          <li>
+                              <form method="POST" action="{{ route('logout') }}" style="display: contents;">
                                   @csrf
-                                  <button type="submit" class="dropdown-item">Logout</button>
+                                  <button type="submit" class="dropdown-item">
+                                      <i class="fa-solid fa-right-from-bracket"></i>
+                                      Logout
+                                  </button>
                               </form>
                           </li>
                       </ul>
@@ -218,12 +230,13 @@
               @endauth
           </div>
 
-            <ul class="social-icon">
-                <li><a href="#"><i class="fa-brands fa-facebook-f"></i></a></li>
-                <li><a href="#"><i class="fa-brands fa-twitter"></i></a></li>
-                <li><a href="#"><i class="fa-brands fa-instagram"></i></a></li>
-            </ul>
+          <ul class="social-icon">
+              <li><a href="#"><i class="fa-brands fa-facebook-f"></i></a></li>
+              <li><a href="#"><i class="fa-brands fa-twitter"></i></a></li>
+              <li><a href="#"><i class="fa-brands fa-instagram"></i></a></li>
+          </ul>
 
           <a href="JavaScript:void(0)" id="res-cross"></a>
+      </div>
   </div>
 </header>

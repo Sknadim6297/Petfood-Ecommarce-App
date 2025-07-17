@@ -6,7 +6,8 @@
     <title>@yield('title', 'Admin Dashboard') - PetNet</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anybody:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-color: #fa441d;
@@ -26,6 +27,15 @@
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Pet-themed colors to match frontend */
+            --pet-orange: #fa441d;
+            --pet-yellow: #fedc4f;
+            --pet-purple: #940c69;
+            --pet-green: #22c55e;
+            --pet-blue: #3b82f6;
+            --bg-light: #fff8e5;
+            --text-dark: #1e293b;
         }
 
         * {
@@ -35,10 +45,213 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f1f5f9;
-            color: #1e293b;
+            font-family: 'Anybody', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
             line-height: 1.6;
+        }
+
+        /* Frontend-matching font styles */
+        h1, h2, h3, h4, h5, h6,
+        .brand-text,
+        .brand-subtitle,
+        .nav-section-title,
+        .card-header h6,
+        .sidebar-brand .brand-text,
+        .btn,
+        .badge,
+        .alert {
+            font-family: 'DynaPuff', cursive;
+            font-weight: 500;
+        }
+
+        .brand-text {
+            font-weight: 600;
+        }
+
+        .brand-subtitle {
+            font-weight: 400;
+        }
+
+        h1 { font-size: 2.5rem; font-weight: 700; }
+        h2 { font-size: 2rem; font-weight: 600; }
+        h3 { font-size: 1.75rem; font-weight: 600; }
+        h4 { font-size: 1.5rem; font-weight: 500; }
+        h5 { font-size: 1.25rem; font-weight: 500; }
+        h6 { font-size: 1rem; font-weight: 500; }
+
+        /* Keep body text in Anybody for readability */
+        p, span, div, td, th, input, textarea, select,
+        .form-control, .form-label, .nav-text {
+            font-family: 'Anybody', sans-serif;
+        }
+
+        /* Enhanced styling to match frontend aesthetics */
+        .card {
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: none;
+        }
+
+        .btn {
+            border-radius: 10px;
+            font-weight: 500;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #e55a4f);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #e55a4f, var(--primary-color));
+            transform: translateY(-1px);
+        }
+
+        .form-control {
+            border-radius: 8px;
+            border: 1.5px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(250, 68, 29, 0.25);
+        }
+
+        .badge {
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+        }
+
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+
+        /* Toast Notification System */
+        .toast-container {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .toast {
+            background: white;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            min-width: 350px;
+            border-left: 4px solid var(--primary-color);
+            font-family: 'Anybody', sans-serif;
+        }
+
+        .toast.success {
+            border-left-color: var(--success-color);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger-color);
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .toast.info {
+            border-left-color: var(--info-color);
+        }
+
+        .toast-header {
+            background: transparent;
+            border-bottom: none;
+            padding: 1rem 1rem 0.5rem 1rem;
+        }
+
+        .toast-header strong {
+            font-family: 'DynaPuff', cursive;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .toast-body {
+            padding: 0.5rem 1rem 1rem 1rem;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .toast-header .btn-close {
+            margin: 0;
+            padding: 0.25rem;
+        }
+
+        .toast-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            color: white;
+            font-size: 12px;
+        }
+
+        .toast.success .toast-icon {
+            background-color: var(--success-color);
+        }
+
+        .toast.error .toast-icon {
+            background-color: var(--danger-color);
+        }
+
+        .toast.warning .toast-icon {
+            background-color: var(--warning-color);
+        }
+
+        .toast.info .toast-icon {
+            background-color: var(--info-color);
+        }
+
+        /* Toast animation */
+        .toast.show {
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        .toast.hide {
+            animation: slideOutRight 0.3s ease-in;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
         }
 
         /* Sidebar Styles */
@@ -399,6 +612,90 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #94a3b8;
         }
+
+        /* Enhanced Pagination Styles */
+        .pagination {
+            margin: 0;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .pagination .page-item {
+            margin: 0 2px;
+        }
+
+        .pagination .page-link {
+            border: 2px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            color: var(--text-dark);
+            font-weight: 500;
+            padding: 12px 16px;
+            transition: var(--transition);
+            text-decoration: none;
+            background-color: white;
+            min-width: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pagination .page-link:hover {
+            background-color: var(--pet-orange);
+            border-color: var(--pet-orange);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: var(--pet-orange);
+            border-color: var(--pet-orange);
+            color: white;
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .pagination .page-item.disabled .page-link {
+            background-color: #f8fafc;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .pagination .page-item.disabled .page-link:hover {
+            background-color: #f8fafc;
+            border-color: #e2e8f0;
+            color: #94a3b8;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .pagination-info {
+            background-color: white;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #e2e8f0;
+            margin-top: 1rem;
+        }
+
+        .pagination-lg .page-link {
+            padding: 14px 18px;
+            font-size: 16px;
+        }
+
+        /* Animation for pagination */
+        .pagination .page-item {
+            transition: var(--transition);
+        }
+
+        .pagination .page-item:hover {
+            transform: scale(1.05);
+        }
+
+        .pagination .page-item.active {
+            transform: scale(1.1);
+        }
     </style>
     @stack('styles')
 </head>
@@ -434,7 +731,7 @@
             <div class="nav-section">
                 <div class="nav-section-title">E-commerce</div>
                 <div class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="{{ route('admin.products.index') }}" class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-box"></i>
                         <span class="nav-text">Products</span>
                         <span class="nav-badge">24</span>
@@ -448,7 +745,7 @@
                     </a>
                 </div>
                 <div class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="{{ route('admin.categories.index') }}" class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-tags"></i>
                         <span class="nav-text">Categories</span>
                     </a>
@@ -646,6 +943,159 @@
             }
         });
     </script>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Toast JavaScript -->
+    <script>
+        // Toast notification function
+        function showToast(message, type = 'success', title = null) {
+            const toastContainer = document.getElementById('toastContainer');
+            const toastId = 'toast-' + Date.now();
+            
+            const icons = {
+                success: 'fas fa-check',
+                error: 'fas fa-times',
+                warning: 'fas fa-exclamation',
+                info: 'fas fa-info'
+            };
+            
+            const titles = {
+                success: title || 'Success!',
+                error: title || 'Error!',
+                warning: title || 'Warning!',
+                info: title || 'Info!'
+            };
+            
+            const toastHtml = `
+                <div class="toast ${type}" role="alert" aria-live="assertive" aria-atomic="true" id="${toastId}">
+                    <div class="toast-header">
+                        <div class="toast-icon">
+                            <i class="${icons[type]}"></i>
+                        </div>
+                        <strong class="me-auto">${titles[type]}</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                </div>
+            `;
+            
+            toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+            
+            const toastElement = document.getElementById(toastId);
+            const toast = new bootstrap.Toast(toastElement, {
+                autohide: true,
+                delay: 5000
+            });
+            
+            toast.show();
+            
+            // Remove toast element after it's hidden
+            toastElement.addEventListener('hidden.bs.toast', () => {
+                toastElement.remove();
+            });
+        }
+
+        // Check for Laravel session messages and show toasts
+        @if(session('success'))
+            showToast('{{ session('success') }}', 'success');
+        @endif
+
+        @if(session('error'))
+            showToast('{{ session('error') }}', 'error');
+        @endif
+
+        @if(session('warning'))
+            showToast('{{ session('warning') }}', 'warning');
+        @endif
+
+        @if(session('info'))
+            showToast('{{ session('info') }}', 'info');
+        @endif
+
+        @if($errors->any())
+            @foreach($errors->all() as $error)
+                showToast('{{ $error }}', 'error');
+            @endforeach
+        @endif
+
+        // Global function to show toasts from anywhere
+        window.showToast = showToast;
+
+        // Example: You can now call showToast('Message', 'success') from anywhere
+
+        // Enhanced delete confirmation with sweet styling
+        function confirmDelete(event, itemName = 'item') {
+            event.preventDefault();
+            
+            const form = event.target.closest('form');
+            
+            // Create custom modal
+            const modalHtml = `
+                <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content" style="border-radius: 15px; border: none;">
+                            <div class="modal-body text-center p-4">
+                                <div class="mb-3">
+                                    <i class="fas fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                                </div>
+                                <h4 class="mb-3" style="font-family: 'DynaPuff', cursive;">Are you sure?</h4>
+                                <p class="text-muted mb-4">You are about to delete this ${itemName}. This action cannot be undone.</p>
+                                <div class="d-flex gap-3 justify-content-center">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                                        <i class="fas fa-trash me-1"></i>Yes, Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Remove existing modal if any
+            const existingModal = document.getElementById('deleteModal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+            
+            // Add modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+            
+            // Handle confirm button
+            document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+                form.submit();
+                modal.hide();
+            });
+            
+            // Clean up modal after hide
+            document.getElementById('deleteModal').addEventListener('hidden.bs.modal', function() {
+                this.remove();
+            });
+        }
+
+        // Auto-attach delete confirmation to all delete forms
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteForms = document.querySelectorAll('form[onsubmit*="confirm"]');
+            deleteForms.forEach(form => {
+                form.removeAttribute('onsubmit');
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.addEventListener('click', function(e) {
+                        confirmDelete(e, 'item');
+                    });
+                }
+            });
+        });
+    </script>
+
     @stack('scripts')
 </body>
 </html>
