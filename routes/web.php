@@ -3,15 +3,88 @@
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ProductController;
 use App\Http\Controllers\Frontend\CartController;
+use App\Http\Controllers\Frontend\WishlistController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Authentication check for AJAX
+Route::get('/api/auth-check', function () {
+    // If this is a direct browser request (not AJAX), redirect to home
+    if (!request()->ajax() && !request()->wantsJson()) {
+        return redirect()->route('home');
+    }
+    
+    return response()->json(['authenticated' => Auth::check()]);
+});
+
+// Debug routes for testing
+Route::get('/debug/products', function () {
+    return response()->json([
+        'products' => \App\Models\Product::all(['id', 'name']),
+        'user' => Auth::user() ? ['id' => Auth::id(), 'name' => Auth::user()->name] : null,
+        'authenticated' => Auth::check()
+    ]);
+});
+Route::get('/debug/test-wishlist/{productId}', function ($productId) {
+    if (!Auth::check()) {
+        return response()->json(['error' => 'Not authenticated']);
+    }
+    
+    $product = \App\Models\Product::find($productId);
+    if (!$product) {
+        return response()->json(['error' => 'Product not found', 'product_id' => $productId]);
+    }
+    
+    try {
+        $wishlist = \App\Models\Wishlist::create([
+            'user_id' => Auth::id(),
+            'product_id' => $productId
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'wishlist' => $wishlist,
+            'product' => $product
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()]);
+    }
+});
+
+Route::get('/debug/test-cart/{productId}', function ($productId) {
+    if (!Auth::check()) {
+        return response()->json(['error' => 'Not authenticated']);
+    }
+    
+    $product = \App\Models\Product::find($productId);
+    if (!$product) {
+        return response()->json(['error' => 'Product not found', 'product_id' => $productId]);
+    }
+    
+    // Test session cart
+    $cart = session()->get('cart', []);
+    $cart[$productId] = [
+        'id' => $product->id,
+        'name' => $product->name,
+        'price' => $product->price,
+        'quantity' => 1
+    ];
+    session()->put('cart', $cart);
+    
+    return response()->json([
+        'success' => true,
+        'cart' => $cart,
+        'product' => $product
+    ]);
+});
 
 // Frontend product routes
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
-Route::get('/product-details/{id}', [ProductController::class, 'details'])->name('product.details');
+Route::get('/product-details/{id}', [ProductController::class, 'showById'])->name('product.details');
 Route::post('/products/search', [ProductController::class, 'search'])->name('products.search');
 
 // Static pages
@@ -38,6 +111,17 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::delete('/clear', [CartController::class, 'clear'])->name('clear');
     Route::get('/count', [CartController::class, 'getCount'])->name('count');
     Route::get('/popup', [CartController::class, 'getPopup'])->name('popup');
+});
+
+// Wishlist routes
+Route::prefix('wishlist')->name('wishlist.')->group(function () {
+    Route::get('/', [WishlistController::class, 'index'])->name('index');
+    Route::post('/add', [WishlistController::class, 'add'])->name('add');
+    Route::delete('/remove', [WishlistController::class, 'remove'])->name('remove');
+    Route::post('/toggle', [WishlistController::class, 'toggle'])->name('toggle');
+    Route::get('/count', [WishlistController::class, 'getCount'])->name('count');
+    Route::get('/user-products', [WishlistController::class, 'getUserProducts'])->name('user-products');
+    Route::delete('/clear', [WishlistController::class, 'clear'])->name('clear');
 });
 
 // Checkout routes

@@ -1,5 +1,67 @@
 @extends('frontend.layouts.layout')
 @section('style')
+<style>
+/* Wishlist toggle button styling for home page */
+.wishlist-toggle-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    color: #7f8c8d;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.wishlist-toggle-btn:hover {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    transform: scale(1.1);
+    text-decoration: none;
+}
+
+.wishlist-toggle-btn.active {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+}
+
+.wishlist-toggle-btn.active:hover {
+    background: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+}
+
+.wishlist-toggle-btn i {
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.wishlist-toggle-btn:hover i {
+    transform: scale(1.1);
+}
+
+/* Loading state for wishlist buttons */
+.wishlist-toggle-btn.btn-loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.wishlist-toggle-btn.btn-loading i {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+</style>
+@endsection
 
 @section('content')
 <section class="hero-section" style="background-color: #fff8e5; background-image:url({{ asset('assets/img/background.png') }})">
@@ -209,7 +271,7 @@
                         </ul>
                         <div class="add-to-cart">
                           <a href="#" class="add-to-cart-btn" data-product-id="{{ $product->id }}">Add to Cart</a>
-                          <a href="#" class="heart-wishlist">
+                          <a href="#" class="wishlist-toggle-btn" data-product-id="{{ $product->id }}" title="Add to wishlist">
                             <i class="fa-regular fa-heart"></i>
                           </a>
                         </div>
@@ -233,7 +295,7 @@
                 @if($dealOfWeek)
                 <div class="deal-of-the-week">
                     <div class="healthy-product-img">
-                        <h6>Deal of the Week</h6>
+                        <h6 style="background-color: chocolate;">Deal of the Week</h6>
                         <img src="{{ $dealOfWeek->image ? asset('storage/' . $dealOfWeek->image) : asset('assets/img/food-6.png') }}" alt="{{ $dealOfWeek->name }}">
                         <ul class="star">
                             @for($i = 1; $i <= 5; $i++)
@@ -260,7 +322,7 @@
                         @endif
                         <div class="add-to-cart">
                           <a href="#" class="button add-to-cart-btn" data-product-id="{{ $dealOfWeek->id }}">Add to Cart</a>
-                          <a href="#" class="heart-wishlist">
+                          <a href="#" class="wishlist-toggle-btn" data-product-id="{{ $dealOfWeek->id }}" title="Add to wishlist">
                             <i class="fa-regular fa-heart"></i>
                           </a>
                         </div>

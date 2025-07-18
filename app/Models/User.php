@@ -45,4 +45,52 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    
+    /**
+     * Get the user's wishlist items
+     */
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+    
+    /**
+     * Get the products in the user's wishlist
+     */
+    public function wishlistProducts()
+    {
+        return $this->belongsToMany(Product::class, 'wishlists')->withTimestamps();
+    }
+    
+    /**
+     * Check if user has a product in their wishlist
+     */
+    public function hasInWishlist($productId)
+    {
+        return $this->wishlists()->where('product_id', $productId)->exists();
+    }
+    
+    /**
+     * Get the user's cart items
+     */
+    public function carts()
+    {
+        return $this->hasMany(Cart::class);
+    }
+    
+    /**
+     * Get the products in the user's cart
+     */
+    public function cartProducts()
+    {
+        return $this->belongsToMany(Product::class, 'carts')->withPivot('quantity')->withTimestamps();
+    }
+    
+    /**
+     * Check if user has a product in their cart
+     */
+    public function hasInCart($productId)
+    {
+        return $this->carts()->where('product_id', $productId)->exists();
+    }
 }

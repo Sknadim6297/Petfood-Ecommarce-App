@@ -569,7 +569,7 @@ a.search-btn svg {
     line-height: 0;
 }
 .hamburger-icon {
-    display: flex;
+    display: none; /* Hide by default on desktop */
     align-items: center;
     justify-content: center;
     background-color: #fa441d;

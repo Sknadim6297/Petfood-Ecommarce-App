@@ -93,56 +93,20 @@
 <script src="{{ asset('assets/js/jquery.nice-select.min.js') }}"></script>
 <script src="{{ asset('assets/js/custom.js') }}"></script>
 
+<!-- Cart and Wishlist Management -->
+<script src="{{ asset('assets/js/cart-wishlist.js') }}"></script>
+
 <!-- Cart Functionality -->
 <script>
 $(document).ready(function() {
-    // Update cart count on page load
-    updateCartCount();
+    // Update counts on page load
+    if (window.cartWishlistManager) {
+        window.cartWishlistManager.updateCounts();
+        // Update wishlist icons to show current state
+        window.cartWishlistManager.updateWishlistIcons();
+    }
     
-    // Add to cart functionality - Support multiple button classes
-    $(document).on('click', '.add-to-cart, .add-to-cart-btn', function(e) {
-        e.preventDefault();
-        
-        const $btn = $(this);
-        const productId = $btn.data('product-id');
-        const $quantityInput = $btn.closest('.food-box, .product-actions, .healthy-product, .col-lg-5, .card').find('.quantity-input');
-        const quantity = parseInt($quantityInput.val()) || 1;
-        const originalText = $btn.text();
-        
-        if (!productId) {
-            showToast('Product ID not found', 'error');
-            return;
-        }
-        
-        $btn.prop('disabled', true).text('Adding...');
-        
-        $.ajax({
-            url: '{{ route("cart.add") }}',
-            method: 'POST',
-            data: {
-                product_id: productId,
-                quantity: quantity,
-                _token: '{{ csrf_token() }}'
-            },
-            success: function(response) {
-                if (response.success) {
-                    updateCartCount();
-                    showToast(response.message, 'success');
-                } else {
-                    showToast(response.message, 'error');
-                }
-            },
-            error: function(xhr) {
-                console.error('Cart Error:', xhr);
-                showToast('Error adding product to cart', 'error');
-            },
-            complete: function() {
-                $btn.prop('disabled', false).text(originalText);
-            }
-        });
-    });
-    
-    // Remove from cart
+    // Remove from cart (for cart popup only)
     $(document).on('click', '.remove-cart-item', function(e) {
         e.preventDefault();
         
@@ -158,7 +122,9 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     updateCartPopup();
-                    updateCartCount();
+                    if (window.cartWishlistManager) {
+                        window.cartWishlistManager.updateCartCount();
+                    }
                     showToast(response.message, 'success');
                 }
             },
@@ -184,16 +150,6 @@ $(document).ready(function() {
         }
     });
     
-    function updateCartCount() {
-        $.get('{{ route("cart.count") }}', function(response) {
-            $('.cart-count').text(response.count);
-            $('.cart-count').attr('data-count', response.count);
-            $('.cart-count').toggle(response.count > 0);
-        }).fail(function() {
-            console.error('Failed to update cart count');
-        });
-    }
-    
     function updateCartPopup() {
         $.get('{{ route("cart.popup") }}', function(response) {
             $('#cart-items').html(response.html);
@@ -203,31 +159,14 @@ $(document).ready(function() {
         });
     }
     
+    // Use universal toast function from cart-wishlist.js
     function showToast(message, type) {
-        // Remove any existing toasts
-        $('.toast-notification').remove();
-        
-        // Create toast notification
-        const toast = $(`
-            <div class="toast-notification ${type}">
-                <div class="toast-content">
-                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-                    <span>${message}</span>
-                </div>
-                <button class="toast-close" onclick="$(this).parent().remove()">×</button>
-            </div>
-        `);
-        
-        $('body').append(toast);
-        
-        setTimeout(() => {
-            toast.addClass('show');
-        }, 100);
-        
-        setTimeout(() => {
-            toast.removeClass('show');
-            setTimeout(() => toast.remove(), 300);
-        }, 4000);
+        if (window.cartWishlistManager) {
+            window.cartWishlistManager.showToast(message, type);
+        } else {
+            // Fallback if cart-wishlist.js isn't loaded
+            console.log(type.toUpperCase() + ': ' + message);
+        }
     }
     
     // User dropdown functionality
@@ -342,52 +281,238 @@ $(document).ready(function() {
 }
 
 /* Cart Count Badge Styling */
-.cart-count {
+.cart-count, .wishlist-count {
     position: absolute;
     top: -8px;
-    right: -8px;
-    background: black;
+    right: -10px;
+    background: #FF6B35;
     color: white;
-    font-size: 11px;
-    font-weight: bold;
-    min-width: 18px;
-    height: 18px;
+    font-size: 10px;
+    font-weight: 700;
+    min-width: 20px;
+    height: 20px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
     border: 2px solid white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    animation: pulse 2s infinite;
+    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    z-index: 10;
 }
 
-.cart-count:empty {
+.cart-count:empty, .wishlist-count:empty {
     display: none !important;
 }
 
-/* Make the cart icon container position relative for absolute positioning of count */
-.donation {
+/* Make the cart and wishlist icon containers position relative */
+.donation, .wishlist-icon {
     position: relative;
     display: inline-block;
 }
 
-/* Pulse animation for cart count */
-@keyframes pulse {
+/* Wishlist specific styling */
+.wishlist-count {
+    background: #e74c3c;
+    box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+.wishlist-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.wishlist-link:hover {
+    color: #e74c3c;
+}
+
+.wishlist-link i {
+    font-size: 1.2rem;
+}
+
+/* Cart icon styling improvements */
+.donation a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    transition: all 0.3s ease;
+}
+
+.donation svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+}
+
+/* Hide cart count when it's 0 */
+.cart-count[data-count="0"],
+.wishlist-count[data-count="0"] {
+    display: none !important;
+}
+
+/* Active state animations */
+.cart-count.updated,
+.wishlist-count.updated {
+    animation: bounceIn 0.6s ease;
+}
+
+@keyframes bounceIn {
     0% {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Header Icons Container */
+.header-icons {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-right: 15px;
+}
+
+.header-icons .icon-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    background: rgba(250, 68, 29, 0.05);
+    border-radius: 50%;
+    color: #333;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.header-icons .icon-link:hover {
+    background: rgba(250, 68, 29, 0.1);
+    border-color: #FA441D;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(250, 68, 29, 0.25);
+    text-decoration: none;
+}
+
+.header-icons .icon-link i {
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.header-icons .icon-link:hover i {
+    color: #FA441D;
+    transform: scale(1.15);
+}
+
+/* Wishlist specific hover */
+.wishlist-icon .icon-link:hover {
+    background: rgba(231, 76, 60, 0.1);
+    border-color: #e74c3c;
+    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.25);
+}
+
+.wishlist-icon .icon-link:hover i {
+    color: #e74c3c;
+}
+
+/* Icon count styling */
+.icon-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: linear-gradient(135deg, #FA441D, #FF6B35);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    border: 2px solid white;
+    box-shadow: 0 4px 15px rgba(250, 68, 29, 0.4);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    z-index: 10;
+    transition: all 0.3s ease;
+    animation: pulse 2s infinite;
+}
+
+.wishlist-count.icon-count {
+    background: linear-gradient(135deg, #e74c3c, #e67e22);
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+}
+
+/* Pulse animation for counts */
+@keyframes pulse {
+    0%, 100% {
         transform: scale(1);
     }
     50% {
         transform: scale(1.1);
     }
-    100% {
-        transform: scale(1);
-    }
 }
 
-/* Hide cart count when it's 0 */
-.cart-count[data-count="0"] {
+/* Hide counts when 0 */
+.icon-count[data-count="0"] {
     display: none !important;
+}
+
+/* Show counts when they have values */
+.icon-count:not([data-count="0"]) {
+    display: flex !important;
+}
+
+/* Better menu-end layout */
+.menu-end {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .header-icons {
+        gap: 10px;
+        margin-right: 10px;
+    }
+    
+    .header-icons .icon-link {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .header-icons .icon-link i {
+        font-size: 1rem;
+    }
+    
+    .icon-count {
+        min-width: 20px;
+        height: 20px;
+        font-size: 10px;
+        top: -3px;
+        right: -3px;
+    }
 }
 </style>
 

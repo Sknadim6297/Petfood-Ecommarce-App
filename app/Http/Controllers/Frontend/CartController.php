@@ -4,25 +4,69 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\Cart;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
 {
     /**
-     * Get cart items from session
+     * Get cart items for authenticated user (database) or session (guest)
      */
     private function getCart()
     {
-        return Session::get('cart', []);
+        if (Auth::check()) {
+            // For authenticated users, get cart from database
+            $cartItems = Cart::with('product.category')
+                ->where('user_id', Auth::id())
+                ->get();
+            
+            $cart = [];
+            foreach ($cartItems as $item) {
+                $cart[$item->product_id] = [
+                    'id' => $item->product->id,
+                    'name' => $item->product->name,
+                    'slug' => $item->product->slug,
+                    'price' => $item->product->effective_price,
+                    'original_price' => $item->product->price,
+                    'image' => $item->product->image,
+                    'quantity' => $item->quantity,
+                    'category' => $item->product->category->name ?? 'Pet Product'
+                ];
+            }
+            return $cart;
+        } else {
+            // For guests, use session
+            return Session::get('cart', []);
+        }
     }
 
     /**
-     * Save cart to session
+     * Save cart (database for auth users, session for guests)
      */
     private function saveCart($cart)
     {
-        Session::put('cart', $cart);
+        if (Auth::check()) {
+            // For authenticated users, save to database
+            $userId = Auth::id();
+            
+            // Clear existing cart items for user
+            Cart::where('user_id', $userId)->delete();
+            
+            // Add new cart items
+            foreach ($cart as $productId => $item) {
+                Cart::create([
+                    'user_id' => $userId,
+                    'product_id' => $productId,
+                    'quantity' => $item['quantity']
+                ]);
+            }
+        } else {
+            // For guests, save to session
+            Session::put('cart', $cart);
+        }
     }
 
     /**
@@ -30,6 +74,22 @@ class CartController extends Controller
      */
     public function add(Request $request)
     {
+        // Check if user is authenticated
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please login to add items to cart.',
+                'redirect' => route('login')
+            ], 401);
+        }
+
+        // Debug logging
+        Log::info('Cart add request', [
+            'request_data' => $request->all(),
+            'product_id' => $request->product_id,
+            'user_id' => Auth::id()
+        ]);
+
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1'
@@ -282,5 +342,61 @@ class CartController extends Controller
         }
 
         return $html;
+    }
+
+    /**
+     * Migrate session cart to database when user logs in
+     */
+    public function migrateSessionCartToDatabase()
+    {
+        if (!Auth::check()) {
+            return false;
+        }
+
+        $sessionCart = Session::get('cart', []);
+        if (empty($sessionCart)) {
+            return false;
+        }
+
+        $userId = Auth::id();
+
+        // Get existing database cart items
+        $existingCartItems = Cart::where('user_id', $userId)->get();
+        $existingProducts = $existingCartItems->pluck('quantity', 'product_id')->toArray();
+
+        foreach ($sessionCart as $productId => $item) {
+            if (isset($existingProducts[$productId])) {
+                // Update quantity if product already exists in database cart
+                $existingItem = $existingCartItems->where('product_id', $productId)->first();
+                $existingItem->update([
+                    'quantity' => $existingItem->quantity + $item['quantity']
+                ]);
+            } else {
+                // Add new item to database cart
+                Cart::create([
+                    'user_id' => $userId,
+                    'product_id' => $productId,
+                    'quantity' => $item['quantity']
+                ]);
+            }
+        }
+
+        // Clear session cart
+        Session::forget('cart');
+        
+        return true;
+    }
+
+    /**
+     * Get cart count for current user
+     */
+    public function getCartCount()
+    {
+        if (Auth::check()) {
+            return Cart::where('user_id', Auth::id())->sum('quantity');
+        } else {
+            $cart = Session::get('cart', []);
+            return array_sum(array_column($cart, 'quantity'));
+        }
     }
 }

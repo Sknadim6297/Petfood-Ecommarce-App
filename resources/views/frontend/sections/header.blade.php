@@ -109,24 +109,33 @@
         </ul>
       </nav>
       <div class="menu-end">
-            <div class="bar-menu">
-              <i class="fa-solid fa-bars"></i>
-            </div>
             <div class="header-search-button search-box-outer">
             <a href="javascript:void(0)" class="search-btn">
                 <svg height="512" viewBox="0 0 24 24" width="512" xmlns="http://www.w3.org/2000/svg"><g id="_12" data-name="12"><path d="m21.71 20.29-2.83-2.82a9.52 9.52 0 1 0 -1.41 1.41l2.82 2.83a1 1 0 0 0 1.42 0 1 1 0 0 0 0-1.42zm-17.71-8.79a7.5 7.5 0 1 1 7.5 7.5 7.5 7.5 0 0 1 -7.5-7.5z"></path></g></svg>
               </a>
             </div>
                <div class="line"></div>
-               <a href="#"><i class="fa-regular fa-heart"></i></a>
+               <!-- Header Icons Container -->
+               <div class="header-icons">
+                   <!-- Wishlist Icon -->
+                   <div class="wishlist-icon">
+                       <a href="{{ route('wishlist.index') }}" class="icon-link" title="Wishlist">
+                           <i class="fa-solid fa-heart"></i>
+                           <span class="icon-count wishlist-count">{{ $wishlistCount ?? 0 }}</span>
+                       </a>
+                   </div>
+                   <!-- Cart Icon -->
+                   <div class="cart-icon">
+                       <a href="JavaScript:void(0)" class="icon-link" id="show" title="Shopping Cart">
+                           <i class="fa-solid fa-shopping-bag"></i>
+                           <span class="icon-count cart-count">{{ $cartCount ?? 0 }}</span>
+                       </a>
+                   </div>
+               </div>
                <div class="hamburger-icon">
-                  <div class="donation">
-                <a href="JavaScript:void(0)" class="mx-0" id="show">
-                  <svg enable-background="new 0 0 512 512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><g><path d="m452 120h-60.946c-7.945-67.478-65.477-120-135.054-120s-127.109 52.522-135.054 120h-60.946c-11.046 0-20 8.954-20 20v352c0 11.046 8.954 20 20 20h392c11.046 0 20-8.954 20-20v-352c0-11.046-8.954-20-20-20zm-196-80c47.484 0 87.019 34.655 94.659 80h-189.318c7.64-45.345 47.175-80 94.659-80zm176 432h-352v-312h40v60c0 11.046 8.954 20 20 20s20-8.954 20-20v-60h192v60c0 11.046 8.954 20 20 20s20-8.954 20-20v-60h40z"></path></g></svg>
-                  <span class="cart-count">0</span>
-                </a>
-
-              </div>
+                  <div class="bar-menu">
+                    <i class="fa-solid fa-bars"></i>
+                  </div>
             </div>
       </div>
     </div>

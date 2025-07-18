@@ -150,7 +150,7 @@
                         
                         <div class="add-to-cart">
                           <a href="#" class="add-to-cart-btn" data-product-id="{{ $product->id }}">Add to Cart</a>
-                          <a href="#" class="heart-wishlist">
+                          <a href="#" class="wishlist-toggle-btn" data-product-id="{{ $product->id }}">
                             <i class="fa-regular fa-heart"></i>
                           </a>
                         </div>
@@ -264,21 +264,6 @@
   border-radius: 8px;
   border: 1px solid #e9ecef;
 }
-
-.healthy-product {
-  margin-bottom: 30px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border-radius: 10px;
-  overflow: hidden;
-  background: #fff;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.healthy-product:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-}
-
 .sidebar {
   background: #fff;
   padding: 20px;

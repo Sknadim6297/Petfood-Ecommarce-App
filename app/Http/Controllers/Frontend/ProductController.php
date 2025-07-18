@@ -88,6 +88,25 @@ class ProductController extends Controller
         return view('frontend.products.show', compact('product', 'relatedProducts'));
     }
 
+    public function showById($id)
+    {
+        $product = Product::with('category')
+            ->where('id', $id)
+            ->active()
+            ->firstOrFail();
+
+        // Get related products from same category
+        $relatedProducts = Product::with('category')
+            ->where('category_id', $product->category_id)
+            ->where('id', '!=', $product->id)
+            ->active()
+            ->inStock()
+            ->limit(4)
+            ->get();
+
+        return view('frontend.products.show', compact('product', 'relatedProducts'));
+    }
+
     public function search(Request $request)
     {
         $request->validate([

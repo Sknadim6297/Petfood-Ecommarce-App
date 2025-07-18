@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Frontend\CartController;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -17,8 +18,13 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
+        // Store the redirect URL in session if provided
+        if ($request->has('redirect')) {
+            $request->session()->put('url.intended', $request->get('redirect'));
+        }
+        
         return view('auth.register');
     }
 
@@ -45,6 +51,19 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('home', absolute: false));
+        // Migrate session cart to database after successful registration
+        $cartController = new CartController();
+        $cartController->migrateSessionCartToDatabase();
+
+        // Check if there's an intended URL from session
+        $intendedUrl = $request->session()->get('url.intended');
+        
+        if ($intendedUrl && filter_var($intendedUrl, FILTER_VALIDATE_URL)) {
+            // Remove the intended URL from session
+            $request->session()->forget('url.intended');
+            return redirect($intendedUrl);
+        }
+
+        return redirect()->intended(route('home', absolute: false));
     }
 }

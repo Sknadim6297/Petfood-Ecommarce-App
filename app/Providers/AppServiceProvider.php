@@ -19,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Register view composer for header counts
+        view()->composer('frontend.sections.header', \App\View\Composers\HeaderComposer::class);
     }
 }

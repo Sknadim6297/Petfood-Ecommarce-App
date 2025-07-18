@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Frontend\CartController;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -14,8 +15,13 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
+        // Store the redirect URL in session if provided
+        if ($request->has('redirect')) {
+            $request->session()->put('url.intended', $request->get('redirect'));
+        }
+        
         return view('auth.login');
     }
 
@@ -28,10 +34,16 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // Check if there's an intended URL from the form
-        $intendedUrl = $request->input('intended_url');
+        // Migrate session cart to database after successful login
+        $cartController = new CartController();
+        $cartController->migrateSessionCartToDatabase();
+
+        // Check if there's an intended URL from the form or session
+        $intendedUrl = $request->input('intended_url') ?: $request->session()->get('url.intended');
         
         if ($intendedUrl && filter_var($intendedUrl, FILTER_VALIDATE_URL)) {
+            // Remove the intended URL from session
+            $request->session()->forget('url.intended');
             return redirect($intendedUrl);
         }
 

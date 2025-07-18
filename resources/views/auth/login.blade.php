@@ -156,6 +156,13 @@
             <form method="POST" action="{{ route('login') }}">
               @csrf
               
+              <!-- Hidden field for intended URL -->
+              @if(session('url.intended'))
+                  <input type="hidden" name="intended_url" value="{{ session('url.intended') }}">
+              @elseif(request('redirect'))
+                  <input type="hidden" name="intended_url" value="{{ request('redirect') }}">
+              @endif
+              
               <!-- Email Address -->
               <input type="email" 
                      name="email" 
@@ -203,6 +210,13 @@
             
             <form method="POST" action="{{ route('register') }}">
               @csrf
+              
+              <!-- Hidden field for intended URL -->
+              @if(session('url.intended'))
+                  <input type="hidden" name="intended_url" value="{{ session('url.intended') }}">
+              @elseif(request('redirect'))
+                  <input type="hidden" name="intended_url" value="{{ request('redirect') }}">
+              @endif
               
               <!-- Name -->
               <input type="text" 

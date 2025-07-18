@@ -760,10 +760,6 @@
 	.top-bar,.navbar-links,.header-search-button,.menu-end > a,.menu-end .line{
 		display: none;
 	}
-	.bar-menu {
-    display: block;
-    margin-right: 18px;
-  }
 	.hero-section {
     padding-top: 90px;
 	}
@@ -1610,6 +1606,12 @@
   }
 }
 @media(max-width: 768px){
+	.bar-menu {
+    display: block;
+  }
+	.hamburger-icon {
+    display: flex;
+  }
 	.we-provide img {
     width: auto;
 	}
