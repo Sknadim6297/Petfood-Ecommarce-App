@@ -4,6 +4,8 @@ use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ProductController;
 use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\WishlistController;
+use App\Http\Controllers\Frontend\AddressController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -26,6 +28,26 @@ Route::get('/debug/products', function () {
         'products' => \App\Models\Product::all(['id', 'name']),
         'user' => Auth::user() ? ['id' => Auth::id(), 'name' => Auth::user()->name] : null,
         'authenticated' => Auth::check()
+    ]);
+});
+
+// Debug route for checking auth and addresses
+Route::get('/debug/user-info', function () {
+    if (!Auth::check()) {
+        return response()->json(['error' => 'Not authenticated']);
+    }
+    
+    $user = Auth::user();
+    $addresses = \App\Models\Address::where('user_id', $user->id)->get();
+    
+    return response()->json([
+        'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email
+        ],
+        'addresses_count' => $addresses->count(),
+        'addresses' => $addresses
     ]);
 });
 Route::get('/debug/test-wishlist/{productId}', function ($productId) {
@@ -81,6 +103,29 @@ Route::get('/debug/test-cart/{productId}', function ($productId) {
     ]);
 });
 
+// Debug route for testing relationships
+Route::get('/debug/test-relationships', function () {
+    try {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json(['error' => 'Not logged in']);
+        }
+        
+        $addresses = $user->addresses;
+        $cart = $user->carts;
+        
+        return response()->json([
+            'user' => $user->name,
+            'addresses_count' => $addresses->count(),
+            'cart_count' => $cart->count(),
+            'addresses' => $addresses,
+            'cart' => $cart
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()]);
+    }
+});
+
 // Frontend product routes
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
@@ -124,8 +169,28 @@ Route::prefix('wishlist')->name('wishlist.')->group(function () {
     Route::delete('/clear', [WishlistController::class, 'clear'])->name('clear');
 });
 
+// Order routes (require authentication)
+Route::middleware('auth')->prefix('orders')->name('orders.')->group(function () {
+    Route::get('/', [OrderController::class, 'index'])->name('index');
+    Route::post('/', [OrderController::class, 'store'])->name('store');
+    Route::get('/{order}', [OrderController::class, 'show'])->name('show');
+    Route::get('/{order}/confirmation', [OrderController::class, 'confirmation'])->name('confirmation');
+    Route::get('/{order}/payment', [OrderController::class, 'payment'])->name('payment');
+    Route::post('/{order}/process-payment', [OrderController::class, 'processPayment'])->name('process-payment');
+});
+
+// Address routes (require authentication)
+Route::middleware('auth')->prefix('addresses')->name('addresses.')->group(function () {
+    Route::get('/', [AddressController::class, 'index'])->name('index');
+    Route::post('/', [AddressController::class, 'store'])->name('store');
+    Route::put('/{address}', [AddressController::class, 'update'])->name('update');
+    Route::delete('/{address}', [AddressController::class, 'destroy'])->name('destroy');
+    Route::post('/{address}/set-default', [AddressController::class, 'setDefault'])->name('set-default');
+});
+
 // Checkout routes
 Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout.index');
+Route::post('/checkout/process', [OrderController::class, 'store'])->name('checkout.process');
 
 // Redirect dashboard to home for frontend users
 Route::get('/dashboard', function () {

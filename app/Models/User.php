@@ -71,6 +71,22 @@ class User extends Authenticatable
     }
     
     /**
+     * Get the user's addresses
+     */
+    public function addresses()
+    {
+        return $this->hasMany(Address::class);
+    }
+
+    /**
+     * Get the user's orders
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    /**
      * Get the user's cart items
      */
     public function carts()

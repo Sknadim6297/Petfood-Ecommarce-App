@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}">
     
     @yield('styles')
+    @stack('styles')
 </head>
 <body>
 
@@ -95,6 +96,9 @@
 
 <!-- Cart and Wishlist Management -->
 <script src="{{ asset('assets/js/cart-wishlist.js') }}"></script>
+
+<!-- Page-specific scripts (loaded after jQuery) -->
+@stack('scripts')
 
 <!-- Cart Functionality -->
 <script>

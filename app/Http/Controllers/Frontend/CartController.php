@@ -6,8 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Cart;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
@@ -29,7 +29,7 @@ class CartController extends Controller
                     'id' => $item->product->id,
                     'name' => $item->product->name,
                     'slug' => $item->product->slug,
-                    'price' => $item->product->effective_price,
+                    'price' => $item->product->effective_price, // Use consistent price field
                     'original_price' => $item->product->price,
                     'image' => $item->product->image,
                     'quantity' => $item->quantity,
@@ -182,10 +182,19 @@ class CartController extends Controller
 
         $this->saveCart($cart);
 
+        // Calculate new totals efficiently
+        $totals = $this->calculateCartTotals($cart);
+        $newSubtotal = isset($totals['item_subtotals'][$productId]) ? 
+            number_format($totals['item_subtotals'][$productId], 2) : '0.00';
+
         return response()->json([
             'success' => true,
             'cart_count' => array_sum(array_column($cart, 'quantity')),
-            'cart_total' => $this->getCartTotal($cart),
+            'cart_total' => $totals['subtotal'],
+            'new_total' => number_format($totals['subtotal'], 2),
+            'new_subtotal' => $newSubtotal,
+            'shipping' => $totals['shipping'],
+            'final_total' => number_format($totals['final_total'], 2),
             'cart_html' => $this->getCartPopupHtml($cart)
         ]);
     }
@@ -203,11 +212,17 @@ class CartController extends Controller
             $this->saveCart($cart);
         }
 
+        // Calculate new totals efficiently
+        $totals = $this->calculateCartTotals($cart);
+
         return response()->json([
             'success' => true,
             'message' => 'Item removed from cart',
             'cart_count' => array_sum(array_column($cart, 'quantity')),
-            'cart_total' => $this->getCartTotal($cart),
+            'cart_total' => $totals['subtotal'],
+            'new_total' => number_format($totals['subtotal'], 2),
+            'shipping' => $totals['shipping'],
+            'final_total' => number_format($totals['final_total'], 2),
             'cart_html' => $this->getCartPopupHtml($cart)
         ]);
     }
@@ -219,19 +234,23 @@ class CartController extends Controller
     {
         $cart = $this->getCart();
         $cartItems = [];
-        $total = 0;
-
+        
+        // Calculate totals efficiently
+        $totals = $this->calculateCartTotals($cart);
+        
+        // Prepare cart items with calculated subtotals
         foreach ($cart as $item) {
-            $product = Product::find($item['id']);
-            if ($product) {
-                $item['current_price'] = $product->effective_price;
-                $item['subtotal'] = $item['current_price'] * $item['quantity'];
-                $total += $item['subtotal'];
-                $cartItems[] = $item;
-            }
+            $item['current_price'] = $item['price']; // Use consistent naming
+            $item['subtotal'] = $totals['item_subtotals'][$item['id']];
+            $cartItems[] = $item;
         }
 
-        return view('frontend.cart.index', compact('cartItems', 'total'));
+        return view('frontend.cart.index', [
+            'cartItems' => $cartItems,
+            'total' => $totals['subtotal'],
+            'shipping' => $totals['shipping'],
+            'finalTotal' => $totals['final_total']
+        ]);
     }
 
     /**
@@ -239,26 +258,54 @@ class CartController extends Controller
      */
     public function checkout()
     {
-        $cart = $this->getCart();
-
-        if (empty($cart)) {
-            return redirect()->route('cart.index')->with('error', 'Your cart is empty');
+        // Check if user is authenticated
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Please login to proceed with checkout');
         }
 
-        $cartItems = [];
-        $total = 0;
+        $user = Auth::user();
+        $cart = $this->getCart();
+        
+        // Debug: Check addresses
+        Log::info('User addresses count: ' . $user->addresses->count());
+        Log::info('Cart items: ' . json_encode($cart));
+        
+        if (empty($cart)) {
+            return view('frontend.cart.checkout', [
+                'cartItems' => [],
+                'subtotal' => 0,
+                'shipping' => 0,
+                'finalTotal' => 0,
+                'addresses' => $user->addresses
+            ]);
+        }
 
-        foreach ($cart as $item) {
-            $product = Product::find($item['id']);
+        // Calculate totals using optimized method
+        $totals = $this->calculateCartTotals($cart);
+        
+        // Prepare cart items for display with proper data structure
+        $cartItems = [];
+        foreach ($cart as $productId => $item) {
+            $product = Product::find($productId);
             if ($product) {
-                $item['current_price'] = $product->effective_price;
-                $item['subtotal'] = $item['current_price'] * $item['quantity'];
-                $total += $item['subtotal'];
-                $cartItems[] = $item;
+                $cartItems[] = [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'image' => $product->image,
+                    'price' => $product->price,
+                    'quantity' => $item['quantity'],
+                    'total' => $product->price * $item['quantity']
+                ];
             }
         }
 
-        return view('frontend.cart.checkout', compact('cartItems', 'total'));
+        return view('frontend.cart.checkout', [
+            'cartItems' => $cartItems,
+            'subtotal' => $totals['subtotal'],
+            'shipping' => $totals['shipping'],
+            'finalTotal' => $totals['final_total'],
+            'addresses' => $user->addresses
+        ]);
     }
 
     /**
@@ -288,26 +335,72 @@ class CartController extends Controller
     /**
      * Clear entire cart
      */
-    public function clear()
+    public function clear(Request $request)
     {
-        Session::forget('cart');
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Cart cleared successfully'
-        ]);
+        try {
+            $user = Auth::user();
+            
+            if ($user) {
+                // Clear database cart
+                Cart::where('user_id', $user->id)->delete();
+            } else {
+                // Clear session cart
+                $request->session()->forget('cart');
+            }
+            
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Cart cleared successfully!'
+                ]);
+            }
+            
+            return redirect()->back()->with('success', 'Cart cleared successfully!');
+            
+        } catch (\Exception $e) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error clearing cart: ' . $e->getMessage()
+                ], 500);
+            }
+            
+            return redirect()->back()->with('error', 'Error clearing cart.');
+        }
     }
 
     /**
      * Calculate cart total
      */
+    /**
+     * Calculate cart totals efficiently
+     */
+    private function calculateCartTotals($cart)
+    {
+        $subtotal = 0;
+        $itemSubtotals = [];
+        
+        foreach ($cart as $productId => $item) {
+            $itemSubtotal = $item['price'] * $item['quantity'];
+            $subtotal += $itemSubtotal;
+            $itemSubtotals[$productId] = $itemSubtotal;
+        }
+        
+        return [
+            'subtotal' => $subtotal,
+            'item_subtotals' => $itemSubtotals,
+            'shipping' => $subtotal >= 500 ? 0 : 50,
+            'final_total' => $subtotal >= 500 ? $subtotal : $subtotal + 50
+        ];
+    }
+
+    /**
+     * Optimized cart total calculation
+     */
     private function getCartTotal($cart)
     {
-        $total = 0;
-        foreach ($cart as $item) {
-            $total += $item['price'] * $item['quantity'];
-        }
-        return $total;
+        $totals = $this->calculateCartTotals($cart);
+        return $totals['subtotal'];
     }
 
     /**
