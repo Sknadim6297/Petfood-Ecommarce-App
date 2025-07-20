@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\AdminOrderController;
+use App\Http\Controllers\Admin\CustomerController;
 
 // Admin Authentication
 Route::get('login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
@@ -28,8 +30,18 @@ Route::middleware('admin')->group(function () {
         Route::get('create', function() { return view('admin.users.create'); })->name('admin.users.create');
     });
     
+    // Customer Management
+    Route::prefix('customers')->name('admin.customers.')->group(function () {
+        Route::get('/', [CustomerController::class, 'index'])->name('index');
+        Route::get('/{customer}', [CustomerController::class, 'show'])->name('show');
+        Route::patch('/{customer}/toggle-status', [CustomerController::class, 'toggleStatus'])->name('toggle-status');
+        Route::delete('/{customer}', [CustomerController::class, 'destroy'])->name('destroy');
+    });
+    
     // Order Management
-    Route::prefix('orders')->group(function () {
-        Route::get('/', function() { return view('admin.orders.index'); })->name('admin.orders.index');
+    Route::prefix('orders')->name('admin.orders.')->group(function () {
+        Route::get('/', [AdminOrderController::class, 'index'])->name('index');
+        Route::get('/{order}', [AdminOrderController::class, 'show'])->name('show');
+        Route::patch('/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('update-status');
     });
 });

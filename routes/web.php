@@ -7,10 +7,25 @@ use App\Http\Controllers\Frontend\WishlistController;
 use App\Http\Controllers\Frontend\AddressController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Frontend\PageController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Static pages routes
+Route::get('/about', [PageController::class, 'about'])->name('about');
+Route::get('/services', [PageController::class, 'services'])->name('services');
+Route::get('/services/details', [PageController::class, 'serviceDetails'])->name('services.details');
+Route::get('/contact', [PageController::class, 'contact'])->name('contact');
+Route::get('/how-we-work', [PageController::class, 'howWeWork'])->name('how-we-work');
+Route::get('/gallery', [PageController::class, 'gallery'])->name('gallery');
+Route::get('/team', [PageController::class, 'team'])->name('team');
+Route::get('/pricing', [PageController::class, 'pricing'])->name('pricing');
+Route::get('/history', [PageController::class, 'history'])->name('history');
+Route::get('/blog', [PageController::class, 'blog'])->name('blog');
+Route::get('/blog/details', [PageController::class, 'blogDetails'])->name('blog.details');
+Route::get('/products/details', [ProductController::class, 'details'])->name('products.details');
 
 // Authentication check for AJAX
 Route::get('/api/auth-check', function () {
@@ -131,21 +146,6 @@ Route::get('/products', [ProductController::class, 'index'])->name('products.ind
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 Route::get('/product-details/{id}', [ProductController::class, 'showById'])->name('product.details');
 Route::post('/products/search', [ProductController::class, 'search'])->name('products.search');
-
-// Static pages
-Route::view('/about', 'frontend.pages.about')->name('about');
-Route::view('/contact', 'frontend.pages.contact')->name('contact');
-Route::view('/services', 'frontend.pages.services')->name('services');
-Route::view('/service-details', 'frontend.pages.service-details')->name('service.details');
-Route::view('/team-details', 'frontend.pages.team-details')->name('team.details');
-Route::view('/how-we-works', 'frontend.pages.how-we-works')->name('how.we.works');
-Route::view('/history', 'frontend.pages.history')->name('history');
-Route::view('/pricing-packages', 'frontend.pages.pricing-packages')->name('pricing.packages');
-Route::view('/photo-gallery', 'frontend.pages.photo-gallery')->name('photo.gallery');
-
-// Blog routes
-Route::view('/blog', 'frontend.blog.index')->name('blog.index');
-Route::view('/blog-details', 'frontend.blog.details')->name('blog.details');
 
 // Cart routes
 Route::prefix('cart')->name('cart.')->group(function () {

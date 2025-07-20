@@ -1,403 +1,598 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Dashboard')
-@section('page-title', 'Dashboard Overview')
+@section('title', 'Admin Dashboard')
+
+@push('styles')
+<style>
+/* ========================================
+   DASHBOARD STYLES
+======================================== */
+.dashboard-wrapper {
+    padding: 20px;
+    background: #f8f9fa;
+    min-height: calc(100vh - 100px);
+}
+
+.dashboard-header {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid #fe5716;
+}
+
+.dashboard-header h1 {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 10px;
+    font-size: 28px;
+}
+
+.dashboard-header p {
+    color: #6c757d;
+    margin: 0;
+    font-size: 16px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--card-color, #fe5716);
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    background: var(--card-color, #fe5716);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.stat-details h3 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+    font-family: 'DynaPuff', cursive;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+}
+
+.stat-change {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.stat-change.positive {
+    color: #10b981;
+}
+
+.stat-change.negative {
+    color: #ef4444;
+}
+/* Recent Activity */
+.activity-list {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: white;
+    flex-shrink: 0;
+}
+
+.activity-content h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 3px;
+    font-size: 14px;
+}
+
+.activity-time {
+    color: #6c757d;
+    font-size: 12px;
+}
+
+/* Quick Actions */
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.action-card {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.action-card:hover {
+    transform: translateY(-3px);
+    border-color: #fe5716;
+    box-shadow: 0 8px 25px rgba(254, 87, 22, 0.2);
+    text-decoration: none;
+}
+
+.action-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: white;
+    background: #fe5716;
+    margin: 0 auto 15px;
+}
+
+.action-title {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.action-description {
+    color: #6c757d;
+    font-size: 12px;
+    margin: 0;
+}
+
+/* Recent Tables */
+.recent-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+.recent-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.recent-header {
+    background: #f8f9fa;
+    padding: 20px 25px;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.recent-title {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 16px;
+    margin: 0;
+}
+
+.view-all-link {
+    color: #fe5716;
+    font-size: 12px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.view-all-link:hover {
+    color: #e54e14;
+    text-decoration: none;
+}
+
+.recent-content {
+    padding: 20px 25px;
+}
+
+.recent-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.recent-item:last-child {
+    border-bottom: none;
+}
+
+.recent-item-info h6 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 3px;
+    font-size: 14px;
+}
+
+.recent-item-meta {
+    color: #6c757d;
+    font-size: 11px;
+}
+
+.recent-item-value {
+    color: #fe5716;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+/* Custom colors for different stat cards */
+.stat-card.users {
+    --card-color: #3498db;
+}
+
+.stat-card.orders {
+    --card-color: #2ecc71;
+}
+
+.stat-card.revenue {
+    --card-color: #f39c12;
+}
+
+.stat-card.products {
+    --card-color: #9b59b6;
+}
+
+/* Activity icon colors */
+.activity-icon.new-order {
+    background: #2ecc71;
+}
+
+.activity-icon.new-user {
+    background: #3498db;
+}
+
+.activity-icon.new-product {
+    background: #9b59b6;
+}
+
+.activity-icon.payment {
+    background: #f39c12;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .dashboard-wrapper {
+        padding: 15px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .chart-section {
+        grid-template-columns: 1fr;
+    }
+    
+    .recent-section {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-actions {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Animation */
+.stat-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+@endpush
 
 @section('content')
-<div class="row g-4 mb-4">
-    <!-- Stats Cards -->
-    <div class="col-xl-3 col-md-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="avatar-lg bg-primary bg-gradient rounded-3 d-flex align-items-center justify-content-center">
-                            <i class="fas fa-users text-white fs-4"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="mb-0 text-muted">Total Users</h6>
-                        <h4 class="my-1 fw-bold">12,547</h4>
-                        <span class="badge bg-success bg-opacity-10 text-success">
-                            <i class="fas fa-arrow-up me-1"></i>+12.5%
-                        </span>
+<div class="dashboard-wrapper">
+    <!-- Page Header -->
+    <div class="dashboard-header">
+        <h1><i class="fas fa-tachometer-alt me-3"></i>Dashboard Overview</h1>
+        <p>Welcome back! Here's what's happening with your pet store today.</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card users">
+            <div class="stat-card-content">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-details">
+                    <div class="stat-label">Total Customers</div>
+                    <h3>{{ \App\Models\User::count() }}</h3>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        +12.5% from last month
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-xl-3 col-md-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="avatar-lg bg-success bg-gradient rounded-3 d-flex align-items-center justify-content-center">
-                            <i class="fas fa-shopping-cart text-white fs-4"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="mb-0 text-muted">Total Orders</h6>
-                        <h4 class="my-1 fw-bold">8,942</h4>
-                        <span class="badge bg-success bg-opacity-10 text-success">
-                            <i class="fas fa-arrow-up me-1"></i>+8.7%
-                        </span>
+        <div class="stat-card orders">
+            <div class="stat-card-content">
+                <div class="stat-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="stat-details">
+                    <div class="stat-label">Total Orders</div>
+                    <h3>{{ \App\Models\Order::count() }}</h3>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        +8.3% from last week
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-xl-3 col-md-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="avatar-lg bg-info bg-gradient rounded-3 d-flex align-items-center justify-content-center">
-                            <i class="fas fa-dollar-sign text-white fs-4"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="mb-0 text-muted">Revenue</h6>
-                        <h4 class="my-1 fw-bold">$45,890</h4>
-                        <span class="badge bg-success bg-opacity-10 text-success">
-                            <i class="fas fa-arrow-up me-1"></i>+15.2%
-                        </span>
+        <div class="stat-card revenue">
+            <div class="stat-card-content">
+                <div class="stat-icon">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+                <div class="stat-details">
+                    <div class="stat-label">Total Revenue</div>
+                    <h3>₹{{ number_format(\App\Models\Order::sum('total_amount'), 0) }}</h3>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        +15.2% from last month
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="col-xl-3 col-md-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <div class="avatar-lg bg-warning bg-gradient rounded-3 d-flex align-items-center justify-content-center">
-                            <i class="fas fa-paw text-white fs-4"></i>
-                        </div>
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="mb-0 text-muted">Active Pets</h6>
-                        <h4 class="my-1 fw-bold">2,547</h4>
-                        <span class="badge bg-success bg-opacity-10 text-success">
-                            <i class="fas fa-arrow-up me-1"></i>+5.3%
-                        </span>
-                    </div>
+        <div class="stat-card products">
+            <div class="stat-card-content">
+                <div class="stat-icon">
+                    <i class="fas fa-box"></i>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row g-4">
-    <!-- Revenue Chart -->
-    <div class="col-xl-8">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-transparent border-bottom-0 pb-0">
-                <div class="d-flex align-items-center justify-content-between">
-                    <h5 class="card-title mb-0">Revenue Overview</h5>
-                    <div class="dropdown">
-                        <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            Last 7 days
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Last 7 days</a></li>
-                            <li><a class="dropdown-item" href="#">Last 30 days</a></li>
-                            <li><a class="dropdown-item" href="#">Last 6 months</a></li>
-                        </ul>
+                <div class="stat-details">
+                    <div class="stat-label">Total Products</div>
+                    <h3>{{ \App\Models\Product::count() }}</h3>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        +5.7% from last week
                     </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <canvas id="revenueChart" height="300"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- Top Products -->
-    <div class="col-xl-4">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-transparent border-bottom-0 pb-0">
-                <h5 class="card-title mb-0">Top Products</h5>
-            </div>
-            <div class="card-body">
-                <div class="d-flex align-items-center mb-3">
-                    <div class="flex-shrink-0">
-                        <img src="https://via.placeholder.com/50x50/fa441d/ffffff?text=P1" class="rounded" alt="Product">
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="mb-1">Premium Dog Food</h6>
-                        <p class="text-muted mb-0 small">1,234 sales</p>
-                    </div>
-                    <div class="text-end">
-                        <span class="fw-bold">$2,890</span>
-                    </div>
-                </div>
-
-                <div class="d-flex align-items-center mb-3">
-                    <div class="flex-shrink-0">
-                        <img src="https://via.placeholder.com/50x50/10b981/ffffff?text=P2" class="rounded" alt="Product">
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="mb-1">Cat Scratching Post</h6>
-                        <p class="text-muted mb-0 small">987 sales</p>
-                    </div>
-                    <div class="text-end">
-                        <span class="fw-bold">$1,950</span>
-                    </div>
-                </div>
-
-                <div class="d-flex align-items-center mb-3">
-                    <div class="flex-shrink-0">
-                        <img src="https://via.placeholder.com/50x50/3b82f6/ffffff?text=P3" class="rounded" alt="Product">
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="mb-1">Pet Carrier Bag</h6>
-                        <p class="text-muted mb-0 small">756 sales</p>
-                    </div>
-                    <div class="text-end">
-                        <span class="fw-bold">$1,680</span>
-                    </div>
-                </div>
-
-                <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0">
-                        <img src="https://via.placeholder.com/50x50/f59e0b/ffffff?text=P4" class="rounded" alt="Product">
-                    </div>
-                    <div class="flex-grow-1 ms-3">
-                        <h6 class="mb-1">Interactive Toy</h6>
-                        <p class="text-muted mb-0 small">643 sales</p>
-                    </div>
-                    <div class="text-end">
-                        <span class="fw-bold">$1,290</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row g-4 mt-0">
-    <!-- Recent Orders -->
-    <div class="col-xl-8">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-transparent border-bottom-0 pb-0">
-                <div class="d-flex align-items-center justify-content-between">
-                    <h5 class="card-title mb-0">Recent Orders</h5>
-                    <a href="#" class="btn btn-light btn-sm">View All</a>
-                </div>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Product</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><span class="fw-bold">#ORD-001</span></td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm me-2">
-                                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white small fw-bold" style="width: 32px; height: 32px;">
-                                                JD
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-0">John Doe</h6>
-                                            <small class="text-muted">john@example.com</small>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>Premium Dog Food</td>
-                                <td><span class="fw-bold">$89.99</span></td>
-                                <td><span class="badge bg-success">Delivered</span></td>
-                                <td class="text-muted">2 hours ago</td>
-                            </tr>
-                            <tr>
-                                <td><span class="fw-bold">#ORD-002</span></td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm me-2">
-                                            <div class="bg-info rounded-circle d-flex align-items-center justify-content-center text-white small fw-bold" style="width: 32px; height: 32px;">
-                                                SM
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-0">Sarah Miller</h6>
-                                            <small class="text-muted">sarah@example.com</small>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>Cat Scratching Post</td>
-                                <td><span class="fw-bold">$45.50</span></td>
-                                <td><span class="badge bg-warning">Processing</span></td>
-                                <td class="text-muted">5 hours ago</td>
-                            </tr>
-                            <tr>
-                                <td><span class="fw-bold">#ORD-003</span></td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar-sm me-2">
-                                            <div class="bg-success rounded-circle d-flex align-items-center justify-content-center text-white small fw-bold" style="width: 32px; height: 32px;">
-                                                MB
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <h6 class="mb-0">Mike Brown</h6>
-                                            <small class="text-muted">mike@example.com</small>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>Pet Carrier Bag</td>
-                                <td><span class="fw-bold">$129.99</span></td>
-                                <td><span class="badge bg-primary">Shipped</span></td>
-                                <td class="text-muted">1 day ago</td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Quick Actions -->
-    <div class="col-xl-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-transparent border-bottom-0 pb-0">
-                <h5 class="card-title mb-0">Quick Actions</h5>
+    <div class="quick-actions">
+        <a href="{{ route('admin.products.create') }}" class="action-card">
+            <div class="action-icon">
+                <i class="fas fa-plus"></i>
             </div>
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <button class="btn btn-primary btn-lg">
-                        <i class="fas fa-plus me-2"></i>Add New Product
-                    </button>
-                    <button class="btn btn-outline-primary">
-                        <i class="fas fa-users me-2"></i>Manage Users
-                    </button>
-                    <button class="btn btn-outline-secondary">
-                        <i class="fas fa-chart-bar me-2"></i>View Reports
-                    </button>
-                    <button class="btn btn-outline-info">
-                        <i class="fas fa-cog me-2"></i>Settings
-                    </button>
-                </div>
+            <div class="action-title">Add Product</div>
+            <p class="action-description">Add new products to your catalog</p>
+        </a>
 
-                <hr class="my-4">
+        <a href="{{ route('admin.categories.create') }}" class="action-card">
+            <div class="action-icon">
+                <i class="fas fa-tags"></i>
+            </div>
+            <div class="action-title">Add Category</div>
+            <p class="action-description">Create new product categories</p>
+        </a>
 
-                <h6 class="mb-3">System Health</h6>
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1">
-                        <span class="small">CPU Usage</span>
-                        <span class="small fw-bold">45%</span>
-                    </div>
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-success" style="width: 45%"></div>
-                    </div>
-                </div>
+        <a href="{{ route('admin.orders.index') }}" class="action-card">
+            <div class="action-icon">
+                <i class="fas fa-list"></i>
+            </div>
+            <div class="action-title">View Orders</div>
+            <p class="action-description">Manage customer orders</p>
+        </a>
 
-                <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-1">
-                        <span class="small">Memory Usage</span>
-                        <span class="small fw-bold">72%</span>
-                    </div>
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-warning" style="width: 72%"></div>
-                    </div>
-                </div>
+        <a href="{{ route('admin.customers.index') }}" class="action-card">
+            <div class="action-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="action-title">Manage Customers</div>
+            <p class="action-description">View and manage customers</p>
+        </a>
+    </div>
 
-                <div>
-                    <div class="d-flex justify-content-between mb-1">
-                        <span class="small">Storage</span>
-                        <span class="small fw-bold">38%</span>
+
+    <!-- Recent Orders and Products -->
+    <div class="recent-section">
+        <div class="recent-card">
+            <div class="recent-header">
+                <h3 class="recent-title">Recent Orders</h3>
+                <a href="{{ route('admin.orders.index') }}" class="view-all-link">View All</a>
+            </div>
+            <div class="recent-content">
+                @foreach(\App\Models\Order::latest()->take(5)->get() as $order)
+                <div class="recent-item">
+                    <div class="recent-item-info">
+                        <h6>Order #{{ $order->id }}</h6>
+                        <div class="recent-item-meta">by {{ $order->user->name }} • {{ $order->created_at->format('M d, Y') }}</div>
                     </div>
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-info" style="width: 38%"></div>
-                    </div>
+                    <div class="recent-item-value">₹{{ number_format($order->total_amount, 2) }}</div>
                 </div>
+                @endforeach
+            </div>
+        </div>
+
+        <div class="recent-card">
+            <div class="recent-header">
+                <h3 class="recent-title">Top Products</h3>
+                <a href="{{ route('admin.products.index') }}" class="view-all-link">View All</a>
+            </div>
+            <div class="recent-content">
+                @foreach(\App\Models\Product::latest()->take(5)->get() as $product)
+                <div class="recent-item">
+                    <div class="recent-item-info">
+                        <h6>{{ $product->name }}</h6>
+                        <div class="recent-item-meta">{{ $product->category->name ?? 'No Category' }} • Stock: {{ $product->stock_quantity }}</div>
+                    </div>
+                    <div class="recent-item-value">₹{{ number_format($product->price, 2) }}</div>
+                </div>
+                @endforeach
             </div>
         </div>
     </div>
 </div>
 @endsection
 
-@push('styles')
-<style>
-    .avatar-lg {
-        width: 60px;
-        height: 60px;
-    }
-    
-    .card {
-        transition: all 0.3s ease;
-    }
-    
-    .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
-    }
-    
-    .progress {
-        border-radius: 10px;
-        overflow: hidden;
-    }
-    
-    .progress-bar {
-        border-radius: 10px;
-    }
-</style>
-@endpush
-
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Revenue Chart
-    const ctx = document.getElementById('revenueChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-            datasets: [{
-                label: 'Revenue',
-                data: [12000, 19000, 15000, 25000, 22000, 30000, 28000],
-                borderColor: '#fa441d',
-                backgroundColor: 'rgba(250, 68, 29, 0.1)',
-                borderWidth: 3,
-                fill: true,
-                tension: 0.4
-            }]
+// Sales Chart
+const ctx = document.getElementById('salesChart').getContext('2d');
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+            label: 'Sales',
+            data: [12000, 19000, 15000, 25000, 22000, 30000, 28000],
+            borderColor: '#fe5716',
+            backgroundColor: 'rgba(254, 87, 22, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointBackgroundColor: '#fe5716',
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(0,0,0,0.1)'
+                },
+                ticks: {
+                    callback: function(value) {
+                        return '₹' + value.toLocaleString();
+                    }
                 }
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(0,0,0,0.1)'
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
+            x: {
+                grid: {
+                    display: false
                 }
             }
+        },
+        elements: {
+            point: {
+                hoverBackgroundColor: '#fe5716'
+            }
         }
+    }
+});
+
+// Animate stat numbers on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const statNumbers = document.querySelectorAll('.stat-details h3');
+    
+    statNumbers.forEach(element => {
+        const target = parseInt(element.textContent.replace(/[^\d]/g, ''));
+        let current = 0;
+        const increment = target / 50;
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                element.textContent = element.textContent; // Keep original format
+                clearInterval(timer);
+            } else {
+                const formatted = Math.floor(current).toLocaleString();
+                if (element.textContent.includes('₹')) {
+                    element.textContent = '₹' + formatted;
+                } else {
+                    element.textContent = formatted;
+                }
+            }
+        }, 20);
     });
+});
 </script>
 @endpush

@@ -158,4 +158,14 @@ class ProductController extends Controller
 
         return view('frontend.products.search', compact('products', 'categories', 'searchTerm'));
     }
+
+    /**
+     * Show product details page
+     */
+    public function details(Request $request)
+    {
+        // For now, redirect to products index
+        // You can implement individual product details later
+        return view('frontend.pages.product-details');
+    }
 }

@@ -95,7 +95,7 @@
             </div>
         </div>
         <div class="copyright">
-            <p>Patte Pet Care - Copyright 2023. Design by Winsfolio</p>
+            <p> Petnet - Copyright 2023. Design by Sk Nadim</p>
             <a href="#"><img src="{{ asset('assets/img/visa.jpg') }}" alt="cad"></a>
         </div>
     </div>

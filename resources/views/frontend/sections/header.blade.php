@@ -36,6 +36,12 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li>
+                                <a class="dropdown-item" href="{{ route('orders.index') }}">
+                                    <i class="fa-solid fa-box"></i>
+                                    My Orders
+                                </a>
+                            </li>
+                            <li>
                                 <a class="dropdown-item" href="{{ route('profile.edit') }}">
                                     <i class="fa-solid fa-user-gear"></i>
                                     Profile Settings
@@ -68,43 +74,48 @@
         <nav class="navbar">
         <ul class="navbar-links">
                     <li class="navbar-dropdown">
-                      <a href="javascript:void(0)"><i>
+                      <a href="{{ route('home') }}"><i>
                         <img alt="home" src="{{ asset('assets/img/home.png') }}">
                       </i>home</a>
                     </li>
                     <li class="navbar-dropdown">
-                      <a href="about.html">About</a>
+                      <a href="{{ route('about') }}">About</a>
                     </li>
                     <li class="navbar-dropdown menu-item-children">
                       <a href="javascript:void(0)"><i>
                       </i>services</a>
                       <div class="dropdown">
-                        <a href="services.html">services</a>
-                        <a href="service-details.html">service details</a>
+                        <a href="{{ route('services') }}">services</a>
+                        <a href="{{ route('services.details') }}">service details</a>
                       </div>
                     </li>
                     <li class="navbar-dropdown menu-item-children">
                       <a href="javascript:void(0)">pages</a>
                       <div class="dropdown">
-                        <a href="how-we-works.html">how we works</a>
-                        <a href="photo-gallery.html">photo gallery</a>
+                        <a href="{{ route('how-we-work') }}">how we works</a>
+                        <a href="{{ route('gallery') }}">photo gallery</a>
+                        <a href="{{ route('team') }}">our team</a>
+                        <a href="{{ route('pricing') }}">pricing packages</a>
                       </div>
                     </li>
                     <li class="navbar-dropdown menu-item-children">
                       <a href="javascript:void(0)">Shop</a>
                       <div class="dropdown">
                         <a href="{{ route('products.index') }}">our products</a>
+                        <a href="{{ route('cart.index') }}">shopping cart</a>
+                        <a href="{{ route('wishlist.index') }}">wishlist</a>
+                        <a href="{{ route('checkout.index') }}">checkout</a>
                       </div>
                     </li>
                     <li class="navbar-dropdown menu-item-children">
                       <a href="javascript:void(0)">News</a>
                       <div class="dropdown">
-                        <a href="our-blog.html">our blog</a>
-                        <a href="blog-details.html">blog details</a>
+                        <a href="{{ route('blog') }}">our blog</a>
+                        <a href="{{ route('blog.details') }}">blog details</a>
                       </div>
                     </li>
                     <li class="navbar-dropdown">
-                      <a href="contact.html">Contact</a>
+                      <a href="{{ route('contact') }}">Contact</a>
                     </li>
         </ul>
       </nav>
@@ -151,31 +162,31 @@
           <li class="menu-item-has-children"><a href="JavaScript:void(0)">Home</a>
             <ul class="sub-menu">
 
-              <li><a href="{{ url('/') }}">home 1</a></li>
-              <li><a href="index-2.html">home 2</a></li>
-              <li><a href="index-3.html">home 3</a></li>
+              <li><a href="{{ route('home') }}">home 1</a></li>
+              <li><a href="{{ route('home') }}">home 2</a></li>
+              <li><a href="{{ route('home') }}">home 3</a></li>
             </ul>
           </li>
-          <li><a href="about.html">about</a></li>
+          <li><a href="{{ route('about') }}">about</a></li>
 
           
           <li class="menu-item-has-children"><a href="JavaScript:void(0)">Services</a>
 
           <ul class="sub-menu">
 
-            <li><a href="services.html">services</a></li>
-            <li><a href="service-details.html">service details</a></li>
+            <li><a href="{{ route('services') }}">services</a></li>
+            <li><a href="{{ route('services.details') }}">service details</a></li>
 
           </ul>
 
           </li>
           <li class="menu-item-has-children"><a href="JavaScript:void(0)">pages</a>
               <ul class="sub-menu">
-                <li><a href="team-details.html">team details</a></li>
-                <li><a href="how-we-works.html">how we works</a></li>
-                <li><a href="history.html">history</a></li>
-                <li><a href="pricing-packages.html">pricing packages</a></li>
-                <li><a href="photo-gallery.html">photo gallery</a></li>
+                <li><a href="{{ route('team') }}">team details</a></li>
+                <li><a href="{{ route('how-we-work') }}">how we works</a></li>
+                <li><a href="{{ route('history') }}">history</a></li>
+                <li><a href="{{ route('pricing') }}">pricing packages</a></li>
+                <li><a href="{{ route('gallery') }}">photo gallery</a></li>
                 <li><a href="{{ route('login') }}">login</a></li>
               </ul>
 
@@ -184,9 +195,10 @@
 
               <ul class="sub-menu">
                 <li><a href="{{ route('products.index') }}">our products</a></li>
-                <li><a href="product-details.html">product details</a></li>
+                <li><a href="{{ route('products.details') }}">product details</a></li>
                 <li><a href="{{ route('cart.index') }}">shop cart</a></li>
                 <li><a href="{{ route('checkout.index') }}">cart checkout</a></li>
+                <li><a href="{{ route('wishlist.index') }}">wishlist</a></li>
               
               </ul>
 
@@ -194,14 +206,14 @@
           <li class="menu-item-has-children"><a href="JavaScript:void(0)">News</a>
 
               <ul class="sub-menu">
-                <li><a href="our-blog.html">our blog</a></li>
-               <li><a href="blog-details.html">blog details</a></li>
+                <li><a href="{{ route('blog') }}">our blog</a></li>
+               <li><a href="{{ route('blog.details') }}">blog details</a></li>
               
               </ul>
 
           </li>
 
-          <li><a href="contact.html">contacts</a></li>
+          <li><a href="{{ route('contact') }}">contacts</a></li>
 
           </ul>
 
@@ -214,6 +226,12 @@
                           {{ Auth::user()->name }}
                       </a>
                       <ul class="dropdown-menu">
+                          <li>
+                              <a class="dropdown-item" href="{{ route('orders.index') }}">
+                                  <i class="fa-solid fa-box"></i>
+                                  My Orders
+                              </a>
+                          </li>
                           <li>
                               <a class="dropdown-item" href="{{ route('profile.edit') }}">
                                   <i class="fa-solid fa-user-gear"></i>

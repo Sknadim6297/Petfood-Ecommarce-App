@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin Dashboard') - PetNet</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -734,20 +735,21 @@
                     <a href="{{ route('admin.products.index') }}" class="nav-link {{ request()->routeIs('admin.products.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-box"></i>
                         <span class="nav-text">Products</span>
-                        <span class="nav-badge">24</span>
+                        <span class="nav-badge">{{ \App\Models\Product::active()->count() }}</span>
                     </a>
                 </div>
                 <div class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="{{ route('admin.orders.index') }}" class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-shopping-cart"></i>
                         <span class="nav-text">Orders</span>
-                        <span class="nav-badge">5</span>
+                        <span class="nav-badge">{{ \App\Models\Order::where('status', 'pending')->count() }}</span>
                     </a>
                 </div>
                 <div class="nav-item">
                     <a href="{{ route('admin.categories.index') }}" class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-tags"></i>
                         <span class="nav-text">Categories</span>
+                        <span class="nav-badge">{{ \App\Models\Category::active()->count() }}</span>
                     </a>
                 </div>
                 <div class="nav-item">
@@ -767,28 +769,16 @@
                         <span class="nav-text">Pets</span>
                     </a>
                 </div>
-                <div class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-calendar-check"></i>
-                        <span class="nav-text">Appointments</span>
-                        <span class="nav-badge">12</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-user-md"></i>
-                        <span class="nav-text">Veterinarians</span>
-                    </a>
-                </div>
             </div>
 
             <!-- User Management -->
             <div class="nav-section">
                 <div class="nav-section-title">Users</div>
                 <div class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="{{ route('admin.customers.index') }}" class="nav-link {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-users"></i>
                         <span class="nav-text">Customers</span>
+                        <span class="nav-badge">{{ \App\Models\User::count() }}</span>
                     </a>
                 </div>
                 <div class="nav-item">
@@ -801,17 +791,17 @@
 
             <!-- Analytics -->
             <div class="nav-section">
-                <div class="nav-section-title">Analytics</div>
+                <div class="nav-section-title">Manage Website</div>
                 <div class="nav-item">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-chart-bar"></i>
-                        <span class="nav-text">Reports</span>
+                        <span class="nav-text">Home Page</span>
                     </a>
                 </div>
                 <div class="nav-item">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-chart-pie"></i>
-                        <span class="nav-text">Analytics</span>
+                        <span class="nav-text">About Page</span>
                     </a>
                 </div>
             </div>
