@@ -22,8 +22,16 @@ class AdminAuthController extends Controller
 
         // Only allow admin@gmail.com / admin123
         if ($request->email === 'admin@gmail.com' && $request->password === 'admin123') {
-            // Set admin session
-            session(['is_admin' => true, 'admin_email' => $request->email]);
+            // Set admin session with user data
+            session([
+                'is_admin' => true, 
+                'admin_email' => $request->email,
+                'admin_user' => [
+                    'id' => 1,
+                    'email' => $request->email,
+                    'name' => 'Administrator'
+                ]
+            ]);
             return redirect()->route('admin.dashboard');
         }
 
@@ -32,7 +40,7 @@ class AdminAuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->session()->forget(['is_admin', 'admin_email']);
+        $request->session()->forget(['is_admin', 'admin_email', 'admin_user']);
         $request->session()->regenerate();
         return redirect()->route('admin.login');
     }

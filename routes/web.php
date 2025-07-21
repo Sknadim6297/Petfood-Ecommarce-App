@@ -5,6 +5,7 @@ use App\Http\Controllers\Frontend\ProductController;
 use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\WishlistController;
 use App\Http\Controllers\Frontend\AddressController;
+use App\Http\Controllers\Frontend\BlogController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Frontend\PageController;
@@ -23,8 +24,12 @@ Route::get('/gallery', [PageController::class, 'gallery'])->name('gallery');
 Route::get('/team', [PageController::class, 'team'])->name('team');
 Route::get('/pricing', [PageController::class, 'pricing'])->name('pricing');
 Route::get('/history', [PageController::class, 'history'])->name('history');
-Route::get('/blog', [PageController::class, 'blog'])->name('blog');
-Route::get('/blog/details', [PageController::class, 'blogDetails'])->name('blog.details');
+
+// Blog routes
+Route::get('/blog', [BlogController::class, 'index'])->name('blog');
+Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+Route::get('/blog/category/{slug}', [BlogController::class, 'category'])->name('blog.category');
+
 Route::get('/products/details', [ProductController::class, 'details'])->name('products.details');
 
 // Authentication check for AJAX

@@ -111,7 +111,6 @@
                       <a href="javascript:void(0)">News</a>
                       <div class="dropdown">
                         <a href="{{ route('blog') }}">our blog</a>
-                        <a href="{{ route('blog.details') }}">blog details</a>
                       </div>
                     </li>
                     <li class="navbar-dropdown">
@@ -207,8 +206,6 @@
 
               <ul class="sub-menu">
                 <li><a href="{{ route('blog') }}">our blog</a></li>
-               <li><a href="{{ route('blog.details') }}">blog details</a></li>
-              
               </ul>
 
           </li>

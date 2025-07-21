@@ -1,6 +1,14 @@
 @extends('frontend.layouts.layout')
 
-@section('title', 'Our Blog')
+@section('title', $blog->meta_title ?: $blog->title)
+
+@if($blog->meta_description)
+@section('meta-description', $blog->meta_description)
+@endif
+
+@if($blog->meta_keywords)
+@section('meta-keywords', $blog->meta_keywords)
+@endif
 
 @section('content')
 <section class="banner" style="background-color: #fff8e5; background-image:url({{ asset('assets/img/banner.png') }})">
@@ -8,12 +16,13 @@
         <div class="row align-items-center">
             <div class="col-lg-6">
                 <div class="banner-text">
-                    <h2>Our Blog</h2>
+                    <h2>{{ $blog->title }}</h2>
                     <ol class="breadcrumb">
                       <li class="breadcrumb-item">
                         <a href="{{ route('home') }}">Home</a>
                       </li>
-                        <li class="breadcrumb-item active" aria-current="page">Our Blog</li>
+                        <li class="breadcrumb-item"><a href="{{ route('blog') }}">Our blog</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ Str::limit($blog->title, 30) }}</li>
                     </ol>
                 </div>
             </div>
@@ -42,62 +51,120 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-8">
-                @if($blogs->count() > 0)
-                    @foreach($blogs as $blog)
-                        <div class="blog-style our-blog">
-                            <figure>
-                                @if($blog->image_url)
-                                    <img src="{{ $blog->image_url }}" alt="{{ $blog->title }}">
-                                @else
-                                    <img src="{{ asset('assets/img/our-blog-1.jpg') }}" alt="{{ $blog->title }}">
-                                @endif
-                            </figure>
+                <div class="blog-details">
+                    <div class="blog-style-two">
+                        <figure>
+                            @if($blog->image)
+                                <img src="{{ asset('storage/' . $blog->image) }}" alt="{{ $blog->title }}">
+                            @else
+                                <img src="{{ asset('assets/img/blog-4.jpg') }}" alt="{{ $blog->title }}">
+                            @endif
+                        </figure>
+                        <div class="blog-text-two">
                             @if($blog->category)
                                 <a href="{{ route('blog.category', $blog->category->slug) }}"><h6>{{ $blog->category->name }}</h6></a>
+                            @else
+                                <a href="#"><h6>General</h6></a>
                             @endif
-                            <div class="blog-style-text">
-                                <h5>{{ $blog->created_at->format('d') }}<span>{{ $blog->created_at->format('M,Y') }}</span></h5>
-                                <div>
-                                    <a href="{{ route('blog.show', $blog->slug) }}"><h3>{{ $blog->title }}</h3></a>
-                                    <p>{{ Str::limit(strip_tags($blog->description), 200) }}</p>
-                                    <div class="d-flex align-items-center">
-                                        <img src="{{ asset('assets/img/man.jpg') }}" alt="author">
-                                        <h4>{{ $blog->author ?? 'Admin' }}</h4>
+                            <h5>{{ $blog->formatted_published_date }}</h5>
+                            <h4>/   {{ $blog->views_count }} Views</h4>
+                            <a href="#"><h3>{{ $blog->title }}</h3></a>
+                            <p>{{ $blog->description }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="blog-content mt-4">
+                        <div style="white-space: pre-line;">{!! $blog->content !!}</div>
+                    </div>
+
+                    @if($blog->tags && count($blog->tags) > 0)
+                    <div class="blog-tags mt-4">
+                        <h5>Tags:</h5>
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach($blog->tags as $tag)
+                                <span class="badge bg-secondary">{{ $tag }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
+                    <!-- Related Posts Section -->
+                    @if($relatedPosts && $relatedPosts->count() > 0)
+                    <div class="related-posts mt-5">
+                        <h3>Related Posts</h3>
+                        <div class="boder-bar"></div>
+                        <div class="row mt-4">
+                            @foreach($relatedPosts->take(2) as $relatedPost)
+                            <div class="col-lg-6 col-md-6">
+                                <div class="blog-style-two">
+                                    <figure>
+                                        @if($relatedPost->image)
+                                            <img src="{{ asset('storage/' . $relatedPost->image) }}" alt="{{ $relatedPost->title }}">
+                                        @else
+                                            <img src="{{ asset('assets/img/blog-4.jpg') }}" alt="{{ $relatedPost->title }}">
+                                        @endif
+                                    </figure>
+                                    <div class="blog-text-two">
+                                        @if($relatedPost->category)
+                                            <a href="{{ route('blog.category', $relatedPost->category->slug) }}"><h6>{{ $relatedPost->category->name }}</h6></a>
+                                        @endif
+                                        <h5>{{ $relatedPost->formatted_published_date }}</h5>
+                                        <h4>/   {{ $relatedPost->views_count }} Views</h4>
+                                        <a href="{{ route('blog.show', $relatedPost->slug) }}"><h3>{{ Str::limit($relatedPost->title, 40) }}</h3></a>
+                                        <p>{{ Str::limit($relatedPost->description, 100) }}</p>
+                                        <a href="{{ route('blog.show', $relatedPost->slug) }}" class="button">Read More</a>
                                     </div>
                                 </div>
                             </div>
+                            @endforeach
                         </div>
-                    @endforeach
-                @else
-                    <div class="text-center py-5">
-                        <h3>No blog posts found</h3>
-                        <p>Check back later for new content!</p>
                     </div>
+                    @endif
+
+                    <div class="share-post">
+                        <h5>Share Post:</h5>
+                        <ul class="social-icon">
+                            <li><a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(request()->url()) }}" target="_blank"><i class="fa-brands fa-facebook-f"></i></a></li>
+                            <li><a href="https://twitter.com/intent/tweet?url={{ urlencode(request()->url()) }}&text={{ urlencode($blog->title) }}" target="_blank"><i class="fa-brands fa-twitter"></i></a></li>
+                            <li><a href="https://www.instagram.com/" target="_blank"><i class="fa-brands fa-instagram"></i></a></li>
+                          </ul>
+                    </div>
+
+                    @if($blog->comments_enabled)
+                    <div class="comment">
+                        <h3>Comments</h3>
+                        <div class="boder-bar"></div>
+                        <ul>
+                            <li>
+                                <img alt="girl" src="{{ asset('assets/img/comment-1.jpg') }}">
+                                <div class="comment-data">
+                                    <h4>Sample User</h4>
+                                    <span>{{ now()->format('F d, Y') }}</span>
+                                    <p class="pt-4">Comments will be displayed here when comment system is integrated.</p>
+                                </div>
+                                <a href="#" class="button">Reply</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="comment">
+                    <h3>Leave A Comment</h3>
+                        <div class="boder-bar"></div>
+                    <form class="leave" method="POST" action="#">
+                        @csrf
+                        <div class="row">
+                            <div class="col-lg-6 col-md-6">
+                                <input type="text" name="name" placeholder="Full Name" required>
+                            </div>
+                            <div class="col-lg-6 col-md-6">
+                                <input type="email" name="email" placeholder="Email Address" required>
+                            </div>
+                        </div>
+                        <textarea name="message" placeholder="Your Message" required></textarea>
+                        <button type="submit" class="button mt-4 mb-lg-0 mb-5">Post Comment</button>
+                    </form>
+                </div>
                 @endif
-
-                @if($blogs->hasPages())
-                    <ul class="pagination">
-                        @if ($blogs->onFirstPage())
-                            <li class="prev disabled"><span><i class='fa-solid fa-arrow-left'></i></span></li>
-                        @else
-                            <li class="prev"><a href="{{ $blogs->previousPageUrl() }}"><i class='fa-solid fa-arrow-left'></i></a></li>
-                        @endif
-
-                        @foreach ($blogs->getUrlRange(1, $blogs->lastPage()) as $page => $url)
-                            @if ($page == $blogs->currentPage())
-                                <li class="active"><span>{{ $page }}</span></li>
-                            @else
-                                <li><a href="{{ $url }}">{{ $page }}</a></li>
-                            @endif
-                        @endforeach
-
-                        @if ($blogs->hasMorePages())
-                            <li class="next"><a href="{{ $blogs->nextPageUrl() }}"><i class='fa-solid fa-arrow-right'></i></a></li>
-                        @else
-                            <li class="next disabled"><span><i class='fa-solid fa-arrow-right'></i></span></li>
-                        @endif
-                    </ul>
-                @endif
+                </div>
             </div>
             <div class="col-lg-4">
                     <div class="sidebar">
@@ -107,8 +174,8 @@
                             @if($recentBlogs && $recentBlogs->count() > 0)
                                 @foreach($recentBlogs as $recentBlog)
                                     <li class="{{ $loop->last ? 'end' : '' }}">
-                                        @if($recentBlog->image_url)
-                                            <img alt="recent-posts-img" src="{{ $recentBlog->image_url }}">
+                                        @if($recentBlog->image)
+                                            <img alt="recent-posts-img" src="{{ asset('storage/' . $recentBlog->image) }}">
                                         @else
                                             <img alt="recent-posts-img" src="{{ asset('assets/img/recent-posts-1.jpg') }}">
                                         @endif
@@ -187,8 +254,8 @@
                         <p>Enter your email and get recent news 
                             and update.</p>
                         <form>
-                            <input type="text" name="email" placeholder="Enter your email address...">
-                            <button class="button">Subscribe</button>
+                            <input type="email" name="email" placeholder="Enter your email address..." required>
+                            <button type="submit" class="button">Subscribe</button>
                         </form>
                     </div>
             </div>

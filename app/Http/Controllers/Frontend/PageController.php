@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\ImageLibrary;
 use Illuminate\Http\Request;
 
 class PageController extends Controller
@@ -48,11 +49,17 @@ class PageController extends Controller
     }
 
     /**
-     * Show the gallery page
+     * Show the gallery page with dynamic images
      */
     public function gallery()
     {
-        return view('frontend.pages.gallery');
+        // Get all active images from the image library
+        $images = ImageLibrary::where('status', true)
+            ->where('mime_type', 'like', 'image/%')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('frontend.pages.gallery', compact('images'));
     }
 
     /**
@@ -77,21 +84,5 @@ class PageController extends Controller
     public function history()
     {
         return view('frontend.pages.history');
-    }
-
-    /**
-     * Show the blog page
-     */
-    public function blog()
-    {
-        return view('frontend.blog.index');
-    }
-
-    /**
-     * Show the blog details page
-     */
-    public function blogDetails()
-    {
-        return view('frontend.blog.details');
     }
 }
