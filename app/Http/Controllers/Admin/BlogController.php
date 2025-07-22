@@ -181,7 +181,7 @@ class BlogController extends Controller
 
     public function show(Blog $blog)
     {
-        $blog->load(['category', 'user']);
+        $blog->load(['category', 'user', 'comments.user']);
         return view('admin.content.blogs.show', compact('blog'));
     }
 

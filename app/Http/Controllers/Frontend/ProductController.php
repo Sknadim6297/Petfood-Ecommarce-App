@@ -160,6 +160,40 @@ class ProductController extends Controller
     }
 
     /**
+     * Universal search for both products and cooked foods
+     */
+    public function universalSearch(Request $request)
+    {
+        $searchTerm = $request->input('search');
+        
+        if (empty($searchTerm)) {
+            return redirect()->back()->with('error', 'Please enter a search term.');
+        }
+
+        // Search products
+        $products = Product::active()
+            ->where(function($query) use ($searchTerm) {
+                $query->where('name', 'LIKE', "%{$searchTerm}%")
+                      ->orWhere('description', 'LIKE', "%{$searchTerm}%")
+                      ->orWhere('short_description', 'LIKE', "%{$searchTerm}%");
+            })
+            ->with('category')
+            ->paginate(12, ['*'], 'products_page');
+
+        // Search cooked foods
+        $cookedFoods = \App\Models\CookedFood::where(function($query) use ($searchTerm) {
+                $query->where('name', 'LIKE', "%{$searchTerm}%")
+                      ->orWhere('description', 'LIKE', "%{$searchTerm}%")
+                      ->orWhere('category', 'LIKE', "%{$searchTerm}%");
+            })
+            ->paginate(12, ['*'], 'cooked_foods_page');
+
+        $totalResults = $products->total() + $cookedFoods->total();
+
+        return view('frontend.search.results', compact('products', 'cookedFoods', 'searchTerm', 'totalResults'));
+    }
+
+    /**
      * Show product details page
      */
     public function details(Request $request)

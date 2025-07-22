@@ -8,6 +8,7 @@ use App\Models\OrderItem;
 use App\Models\Cart;
 use App\Models\Product;
 use App\Models\Address;
+use App\Services\CouponService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -62,7 +63,38 @@ class OrderController extends Controller
             }
             
             $shippingAmount = $subtotal >= 500 ? 0 : 50;
-            $totalAmount = $subtotal + $shippingAmount;
+            
+            // Handle coupon discount
+            $couponService = app(CouponService::class);
+            $discountAmount = 0;
+            $couponCode = null;
+            
+            if ($couponService->hasCoupon()) {
+                $appliedCoupon = $couponService->getAppliedCoupon();
+                
+                // Validate coupon before finalizing order
+                $validation = $couponService->validateAppliedCoupon($subtotal);
+                if ($validation['valid']) {
+                    $discountAmount = $couponService->getDiscountAmount($subtotal);
+                    $couponCode = $appliedCoupon['code'];
+                    
+                    // Log coupon usage
+                    Log::info('Coupon applied to order', [
+                        'user_id' => $user->id,
+                        'coupon_code' => $couponCode,
+                        'discount_amount' => $discountAmount,
+                        'subtotal' => $subtotal
+                    ]);
+                } else {
+                    // Coupon is no longer valid, but proceed without it
+                    Log::warning('Coupon validation failed during checkout', [
+                        'user_id' => $user->id,
+                        'message' => $validation['message']
+                    ]);
+                }
+            }
+            
+            $totalAmount = $subtotal + $shippingAmount - $discountAmount;
 
             // Get shipping address directly from database
             $shippingAddress = Address::where('user_id', $user->id)
@@ -85,7 +117,9 @@ class OrderController extends Controller
                 'payment_status' => $request->payment_method === 'cod' ? 'pending' : 'pending',
                 'subtotal' => $subtotal,
                 'shipping_amount' => $shippingAmount,
+                'discount_amount' => $discountAmount,
                 'total_amount' => $totalAmount,
+                'coupon_code' => $couponCode,
                 'shipping_address' => $shippingAddress->full_address,
                 'phone' => $shippingAddress->phone,
                 'email' => $user->email,
@@ -105,6 +139,11 @@ class OrderController extends Controller
 
             // Clear cart
             Cart::where('user_id', $user->id)->delete();
+            
+            // Mark coupon as used if one was applied
+            if ($couponService->hasCoupon()) {
+                $couponService->markCouponAsUsed();
+            }
 
             DB::commit();
 
@@ -117,14 +156,16 @@ class OrderController extends Controller
                     'order_id' => $order->id,
                     'order_number' => $order->order_number,
                     'redirect_to_payment' => true,
-                    'payment_url' => route('order.payment', $order->id)
+                    'payment_url' => route('orders.payment', $order->id),
+                    'redirect_url' => route('orders.confirmation', $order->id)
                 ]);
             } else {
                 return response()->json([
                     'success' => true,
                     'message' => 'Order placed successfully! You will pay on delivery.',
                     'order_id' => $order->id,
-                    'order_number' => $order->order_number
+                    'order_number' => $order->order_number,
+                    'redirect_url' => route('orders.confirmation', $order->id)
                 ]);
             }
 

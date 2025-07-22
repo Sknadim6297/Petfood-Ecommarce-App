@@ -59,6 +59,16 @@ class Blog extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function comments()
+    {
+        return $this->hasMany(BlogComment::class);
+    }
+
+    public function approvedComments()
+    {
+        return $this->hasMany(BlogComment::class)->approved();
+    }
+
     // Scopes
     public function scopeActive($query)
     {

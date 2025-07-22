@@ -7,6 +7,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Address;
 use App\Models\Cart;
+use App\Services\CouponService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,9 +15,12 @@ use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
-    public function __construct()
+    protected $couponService;
+
+    public function __construct(CouponService $couponService)
     {
         $this->middleware('auth');
+        $this->couponService = $couponService;
     }
 
     public function store(Request $request)

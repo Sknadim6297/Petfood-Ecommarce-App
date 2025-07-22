@@ -10,6 +10,8 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\ImageLibraryController;
+use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\CookedFoodController;
 
 // Admin Authentication
 Route::get('login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
@@ -26,6 +28,42 @@ Route::middleware('admin')->group(function () {
     
     // Product Management
     Route::resource('products', ProductController::class, ['as' => 'admin']);
+    
+    // Coupon Management
+    Route::prefix('coupons')->name('admin.coupons.')->group(function () {
+        Route::get('/', [CouponController::class, 'index'])->name('index');
+        Route::get('/create', [CouponController::class, 'create'])->name('create');
+        Route::post('/', [CouponController::class, 'store'])->name('store');
+        Route::get('/{coupon}', [CouponController::class, 'show'])->name('show');
+        Route::get('/{coupon}/edit', [CouponController::class, 'edit'])->name('edit');
+        Route::put('/{coupon}', [CouponController::class, 'update'])->name('update');
+        Route::delete('/{coupon}', [CouponController::class, 'destroy'])->name('destroy');
+        Route::post('/{coupon}/toggle-status', [CouponController::class, 'toggleStatus'])->name('toggle-status');
+    });
+    
+    // Cooked Food Management
+    Route::prefix('cooked-foods')->name('admin.cooked-foods.')->group(function () {
+        Route::get('/', [CookedFoodController::class, 'index'])->name('index');
+        Route::get('/create', [CookedFoodController::class, 'create'])->name('create');
+        Route::post('/', [CookedFoodController::class, 'store'])->name('store');
+        Route::get('/{cookedFood}', [CookedFoodController::class, 'show'])->name('show');
+        Route::get('/{cookedFood}/edit', [CookedFoodController::class, 'edit'])->name('edit');
+        Route::put('/{cookedFood}', [CookedFoodController::class, 'update'])->name('update');
+        Route::delete('/{cookedFood}', [CookedFoodController::class, 'destroy'])->name('destroy');
+        Route::post('/{cookedFood}/toggle-status', [CookedFoodController::class, 'toggleStatus'])->name('toggle-status');
+    });
+    
+    // Cooked Food Management
+    Route::prefix('cooked-foods')->name('admin.cooked-foods.')->group(function () {
+        Route::get('/', [CookedFoodController::class, 'index'])->name('index');
+        Route::get('/create', [CookedFoodController::class, 'create'])->name('create');
+        Route::post('/', [CookedFoodController::class, 'store'])->name('store');
+        Route::get('/{cookedFood}', [CookedFoodController::class, 'show'])->name('show');
+        Route::get('/{cookedFood}/edit', [CookedFoodController::class, 'edit'])->name('edit');
+        Route::put('/{cookedFood}', [CookedFoodController::class, 'update'])->name('update');
+        Route::delete('/{cookedFood}', [CookedFoodController::class, 'destroy'])->name('destroy');
+        Route::post('/{cookedFood}/toggle-status', [CookedFoodController::class, 'toggleStatus'])->name('toggle-status');
+    });
     
     // User Management
     Route::prefix('users')->group(function () {
@@ -73,6 +111,15 @@ Route::middleware('admin')->group(function () {
             Route::delete('/{blog}', [BlogController::class, 'destroy'])->name('destroy');
             Route::post('/{blog}/toggle-status', [BlogController::class, 'toggleStatus'])->name('toggle-status');
             Route::post('/{blog}/toggle-featured', [BlogController::class, 'toggleFeatured'])->name('toggle-featured');
+        });
+
+        // Blog Comments Management
+        Route::prefix('blog-comments')->name('blog-comments.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\BlogCommentController::class, 'index'])->name('index');
+            Route::get('/{comment}', [\App\Http\Controllers\Admin\BlogCommentController::class, 'show'])->name('show');
+            Route::post('/{comment}/approve', [\App\Http\Controllers\Admin\BlogCommentController::class, 'approve'])->name('approve');
+            Route::post('/{comment}/reject', [\App\Http\Controllers\Admin\BlogCommentController::class, 'reject'])->name('reject');
+            Route::delete('/{comment}', [\App\Http\Controllers\Admin\BlogCommentController::class, 'destroy'])->name('destroy');
         });
 
         // Image Library Management

@@ -181,7 +181,7 @@
                         </ul>
                         <h5><i class="fa-brands fa-instagram"></i>Follow @petnet</h5>
                     </div>
-                    <div class="sidebar sidebar-two">
+                    {{-- <div class="sidebar sidebar-two">
                         <h3>Newsletter</h3>
                         <div class="boder-bar"></div>
                         <p>Enter your email and get recent news 
@@ -190,7 +190,7 @@
                             <input type="text" name="email" placeholder="Enter your email address...">
                             <button class="button">Subscribe</button>
                         </form>
-                    </div>
+                    </div> --}}
             </div>
         </div>
     </div>

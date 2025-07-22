@@ -82,7 +82,7 @@
             </div>
 
             <!-- Blog Content -->
-            <div class="card shadow-sm">
+            <div class="card shadow-sm mb-4">
                 <div class="card-header bg-white border-0 py-3">
                     <h5 class="mb-0 fw-semibold text-dark">📝 Content</h5>
                 </div>
@@ -92,6 +92,62 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Comments Section -->
+            @if($blog->comments_enabled)
+            <div class="card shadow-sm">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-semibold text-dark">💬 Comments ({{ $blog->comments->count() }})</h5>
+                    <a href="{{ route('admin.content.blog-comments.index', ['search' => $blog->title]) }}" class="btn btn-sm btn-outline-primary">Manage All Comments</a>
+                </div>
+                <div class="card-body">
+                    @if($blog->comments->count() > 0)
+                        @foreach($blog->comments->take(5) as $comment)
+                        <div class="comment-item border-bottom pb-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <strong class="text-dark">{{ $comment->author_name }}</strong>
+                                        @if($comment->user)
+                                            <span class="badge bg-info ms-2">Registered</span>
+                                        @else
+                                            <span class="badge bg-secondary ms-2">Guest</span>
+                                        @endif
+                                        {!! $comment->status_badge !!}
+                                    </div>
+                                    <p class="text-muted mb-1">{{ Str::limit($comment->comment, 150) }}</p>
+                                    <small class="text-muted">{{ $comment->created_at->format('M d, Y \a\t g:i A') }}</small>
+                                </div>
+                                <div class="ms-3">
+                                    <a href="{{ route('admin.content.blog-comments.show', $comment) }}" class="btn btn-sm btn-outline-primary">View</a>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                        
+                        @if($blog->comments->count() > 5)
+                        <div class="text-center">
+                            <a href="{{ route('admin.content.blog-comments.index', ['search' => $blog->title]) }}" class="btn btn-outline-primary">
+                                View All {{ $blog->comments->count() }} Comments
+                            </a>
+                        </div>
+                        @endif
+                    @else
+                        <div class="text-center py-4 text-muted">
+                            <i class="fas fa-comments fa-3x mb-3"></i>
+                            <p>No comments yet for this blog post.</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+            @else
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-4 text-muted">
+                    <i class="fas fa-comment-slash fa-3x mb-3"></i>
+                    <p>Comments are disabled for this blog post.</p>
+                </div>
+            </div>
+            @endif
         </div>
 
         <!-- Sidebar -->

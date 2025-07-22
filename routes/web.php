@@ -4,11 +4,13 @@ use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ProductController;
 use App\Http\Controllers\Frontend\CartController;
 use App\Http\Controllers\Frontend\WishlistController;
+use App\Http\Controllers\Frontend\CookedFoodController;
 use App\Http\Controllers\Frontend\AddressController;
 use App\Http\Controllers\Frontend\BlogController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Frontend\PageController;
+use App\Http\Controllers\CouponController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -29,6 +31,10 @@ Route::get('/history', [PageController::class, 'history'])->name('history');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 Route::get('/blog/category/{slug}', [BlogController::class, 'category'])->name('blog.category');
+
+// Blog Comments Routes
+Route::post('/blog/{blog}/comments', [\App\Http\Controllers\Frontend\BlogCommentController::class, 'store'])->name('blog.comments.store');
+Route::delete('/blog/comments/{comment}', [\App\Http\Controllers\Frontend\BlogCommentController::class, 'destroy'])->name('blog.comments.destroy')->middleware('auth');
 
 Route::get('/products/details', [ProductController::class, 'details'])->name('products.details');
 
@@ -68,6 +74,73 @@ Route::get('/debug/user-info', function () {
         ],
         'addresses_count' => $addresses->count(),
         'addresses' => $addresses
+    ]);
+});
+
+// Debug route for testing cart total calculation
+Route::get('/debug/cart-total', function () {
+    if (!Auth::check()) {
+        return response()->json(['error' => 'Not authenticated']);
+    }
+    
+    // Test the cart total calculation from CouponController
+    $couponController = new \App\Http\Controllers\CouponController(app(\App\Services\CouponService::class));
+    $reflection = new ReflectionClass($couponController);
+    $method = $reflection->getMethod('getCartTotal');
+    $method->setAccessible(true);
+    $cartTotal = $method->invoke($couponController);
+    
+    // Also get cart from CartController method
+    $cartController = new \App\Http\Controllers\Frontend\CartController(app(\App\Services\CouponService::class));
+    $cartReflection = new ReflectionClass($cartController);
+    $getCartMethod = $cartReflection->getMethod('getCart');
+    $getCartMethod->setAccessible(true);
+    $cart = $getCartMethod->invoke($cartController);
+    
+    // Get calculated totals
+    $calculateTotalsMethod = $cartReflection->getMethod('calculateCartTotals');
+    $calculateTotalsMethod->setAccessible(true);
+    $calculatedTotals = $calculateTotalsMethod->invoke($cartController, $cart);
+    
+    return response()->json([
+        'user_id' => Auth::id(),
+        'cart_total_from_coupon_controller' => $cartTotal,
+        'cart_items' => $cart,
+        'cart_items_count' => count($cart),
+        'calculated_totals' => $calculatedTotals,
+        'session_cart' => session('cart', []),
+        'database_cart' => \App\Models\Cart::where('user_id', Auth::id())->with(['product', 'cookedFood'])->get()
+    ]);
+});
+
+// Debug route for testing cart item calculations
+Route::get('/debug/cart-calculations', function () {
+    if (!Auth::check()) {
+        return response()->json(['error' => 'Not authenticated']);
+    }
+    
+    $cartController = new \App\Http\Controllers\Frontend\CartController(app(\App\Services\CouponService::class));
+    $cartReflection = new ReflectionClass($cartController);
+    $getCartMethod = $cartReflection->getMethod('getCart');
+    $getCartMethod->setAccessible(true);
+    $cart = $getCartMethod->invoke($cartController);
+    
+    $itemCalculations = [];
+    foreach ($cart as $itemKey => $item) {
+        $itemCalculations[$itemKey] = [
+            'id' => $item['id'] ?? 'N/A',
+            'name' => $item['name'] ?? 'N/A',
+            'price' => $item['price'] ?? 0,
+            'quantity' => $item['quantity'] ?? 0,
+            'subtotal' => ($item['price'] ?? 0) * ($item['quantity'] ?? 0),
+            'item_type' => $item['item_type'] ?? 'N/A'
+        ];
+    }
+    
+    return response()->json([
+        'user_id' => Auth::id(),
+        'cart_items' => $cart,
+        'item_calculations' => $itemCalculations
     ]);
 });
 Route::get('/debug/test-wishlist/{productId}', function ($productId) {
@@ -152,15 +225,33 @@ Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product
 Route::get('/product-details/{id}', [ProductController::class, 'showById'])->name('product.details');
 Route::post('/products/search', [ProductController::class, 'search'])->name('products.search');
 
+// Frontend cooked food routes
+Route::get('/cooked-foods', [CookedFoodController::class, 'index'])->name('cooked-foods.index');
+Route::get('/cooked-food/{slug}', [CookedFoodController::class, 'show'])->name('cooked-food.show');
+Route::get('/cooked-food-details/{id}', [CookedFoodController::class, 'showById'])->name('cooked-food.details');
+Route::post('/cooked-foods/search', [CookedFoodController::class, 'search'])->name('cooked-foods.search');
+Route::get('/cooked-foods/category/{category}', [CookedFoodController::class, 'category'])->name('cooked-foods.category');
+
+// Universal search route
+Route::post('/search', [ProductController::class, 'universalSearch'])->name('universal.search');
+
 // Cart routes
 Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');
     Route::post('/add', [CartController::class, 'add'])->name('add');
-    Route::put('/update', [CartController::class, 'update'])->name('update');
-    Route::delete('/remove', [CartController::class, 'remove'])->name('remove');
-    Route::delete('/clear', [CartController::class, 'clear'])->name('clear');
+    Route::match(['PUT', 'PATCH'], '/update', [CartController::class, 'update'])->name('update');
+    Route::match(['DELETE', 'POST'], '/remove', [CartController::class, 'remove'])->name('remove');
+    Route::match(['DELETE', 'POST'], '/clear', [CartController::class, 'clear'])->name('clear');
     Route::get('/count', [CartController::class, 'getCount'])->name('count');
     Route::get('/popup', [CartController::class, 'getPopup'])->name('popup');
+});
+
+// Coupon routes
+Route::prefix('coupons')->name('coupons.')->group(function () {
+    Route::post('/apply', [CouponController::class, 'apply'])->name('apply');
+    Route::post('/remove', [CouponController::class, 'remove'])->name('remove');
+    Route::get('/available', [CouponController::class, 'available'])->name('available');
+    Route::post('/check', [CouponController::class, 'check'])->name('check');
 });
 
 // Wishlist routes

@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\CookedFood;
 use App\Models\Cart;
+use App\Services\CouponService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -12,6 +14,12 @@ use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
 {
+    protected $couponService;
+
+    public function __construct(CouponService $couponService = null)
+    {
+        $this->couponService = $couponService ?? app(CouponService::class);
+    }
     /**
      * Get cart items for authenticated user (database) or session (guest)
      */
@@ -19,22 +27,46 @@ class CartController extends Controller
     {
         if (Auth::check()) {
             // For authenticated users, get cart from database
-            $cartItems = Cart::with('product.category')
+            $cartItems = Cart::with(['product.category', 'cookedFood'])
                 ->where('user_id', Auth::id())
                 ->get();
             
             $cart = [];
             foreach ($cartItems as $item) {
-                $cart[$item->product_id] = [
-                    'id' => $item->product->id,
-                    'name' => $item->product->name,
-                    'slug' => $item->product->slug,
-                    'price' => $item->product->effective_price, // Use consistent price field
-                    'original_price' => $item->product->price,
-                    'image' => $item->product->image,
-                    'quantity' => $item->quantity,
-                    'category' => $item->product->category->name ?? 'Pet Product'
-                ];
+                $itemData = null;
+                $itemKey = null;
+                
+                if ($item->item_type === 'cooked_food' && $item->cookedFood) {
+                    $itemKey = 'cooked_food_' . $item->cooked_food_id;
+                    $itemData = [
+                        'id' => $item->cookedFood->id,
+                        'name' => $item->cookedFood->name,
+                        'slug' => $item->cookedFood->slug,
+                        'price' => $item->cookedFood->price,
+                        'original_price' => $item->cookedFood->price,
+                        'image' => $item->cookedFood->image,
+                        'quantity' => $item->quantity,
+                        'category' => ucfirst($item->cookedFood->category),
+                        'item_type' => 'cooked_food'
+                    ];
+                } elseif ($item->item_type === 'product' && $item->product) {
+                    $itemKey = 'product_' . $item->product_id;
+                    $itemData = [
+                        'id' => $item->product->id,
+                        'name' => $item->product->name,
+                        'slug' => $item->product->slug,
+                        'price' => $item->product->effective_price,
+                        'original_price' => $item->product->price,
+                        'image' => $item->product->image,
+                        'quantity' => $item->quantity,
+                        'category' => $item->product->category->name ?? 'Pet Product',
+                        'item_type' => 'product'
+                    ];
+                }
+                
+                if ($itemData) {
+                    $cart[$itemKey] = $itemData;
+                }
             }
             return $cart;
         } else {
@@ -56,12 +88,22 @@ class CartController extends Controller
             Cart::where('user_id', $userId)->delete();
             
             // Add new cart items
-            foreach ($cart as $productId => $item) {
-                Cart::create([
+            foreach ($cart as $itemKey => $item) {
+                $cartData = [
                     'user_id' => $userId,
-                    'product_id' => $productId,
-                    'quantity' => $item['quantity']
-                ]);
+                    'quantity' => $item['quantity'],
+                    'item_type' => $item['item_type']
+                ];
+                
+                if ($item['item_type'] === 'cooked_food') {
+                    $cartData['cooked_food_id'] = $item['id'];
+                    $cartData['product_id'] = null;
+                } else {
+                    $cartData['product_id'] = $item['id'];
+                    $cartData['cooked_food_id'] = null;
+                }
+                
+                Cart::create($cartData);
             }
         } else {
             // For guests, save to session
@@ -83,56 +125,71 @@ class CartController extends Controller
             ], 401);
         }
 
-        // Debug logging
-        Log::info('Cart add request', [
-            'request_data' => $request->all(),
-            'product_id' => $request->product_id,
-            'user_id' => Auth::id()
-        ]);
+        // Validate request based on item type
+        $itemType = $request->input('item_type', 'product');
+        $itemId = $request->input('item_id');
+        $quantity = $request->input('quantity', 1);
 
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1'
-        ]);
+        if ($itemType === 'cooked_food') {
+            $request->validate([
+                'item_id' => 'required|exists:cooked_foods,id',
+                'quantity' => 'required|integer|min:1'
+            ]);
+            
+            $item = CookedFood::findOrFail($itemId);
+            $itemKey = 'cooked_food_' . $itemId;
+            
+            // Cooked foods don't have stock quantity, always available
+            $stockAvailable = true;
+            $stockQuantity = 9999;
+        } else {
+            $request->validate([
+                'item_id' => 'required|exists:products,id',
+                'quantity' => 'required|integer|min:1'
+            ]);
+            
+            $item = Product::findOrFail($itemId);
+            $itemKey = 'product_' . $itemId;
+            
+            // Check product stock
+            $stockAvailable = $item->stock_quantity >= $quantity;
+            $stockQuantity = $item->stock_quantity;
+        }
 
-        $product = Product::findOrFail($request->product_id);
-
-        // Check if product is in stock
-        if ($product->stock_quantity < $request->quantity) {
+        if (!$stockAvailable) {
             return response()->json([
                 'success' => false,
-                'message' => 'Not enough stock available. Only ' . $product->stock_quantity . ' items left.'
+                'message' => 'Not enough stock available. Only ' . $stockQuantity . ' items left.'
             ]);
         }
 
         $cart = $this->getCart();
-        $productId = $request->product_id;
-        $quantity = $request->quantity;
 
-        if (isset($cart[$productId])) {
-            // Update quantity if product already in cart
-            $newQuantity = $cart[$productId]['quantity'] + $quantity;
+        if (isset($cart[$itemKey])) {
+            // Update quantity if item already in cart
+            $newQuantity = $cart[$itemKey]['quantity'] + $quantity;
 
-            // Check stock again
-            if ($product->stock_quantity < $newQuantity) {
+            // Check stock again for products
+            if ($itemType === 'product' && $item->stock_quantity < $newQuantity) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Cannot add more items. Only ' . $product->stock_quantity . ' items available.'
+                    'message' => 'Cannot add more items. Only ' . $item->stock_quantity . ' items available.'
                 ]);
             }
 
-            $cart[$productId]['quantity'] = $newQuantity;
+            $cart[$itemKey]['quantity'] = $newQuantity;
         } else {
-            // Add new product to cart
-            $cart[$productId] = [
-                'id' => $product->id,
-                'name' => $product->name,
-                'slug' => $product->slug,
-                'price' => $product->effective_price,
-                'original_price' => $product->price,
-                'image' => $product->image,
+            // Add new item to cart
+            $cart[$itemKey] = [
+                'id' => $item->id,
+                'name' => $item->name,
+                'slug' => $item->slug,
+                'price' => $itemType === 'cooked_food' ? $item->price : $item->effective_price,
+                'original_price' => $itemType === 'cooked_food' ? $item->price : $item->price,
+                'image' => $item->image,
                 'quantity' => $quantity,
-                'category' => $product->category->name ?? 'Pet Product'
+                'category' => $itemType === 'cooked_food' ? ucfirst($item->category) : ($item->category->name ?? 'Pet Product'),
+                'item_type' => $itemType
             ];
         }
 
@@ -140,7 +197,7 @@ class CartController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Product added to cart successfully!',
+            'message' => ($itemType === 'cooked_food' ? 'Cooked food' : 'Product') . ' added to cart successfully!',
             'cart_count' => array_sum(array_column($cart, 'quantity')),
             'cart_total' => $this->getCartTotal($cart),
             'cart_html' => $this->getCartPopupHtml($cart)
@@ -152,31 +209,80 @@ class CartController extends Controller
      */
     public function update(Request $request)
     {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:0'
-        ]);
+        // Check if user is authenticated for database operations
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please login to update cart items.',
+                'redirect' => route('login')
+            ], 401);
+        }
+
+        $itemType = $request->input('item_type', 'product');
+        $itemId = $request->input('item_id') ?? $request->input('product_id');
+        $quantity = $request->input('quantity', 1);
+
+        // Validate input
+        if (!$itemId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Item ID is required'
+            ], 400);
+        }
+
+        // Validate based on item type
+        if ($itemType === 'cooked_food') {
+            $cookedFood = \App\Models\CookedFood::find($itemId);
+            if (!$cookedFood) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cooked food not found'
+                ], 404);
+            }
+            $itemKey = 'cooked_food_' . $itemId;
+        } else {
+            $product = \App\Models\Product::find($itemId);
+            if (!$product) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product not found'
+                ], 404);
+            }
+            $itemKey = 'product_' . $itemId;
+        }
+
+        // Validate quantity
+        if (!is_numeric($quantity) || $quantity < 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid quantity'
+            ], 400);
+        }
 
         $cart = $this->getCart();
-        $productId = $request->product_id;
-        $quantity = $request->quantity;
 
         if ($quantity == 0) {
             // Remove item if quantity is 0
-            unset($cart[$productId]);
+            unset($cart[$itemKey]);
         } else {
-            $product = Product::findOrFail($productId);
-
-            // Check stock
-            if ($product->stock_quantity < $quantity) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Not enough stock available.'
-                ]);
+            if ($itemType === 'product') {
+                $product = \App\Models\Product::findOrFail($itemId);
+                // Check stock for products
+                if ($product->stock_quantity < $quantity) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Not enough stock available.'
+                    ]);
+                }
             }
 
-            if (isset($cart[$productId])) {
-                $cart[$productId]['quantity'] = $quantity;
+            if (isset($cart[$itemKey])) {
+                $cart[$itemKey]['quantity'] = $quantity;
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Item not found in cart'
+                ], 404);
             }
         }
 
@@ -184,17 +290,17 @@ class CartController extends Controller
 
         // Calculate new totals efficiently
         $totals = $this->calculateCartTotals($cart);
-        $newSubtotal = isset($totals['item_subtotals'][$productId]) ? 
-            number_format($totals['item_subtotals'][$productId], 2) : '0.00';
+        $newSubtotal = isset($totals['item_subtotals'][$itemKey]) ? 
+            number_format($totals['item_subtotals'][$itemKey], 2) : '0.00';
 
         return response()->json([
             'success' => true,
             'cart_count' => array_sum(array_column($cart, 'quantity')),
             'cart_total' => $totals['subtotal'],
-            'new_total' => number_format($totals['subtotal'], 2),
+            'new_total' => $totals['subtotal'],
             'new_subtotal' => $newSubtotal,
             'shipping' => $totals['shipping'],
-            'final_total' => number_format($totals['final_total'], 2),
+            'final_total' => $totals['final_total'],
             'cart_html' => $this->getCartPopupHtml($cart)
         ]);
     }
@@ -204,11 +310,40 @@ class CartController extends Controller
      */
     public function remove(Request $request)
     {
-        $productId = $request->product_id;
+        // Check if user is authenticated for database operations
+        if (!Auth::check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please login to modify cart.',
+                'redirect' => route('login')
+            ], 401);
+        }
+
+        $itemType = $request->input('item_type', 'product');
+        $itemId = $request->input('item_id') ?? $request->input('product_id');
+
+        if (!$itemId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Item ID is required'
+            ], 400);
+        }
+
+        if ($itemType === 'cooked_food') {
+            $itemKey = 'cooked_food_' . $itemId;
+        } else {
+            $itemKey = 'product_' . $itemId;
+        }
+
         $cart = $this->getCart();
 
-        if (isset($cart[$productId])) {
-            unset($cart[$productId]);
+        $itemRemoved = false;
+        if (isset($cart[$itemKey])) {
+            unset($cart[$itemKey]);
+            $itemRemoved = true;
+        }
+
+        if ($itemRemoved) {
             $this->saveCart($cart);
         }
 
@@ -217,12 +352,11 @@ class CartController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Item removed from cart',
+            'message' => $itemRemoved ? 'Item removed from cart' : 'Item was not in cart',
             'cart_count' => array_sum(array_column($cart, 'quantity')),
             'cart_total' => $totals['subtotal'],
-            'new_total' => number_format($totals['subtotal'], 2),
             'shipping' => $totals['shipping'],
-            'final_total' => number_format($totals['final_total'], 2),
+            'final_total' => $totals['final_total'],
             'cart_html' => $this->getCartPopupHtml($cart)
         ]);
     }
@@ -238,10 +372,16 @@ class CartController extends Controller
         // Calculate totals efficiently
         $totals = $this->calculateCartTotals($cart);
         
+        // Apply coupon discount if available
+        $discountAmount = $this->couponService->getDiscountAmount($totals['subtotal']);
+        
+        // Calculate final total: subtotal + shipping - discount
+        $finalTotal = max(0, $totals['subtotal'] + $totals['shipping'] - $discountAmount);
+        
         // Prepare cart items with calculated subtotals
-        foreach ($cart as $item) {
+        foreach ($cart as $itemKey => $item) {
             $item['current_price'] = $item['price']; // Use consistent naming
-            $item['subtotal'] = $totals['item_subtotals'][$item['id']];
+            $item['subtotal'] = $totals['item_subtotals'][$itemKey];
             $cartItems[] = $item;
         }
 
@@ -249,7 +389,9 @@ class CartController extends Controller
             'cartItems' => $cartItems,
             'total' => $totals['subtotal'],
             'shipping' => $totals['shipping'],
-            'finalTotal' => $totals['final_total']
+            'finalTotal' => $finalTotal,
+            'discountAmount' => $discountAmount,
+            'appliedCoupon' => $this->couponService->getAppliedCoupon()
         ]);
     }
 
@@ -275,13 +417,34 @@ class CartController extends Controller
                 'cartItems' => [],
                 'subtotal' => 0,
                 'shipping' => 0,
+                'discount' => 0,
                 'finalTotal' => 0,
-                'addresses' => $user->addresses
+                'addresses' => $user->addresses,
+                'appliedCoupon' => null
             ]);
         }
 
         // Calculate totals using optimized method
         $totals = $this->calculateCartTotals($cart);
+        
+        // Get coupon information
+        $couponService = app(CouponService::class);
+        $appliedCoupon = $couponService->getAppliedCoupon();
+        $discountAmount = 0;
+        
+        if ($appliedCoupon) {
+            // Validate coupon before checkout
+            $validation = $couponService->validateAppliedCoupon($totals['subtotal']);
+            if (!$validation['valid']) {
+                session()->flash('error', $validation['message']);
+                $appliedCoupon = null;
+            } else {
+                $discountAmount = $couponService->getDiscountAmount($totals['subtotal']);
+            }
+        }
+        
+        // Recalculate final total with discount
+        $finalTotal = $totals['subtotal'] + $totals['shipping'] - $discountAmount;
         
         // Prepare cart items for display with proper data structure
         $cartItems = [];
@@ -303,8 +466,10 @@ class CartController extends Controller
             'cartItems' => $cartItems,
             'subtotal' => $totals['subtotal'],
             'shipping' => $totals['shipping'],
-            'finalTotal' => $totals['final_total'],
-            'addresses' => $user->addresses
+            'discount' => $discountAmount,
+            'finalTotal' => $finalTotal,
+            'addresses' => $user->addresses,
+            'appliedCoupon' => $appliedCoupon
         ]);
     }
 
@@ -380,17 +545,24 @@ class CartController extends Controller
         $subtotal = 0;
         $itemSubtotals = [];
         
-        foreach ($cart as $productId => $item) {
-            $itemSubtotal = $item['price'] * $item['quantity'];
+        foreach ($cart as $itemKey => $item) {
+            // Ensure required keys exist with safe defaults
+            $price = isset($item['price']) ? (float)$item['price'] : 0;
+            $quantity = isset($item['quantity']) ? (int)$item['quantity'] : 0;
+            
+            $itemSubtotal = $price * $quantity;
             $subtotal += $itemSubtotal;
-            $itemSubtotals[$productId] = $itemSubtotal;
+            $itemSubtotals[$itemKey] = $itemSubtotal;
         }
+        
+        $shipping = $subtotal >= 500 ? 0 : 50;
+        $finalTotal = $subtotal + $shipping;
         
         return [
             'subtotal' => $subtotal,
             'item_subtotals' => $itemSubtotals,
-            'shipping' => $subtotal >= 500 ? 0 : 50,
-            'final_total' => $subtotal >= 500 ? $subtotal : $subtotal + 50
+            'shipping' => $shipping,
+            'final_total' => $finalTotal
         ];
     }
 
@@ -415,22 +587,34 @@ class CartController extends Controller
             return '<li class="text-center p-4"><p>Your cart is empty</p></li>';
         }
 
-        foreach ($cart as $item) {
-            $subtotal = $item['price'] * $item['quantity'];
+        foreach ($cart as $itemKey => $item) {
+            // Ensure all required keys exist with safe defaults
+            $price = isset($item['price']) ? (float)$item['price'] : 0;
+            $quantity = isset($item['quantity']) ? (int)$item['quantity'] : 1;
+            $name = isset($item['name']) ? $item['name'] : 'Unknown Item';
+            $image = isset($item['image']) ? $item['image'] : null;
+            $id = isset($item['id']) ? $item['id'] : 0;
+            
+            $subtotal = $price * $quantity;
             $total += $subtotal;
 
-            $imageUrl = $item['image'] ? asset('storage/' . $item['image']) : asset('assets/img/food-1.png');
+            $imageUrl = $image ? asset('storage/' . $image) : asset('assets/img/food-1.png');
 
+            // Determine item type and ID for removal
+            $itemType = strpos($itemKey, 'cooked_food_') === 0 ? 'cooked_food' : 'product';
+            
             $html .= '
                 <li class="d-flex align-items-center position-relative">
                     <div class="p-img light-bg">
-                        <img src="' . $imageUrl . '" alt="' . $item['name'] . '">
+                        <img src="' . $imageUrl . '" alt="' . htmlspecialchars($name) . '">
                     </div>
                     <div class="p-data">
-                        <h3 class="font-semi-bold">' . $item['name'] . '</h3>
-                        <p class="theme-clr font-semi-bold">' . $item['quantity'] . ' x ₹' . number_format($item['price'], 2) . '</p>
+                        <h3 class="font-semi-bold">' . htmlspecialchars($name) . '</h3>
+                        <p class="theme-clr font-semi-bold">' . $quantity . ' x ₹' . number_format($price, 2) . '</p>
                     </div>
-                    <a href="javascript:void(0)" class="remove-cart-item" data-product-id="' . $item['id'] . '"></a>
+                    <a href="javascript:void(0)" class="remove-cart-item" 
+                       data-item-id="' . $id . '" 
+                       data-item-type="' . $itemType . '"></a>
                 </li>';
         }
 

@@ -125,7 +125,7 @@
                     </ul>
                 </div>
                 
-                <div class="sidebar sidebar-two">
+                {{-- <div class="sidebar sidebar-two">
                     <h3>Newsletter</h3>
                     <div class="boder-bar"></div>
                     <p>Enter your email and get recent news and updates.</p>
@@ -133,7 +133,7 @@
                         <input type="email" name="email" placeholder="Enter your email address..." required>
                         <button type="submit" class="button">Subscribe</button>
                     </form>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>

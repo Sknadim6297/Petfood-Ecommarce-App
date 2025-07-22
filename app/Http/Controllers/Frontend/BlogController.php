@@ -74,7 +74,7 @@ class BlogController extends Controller
      */
     public function show($slug)
     {
-        $blog = Blog::with(['category', 'user'])
+        $blog = Blog::with(['category', 'user', 'approvedComments'])
             ->where('slug', $slug)
             ->active()
             ->published()
@@ -82,6 +82,9 @@ class BlogController extends Controller
 
         // Increment view count
         $blog->incrementViews();
+
+        // Get comments for this blog
+        $comments = $blog->approvedComments()->latest()->get();
 
         // Get related posts
         $relatedPosts = Blog::with('category')
@@ -127,7 +130,7 @@ class BlogController extends Controller
             ->take(6)
             ->get();
 
-        return view('frontend.blog.details', compact('blog', 'relatedPosts', 'categories', 'recentBlogs', 'galleryImages'));
+        return view('frontend.blog.details', compact('blog', 'comments', 'relatedPosts', 'categories', 'recentBlogs', 'galleryImages'));
     }
 
     /**

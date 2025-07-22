@@ -272,6 +272,18 @@
   ul.recent-post span {
     font-size: 14px;
   }
+  .recent-post img {
+    width: 60px;
+    height: 60px;
+  }
+  .comment li img {
+    width: 45px;
+    height: 45px;
+  }
+  .comment li {
+    padding: 15px;
+    gap: 10px;
+  }
   .content-us span {
     margin-bottom: 0px;
   }

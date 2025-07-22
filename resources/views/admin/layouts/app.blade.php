@@ -739,13 +739,6 @@
                     </a>
                 </div>
                 <div class="nav-item">
-                    <a href="{{ route('admin.orders.index') }}" class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-shopping-cart"></i>
-                        <span class="nav-text">Orders</span>
-                        <span class="nav-badge">{{ \App\Models\Order::where('status', 'pending')->count() }}</span>
-                    </a>
-                </div>
-                <div class="nav-item">
                     <a href="{{ route('admin.categories.index') }}" class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-tags"></i>
                         <span class="nav-text">Categories</span>
@@ -753,20 +746,29 @@
                     </a>
                 </div>
                 <div class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="{{ route('admin.coupons.index') }}" class="nav-link {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-percent"></i>
                         <span class="nav-text">Coupons</span>
+                        <span class="nav-badge">{{ \App\Models\Coupon::active()->count() }}</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ route('admin.cooked-foods.index') }}" class="nav-link {{ request()->routeIs('admin.cooked-foods.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-utensils"></i>
+                        <span class="nav-text">Cooked Foods</span>
+                        <span class="nav-badge">{{ \App\Models\CookedFood::active()->count() }}</span>
                     </a>
                 </div>
             </div>
 
-            <!-- Pet Management -->
+            <!-- Order Management -->
             <div class="nav-section">
-                <div class="nav-section-title">Pet Management</div>
-                <div class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-paw"></i>
-                        <span class="nav-text">Pets</span>
+                <div class="nav-section-title">Order Management</div>
+              <div class="nav-item">
+                    <a href="{{ route('admin.orders.index') }}" class="nav-link {{ request()->routeIs('admin.orders.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-shopping-cart"></i>
+                        <span class="nav-text">Orders</span>
+                        <span class="nav-badge">{{ \App\Models\Order::where('status', 'pending')->count() }}</span>
                     </a>
                 </div>
             </div>
@@ -786,6 +788,13 @@
                         <i class="nav-icon fas fa-blog"></i>
                         <span class="nav-text">Manage Blogs</span>
                         <span class="nav-badge">{{ \App\Models\Blog::count() }}</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ route('admin.content.blog-comments.index') }}" class="nav-link {{ request()->routeIs('admin.content.blog-comments.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-comments"></i>
+                        <span class="nav-text">Blog Comments</span>
+                        <span class="nav-badge">{{ \App\Models\BlogComment::count() }}</span>
                     </a>
                 </div>
                 <div class="nav-item">

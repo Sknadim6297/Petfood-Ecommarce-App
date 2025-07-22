@@ -424,6 +424,12 @@
                                     <td>Subtotal:</td>
                                     <td class="text-end">₹{{ number_format($order->subtotal, 2) }}</td>
                                 </tr>
+                                @if($order->coupon_code && $order->discount_amount > 0)
+                                <tr style="color: #28a745;">
+                                    <td>Discount ({{ $order->coupon_code }}):</td>
+                                    <td class="text-end">-₹{{ number_format($order->discount_amount, 2) }}</td>
+                                </tr>
+                                @endif
                                 <tr>
                                     <td>Shipping:</td>
                                     <td class="text-end">

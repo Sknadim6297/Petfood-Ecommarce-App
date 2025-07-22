@@ -12,9 +12,10 @@ class CartWishlistManager {
             if (e.target.closest('.add-to-cart-btn')) {
                 e.preventDefault();
                 const button = e.target.closest('.add-to-cart-btn');
-                const productId = button.getAttribute('data-product-id');
-                if (productId) {
-                    this.addToCart(productId, button);
+                const itemId = button.getAttribute('data-item-id') || button.getAttribute('data-product-id');
+                const itemType = button.getAttribute('data-item-type') || 'product';
+                if (itemId) {
+                    this.addToCart(itemId, itemType, button);
                 }
             }
         });
@@ -24,9 +25,10 @@ class CartWishlistManager {
             if (e.target.closest('.wishlist-toggle-btn') || e.target.closest('.wishlist-btn')) {
                 e.preventDefault();
                 const button = e.target.closest('.wishlist-toggle-btn, .wishlist-btn');
-                const productId = button.getAttribute('data-product-id');
-                if (productId) {
-                    this.toggleWishlist(productId, button);
+                const itemId = button.getAttribute('data-item-id') || button.getAttribute('data-product-id');
+                const itemType = button.getAttribute('data-item-type') || 'product';
+                if (itemId) {
+                    this.toggleWishlist(itemId, itemType, button);
                 }
             }
         });
@@ -36,15 +38,62 @@ class CartWishlistManager {
             if (e.target.closest('.quick-add-cart')) {
                 e.preventDefault();
                 const button = e.target.closest('.quick-add-cart');
-                const productId = button.getAttribute('data-product-id');
-                if (productId) {
-                    this.addToCart(productId, button);
+                const itemId = button.getAttribute('data-item-id') || button.getAttribute('data-product-id');
+                const itemType = button.getAttribute('data-item-type') || 'product';
+                if (itemId) {
+                    this.addToCart(itemId, itemType, button);
                 }
+            }
+        });
+
+        // Cart remove buttons
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.remove-cart-item')) {
+                e.preventDefault();
+                const button = e.target.closest('.remove-cart-item');
+                const itemId = button.getAttribute('data-item-id') || button.getAttribute('data-product-id');
+                const itemType = button.getAttribute('data-item-type') || 'product';
+                if (itemId && confirm('Remove this item from cart?')) {
+                    window.removeCartItem(itemId, itemType, button);
+                }
+            }
+        });
+
+        // Cart quantity buttons
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.qty-btn')) {
+                e.preventDefault();
+                const button = e.target.closest('.qty-btn');
+                const input = button.parentNode.querySelector('input[type="number"]');
+                const itemId = input.getAttribute('data-item-id');
+                const itemType = input.getAttribute('data-item-type') || 'product';
+                
+                if (button.classList.contains('inc')) {
+                    const newValue = parseInt(input.value) + 1;
+                    input.value = newValue;
+                    window.updateCartQuantity(itemId, itemType, newValue, input);
+                } else if (button.classList.contains('dec')) {
+                    const newValue = Math.max(0, parseInt(input.value) - 1);
+                    input.value = newValue;
+                    window.updateCartQuantity(itemId, itemType, newValue, input);
+                }
+            }
+        });
+
+        // Cart quantity input change
+        document.addEventListener('change', (e) => {
+            if (e.target.matches('input[data-item-id]')) {
+                const input = e.target;
+                const itemId = input.getAttribute('data-item-id');
+                const itemType = input.getAttribute('data-item-type') || 'product';
+                const quantity = Math.max(0, parseInt(input.value) || 0);
+                input.value = quantity;
+                window.updateCartQuantity(itemId, itemType, quantity, input);
             }
         });
     }
 
-    async addToCart(productId, button = null) {
+    async addToCart(itemId, itemType = 'product', button = null) {
         try {
             // Check authentication first
             const authCheck = await this.checkAuthentication();
@@ -64,7 +113,8 @@ class CartWishlistManager {
                     'X-CSRF-TOKEN': this.csrfToken
                 },
                 body: JSON.stringify({
-                    product_id: productId,
+                    item_id: itemId,
+                    item_type: itemType,
                     quantity: 1
                 })
             });
@@ -76,7 +126,8 @@ class CartWishlistManager {
             }
 
             if (data.success) {
-                this.showToast('Product added to cart!', 'success');
+                const itemName = itemType === 'cooked_food' ? 'Cooked food' : 'Product';
+                this.showToast(`${itemName} added to cart!`, 'success');
                 this.updateCartCount();
                 
                 // Update button text temporarily
@@ -106,7 +157,7 @@ class CartWishlistManager {
         }
     }
 
-    async toggleWishlist(productId, button = null) {
+    async toggleWishlist(itemId, itemType = 'product', button = null) {
         try {
             // Check authentication first
             const authCheck = await this.checkAuthentication();
@@ -126,7 +177,8 @@ class CartWishlistManager {
                     'X-CSRF-TOKEN': this.csrfToken
                 },
                 body: JSON.stringify({
-                    product_id: productId
+                    item_id: itemId,
+                    item_type: itemType
                 })
             });
 
@@ -140,18 +192,32 @@ class CartWishlistManager {
                 // Update button state
                 if (button) {
                     const heartIcon = button.querySelector('i');
-                    if (data.action === 'added') {
+                    if (data.added || data.action === 'added') {
                         button.classList.add('active');
                         heartIcon.className = 'fa-solid fa-heart';
                         heartIcon.style.color = '#e74c3c';
                         button.setAttribute('title', 'Remove from wishlist');
-                        this.showToast('Added to wishlist!', 'success');
+                        const itemName = itemType === 'cooked_food' ? 'Cooked food' : 'Product';
+                        this.showToast(`${itemName} added to wishlist!`, 'success');
                     } else {
                         button.classList.remove('active');
                         heartIcon.className = 'fa-regular fa-heart';
                         heartIcon.style.color = '';
                         button.setAttribute('title', 'Add to wishlist');
-                        this.showToast('Removed from wishlist', 'info');
+                        const itemName = itemType === 'cooked_food' ? 'Cooked food' : 'Product';
+                        this.showToast(`${itemName} removed from wishlist`, 'info');
+                        
+                        // If we're on the wishlist page, remove the item
+                        const wishlistItem = document.getElementById(`wishlist-item-${itemType}-${itemId}`);
+                        if (wishlistItem) {
+                            wishlistItem.remove();
+                            
+                            // Check if wishlist is now empty
+                            const wishlistItems = document.querySelectorAll('[id^="wishlist-item-"]');
+                            if (wishlistItems.length === 0) {
+                                location.reload(); // Reload to show empty state
+                            }
+                        }
                     }
                 }
                 
@@ -809,3 +875,149 @@ window.showToast = function(message, type = 'info') {
         window.cartWishlistManager.showToast(message, type);
     }
 };
+
+// Cart quantity update functionality
+function updateCartQuantity(itemId, itemType = 'product', quantity = 1, element = null) {
+    if (element) {
+        element.disabled = true;
+    }
+
+    fetch('/cart/update', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            item_id: itemId,
+            item_type: itemType,
+            quantity: quantity,
+            _method: 'PUT'
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (element) {
+            element.disabled = false;
+        }
+
+        if (data.success) {
+            // Update cart count badge
+            if (window.cartWishlistManager) {
+                window.cartWishlistManager.updateCartCount();
+            }
+
+            // Update cart total displays
+            const cartTotal = document.querySelector('.cart-total');
+            if (cartTotal) {
+                cartTotal.textContent = '₹' + data.new_total;
+            }
+
+            // Update item subtotal if element exists
+            if (element) {
+                const row = element.closest('tr');
+                if (row) {
+                    const subtotalElement = row.querySelector('.item-subtotal');
+                    if (subtotalElement && data.new_subtotal) {
+                        subtotalElement.textContent = '₹' + data.new_subtotal;
+                    }
+                }
+            }
+
+            // Update shipping and final total
+            const shippingElement = document.querySelector('.shipping-cost');
+            if (shippingElement) {
+                shippingElement.textContent = '₹' + (data.shipping || 0);
+            }
+
+            const finalTotalElement = document.querySelector('.final-total');
+            if (finalTotalElement) {
+                finalTotalElement.textContent = '₹' + data.final_total;
+            }
+
+            // Remove item if quantity is 0
+            if (quantity == 0 && element) {
+                const row = element.closest('tr');
+                if (row) {
+                    row.remove();
+                }
+            }
+
+            window.showToast('Cart updated successfully', 'success');
+        } else {
+            window.showToast(data.message || 'Failed to update cart', 'error');
+        }
+    })
+    .catch(error => {
+        if (element) {
+            element.disabled = false;
+        }
+        console.error('Error updating cart:', error);
+        window.showToast('Error updating cart', 'error');
+    });
+}
+
+// Remove item from cart
+function removeCartItem(itemId, itemType = 'product', element = null) {
+    if (element) {
+        element.disabled = true;
+    }
+
+    fetch('/cart/remove', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            item_id: itemId,
+            item_type: itemType
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update cart count
+            if (window.cartWishlistManager) {
+                window.cartWishlistManager.updateCartCount();
+            }
+
+            // Remove the item row
+            if (element) {
+                const row = element.closest('tr');
+                if (row) {
+                    row.remove();
+                }
+            }
+
+            // Update totals
+            const cartTotal = document.querySelector('.cart-total');
+            if (cartTotal) {
+                cartTotal.textContent = '₹' + data.cart_total;
+            }
+
+            const finalTotalElement = document.querySelector('.final-total');
+            if (finalTotalElement) {
+                finalTotalElement.textContent = '₹' + data.final_total;
+            }
+
+            window.showToast('Item removed from cart', 'success');
+        } else {
+            if (element) {
+                element.disabled = false;
+            }
+            window.showToast(data.message || 'Failed to remove item', 'error');
+        }
+    })
+    .catch(error => {
+        if (element) {
+            element.disabled = false;
+        }
+        console.error('Error removing item:', error);
+        window.showToast('Error removing item', 'error');
+    });
+}
+
+// Make functions globally available
+window.updateCartQuantity = updateCartQuantity;
+window.removeCartItem = removeCartItem;

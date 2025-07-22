@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\CookedFood;
 use App\Models\Wishlist;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,7 +22,7 @@ class WishlistController extends Controller
         }
 
         $wishlistItems = Wishlist::where('user_id', Auth::id())
-            ->with('product.category')
+            ->with(['product.category', 'cookedFood'])
             ->latest()
             ->get();
         
@@ -133,37 +134,63 @@ class WishlistController extends Controller
             ]);
         }
 
-        $request->validate([
-            'product_id' => 'required|exists:products,id'
-        ]);
+        $itemType = $request->input('item_type', 'product');
+        $itemId = $request->input('item_id');
+
+        if ($itemType === 'cooked_food') {
+            $request->validate([
+                'item_id' => 'required|exists:cooked_foods,id'
+            ]);
+        } else {
+            $request->validate([
+                'item_id' => 'required|exists:products,id'
+            ]);
+        }
 
         $user = Auth::user();
-        $productId = $request->product_id;
 
-        $wishlistItem = Wishlist::where('user_id', $user->id)
-                               ->where('product_id', $productId)
-                               ->first();
+        // Build query conditions
+        $conditions = ['user_id' => $user->id, 'item_type' => $itemType];
+        
+        if ($itemType === 'cooked_food') {
+            $conditions['cooked_food_id'] = $itemId;
+        } else {
+            $conditions['product_id'] = $itemId;
+        }
+
+        $wishlistItem = Wishlist::where($conditions)->first();
 
         if ($wishlistItem) {
             // Remove from wishlist
             $wishlistItem->delete();
-            $inWishlist = false;
-            $message = 'Product removed from wishlist.';
+            $added = false;
+            $message = ($itemType === 'cooked_food' ? 'Cooked food' : 'Product') . ' removed from wishlist.';
         } else {
             // Add to wishlist
-            Wishlist::create([
+            $wishlistData = [
                 'user_id' => $user->id,
-                'product_id' => $productId
-            ]);
-            $inWishlist = true;
-            $message = 'Product added to wishlist!';
+                'item_type' => $itemType
+            ];
+            
+            if ($itemType === 'cooked_food') {
+                $wishlistData['cooked_food_id'] = $itemId;
+                $wishlistData['product_id'] = null;
+            } else {
+                $wishlistData['product_id'] = $itemId;
+                $wishlistData['cooked_food_id'] = null;
+            }
+            
+            Wishlist::create($wishlistData);
+            $added = true;
+            $message = ($itemType === 'cooked_food' ? 'Cooked food' : 'Product') . ' added to wishlist!';
         }
 
         return response()->json([
             'success' => true,
             'message' => $message,
-            'action' => $inWishlist ? 'added' : 'removed',
-            'in_wishlist' => $inWishlist,
+            'added' => $added,
+            'action' => $added ? 'added' : 'removed',
+            'in_wishlist' => $added,
             'wishlist_count' => Wishlist::where('user_id', $user->id)->count()
         ]);
     }

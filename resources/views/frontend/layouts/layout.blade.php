@@ -70,10 +70,10 @@
     <button class="close-search"><span class="fa fa-times"></span></button>
     <div class="search-box-outer">
         <div class="search-box">
-            <form method="post" action="{{ route('products.search') }}">
+            <form method="post" action="{{ route('universal.search') }}">
                 @csrf
                 <div class="form-group">
-                    <input type="search" name="search" placeholder="Search Here..." required="">
+                    <input type="search" name="search" placeholder="Search products and cooked foods..." required="">
                     <button type="submit"><span class="fa fa-search"></span></button>
                 </div>
             </form>

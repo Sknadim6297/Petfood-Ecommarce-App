@@ -131,36 +131,87 @@
                     </div>
 
                     @if($blog->comments_enabled)
+                    <!-- Comments Section -->
                     <div class="comment">
-                        <h3>Comments</h3>
+                        <h3>Comments ({{ $comments->count() }})</h3>
                         <div class="boder-bar"></div>
+                        
+                        @if($comments->count() > 0)
                         <ul>
+                            @foreach($comments as $comment)
                             <li>
-                                <img alt="girl" src="{{ asset('assets/img/comment-1.jpg') }}">
+                                @php
+                                    $avatars = ['comment-1.jpg', 'comment-2.jpg', 'comment-3.jpg', 'man.jpg'];
+                                    $seed = $comment->author_name . $comment->author_email;
+                                    $randomAvatar = $avatars[abs(crc32($seed)) % count($avatars)];
+                                @endphp
+                                <img alt="avatar for {{ $comment->author_name }}" src="{{ asset('assets/img/' . $randomAvatar) }}">
                                 <div class="comment-data">
-                                    <h4>Sample User</h4>
-                                    <span>{{ now()->format('F d, Y') }}</span>
-                                    <p class="pt-4">Comments will be displayed here when comment system is integrated.</p>
+                                    <h4>{{ $comment->author_name }}</h4>
+                                    <span>{{ $comment->created_at->format('F d, Y \a\t g:i A') }}</span>
+                                    <p class="pt-4">{{ $comment->comment }}</p>
                                 </div>
-                                <a href="#" class="button">Reply</a>
+                                @auth
+                                    @if($comment->user_id == Auth::id())
+                                    <form action="{{ route('blog.comments.destroy', $comment) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this comment?')">Delete</button>
+                                    </form>
+                                    @endif
+                                @endauth
                             </li>
+                            @endforeach
                         </ul>
+                        @else
+                        <p class="text-muted">No comments yet. Be the first to comment!</p>
+                        @endif
                     </div>
+                    
+                    <!-- Comment Form -->
                     <div class="comment">
                     <h3>Leave A Comment</h3>
                         <div class="boder-bar"></div>
-                    <form class="leave" method="POST" action="#">
+                    <div class="boder-bar"></div>
+                    
+                    @if(session('success'))
+                        <div class="alert alert-success">{{ session('success') }}</div>
+                    @endif
+                    
+                    @if(session('error'))
+                        <div class="alert alert-danger">{{ session('error') }}</div>
+                    @endif
+                    
+                    <form class="leave" method="POST" action="{{ route('blog.comments.store', $blog) }}">
                         @csrf
+                        @guest
                         <div class="row">
                             <div class="col-lg-6 col-md-6">
-                                <input type="text" name="name" placeholder="Full Name" required>
+                                <input type="text" name="name" placeholder="Full Name" value="{{ old('name') }}" required>
+                                @error('name')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
                             <div class="col-lg-6 col-md-6">
-                                <input type="email" name="email" placeholder="Email Address" required>
+                                <input type="email" name="email" placeholder="Email Address" value="{{ old('email') }}" required>
+                                @error('email')
+                                    <small class="text-danger">{{ $message }}</small>
+                                @enderror
                             </div>
                         </div>
-                        <textarea name="message" placeholder="Your Message" required></textarea>
+                        @else
+                        <div class="alert alert-info">
+                            Commenting as: <strong>{{ Auth::user()->name }}</strong>
+                        </div>
+                        @endguest
+                        
+                        <textarea name="comment" placeholder="Your Comment" required>{{ old('comment') }}</textarea>
+                        @error('comment')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                        
                         <button type="submit" class="button mt-4 mb-lg-0 mb-5">Post Comment</button>
+                        <p class="text-muted mt-2"><small>Your comment will be reviewed before being published.</small></p>
                     </form>
                 </div>
                 @endif
@@ -248,7 +299,7 @@
                         </ul>
                         <h5><i class="fa-brands fa-instagram"></i>Follow @petnet</h5>
                     </div>
-                    <div class="sidebar sidebar-two">
+                    {{-- <div class="sidebar sidebar-two">
                         <h3>Newsletter</h3>
                         <div class="boder-bar"></div>
                         <p>Enter your email and get recent news 
@@ -257,7 +308,7 @@
                             <input type="email" name="email" placeholder="Enter your email address..." required>
                             <button type="submit" class="button">Subscribe</button>
                         </form>
-                    </div>
+                    </div> --}}
             </div>
         </div>
     </div>

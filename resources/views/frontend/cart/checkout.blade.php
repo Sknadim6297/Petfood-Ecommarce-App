@@ -983,6 +983,12 @@
                                     <span>Subtotal:</span>
                                     <span>₹{{ number_format($subtotal, 2) }}</span>
                                 </div>
+                                @if($appliedCoupon && $discount > 0)
+                                <div class="total-row" style="color: #28a745;">
+                                    <span>Discount ({{ $appliedCoupon['code'] }}):</span>
+                                    <span>-₹{{ number_format($discount, 2) }}</span>
+                                </div>
+                                @endif
                                 <div class="total-row">
                                     <span>Shipping:</span>
                                     <span>{{ $shipping == 0 ? 'Free' : '₹' . number_format($shipping, 2) }}</span>

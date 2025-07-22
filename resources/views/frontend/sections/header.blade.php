@@ -102,9 +102,7 @@
                       <a href="javascript:void(0)">Shop</a>
                       <div class="dropdown">
                         <a href="{{ route('products.index') }}">our products</a>
-                        <a href="{{ route('cart.index') }}">shopping cart</a>
-                        <a href="{{ route('wishlist.index') }}">wishlist</a>
-                        <a href="{{ route('checkout.index') }}">checkout</a>
+                        <a href="{{ route('cooked-foods.index') }}">cooked foods</a>
                       </div>
                     </li>
                     <li class="navbar-dropdown menu-item-children">
@@ -119,11 +117,6 @@
         </ul>
       </nav>
       <div class="menu-end">
-            <div class="header-search-button search-box-outer">
-            <a href="javascript:void(0)" class="search-btn">
-                <svg height="512" viewBox="0 0 24 24" width="512" xmlns="http://www.w3.org/2000/svg"><g id="_12" data-name="12"><path d="m21.71 20.29-2.83-2.82a9.52 9.52 0 1 0 -1.41 1.41l2.82 2.83a1 1 0 0 0 1.42 0 1 1 0 0 0 0-1.42zm-17.71-8.79a7.5 7.5 0 1 1 7.5 7.5 7.5 7.5 0 0 1 -7.5-7.5z"></path></g></svg>
-              </a>
-            </div>
                <div class="line"></div>
                <!-- Header Icons Container -->
                <div class="header-icons">
@@ -194,9 +187,7 @@
 
               <ul class="sub-menu">
                 <li><a href="{{ route('products.index') }}">our products</a></li>
-                <li><a href="{{ route('products.details') }}">product details</a></li>
-                <li><a href="{{ route('cart.index') }}">shop cart</a></li>
-                <li><a href="{{ route('checkout.index') }}">cart checkout</a></li>
+                <li><a href="{{ route('cooked-foods.index') }}">cooked foods</a></li>
                 <li><a href="{{ route('wishlist.index') }}">wishlist</a></li>
               
               </ul>

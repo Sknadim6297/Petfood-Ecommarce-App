@@ -60,43 +60,56 @@
                 <div class="wishlist-items">
                     <div class="row">
                         @foreach($wishlistItems as $item)
-                            <div class="col-md-4 col-sm-6 mb-4" id="wishlist-item-{{ $item->product->id }}">
+                            @php
+                                $itemData = $item->item_type === 'cooked_food' ? $item->cookedFood : $item->product;
+                                $itemId = $itemData ? $itemData->id : 0;
+                                $itemType = $item->item_type ?? 'product';
+                                $itemPrice = $itemData ? ($itemType === 'cooked_food' ? $itemData->price : $itemData->effective_price) : 0;
+                                $itemImage = $itemData && $itemData->image ? $itemData->image : null;
+                                $itemName = $itemData ? $itemData->name : 'Unknown Item';
+                                $itemSlug = $itemData ? $itemData->slug : '#';
+                                $showRoute = $itemType === 'cooked_food' ? 'cooked-food.show' : 'product.show';
+                            @endphp
+                            
+                            @if($itemData)
+                            <div class="col-md-4 col-sm-6 mb-4" id="wishlist-item-{{ $itemType }}-{{ $itemId }}">
                                 <div class="healthy-product">
                                     <div class="healthy-product-img">
-                                        @if($item->product->image)
-                                          <img src="{{ asset('storage/' . $item->product->image) }}" alt="{{ $item->product->name }}">
+                                        @if($itemImage)
+                                          <img src="{{ $itemType === 'cooked_food' ? $itemData->image_url : asset('storage/' . $itemImage) }}" alt="{{ $itemName }}">
                                         @else
-                                          <img src="{{ asset('assets/img/food-1.png') }}" alt="{{ $item->product->name }}">
+                                          <img src="{{ asset('assets/img/food-1.png') }}" alt="{{ $itemName }}">
                                         @endif
                                         
                                         <ul class="star">
                                           @for($i = 1; $i <= 5; $i++)
-                                            <li><i class="fa-solid fa-star {{ $i <= ($item->product->rating ?? 4) ? '' : 'text-muted' }}"></i></li>
+                                            <li><i class="fa-solid fa-star {{ $i <= 4 ? '' : 'text-muted' }}"></i></li>
                                           @endfor
                                         </ul>
                                         
                                         <div class="add-to-cart">
-                                          <a href="#" class="add-to-cart-btn" data-product-id="{{ $item->product->id }}">Add to Cart</a>
-                                          <a href="#" class="wishlist-toggle-btn active" data-product-id="{{ $item->product->id }}" title="Remove from wishlist">
+                                          <a href="#" class="add-to-cart-btn" data-item-id="{{ $itemId }}" data-item-type="{{ $itemType }}">Add to Cart</a>
+                                          <a href="#" class="wishlist-toggle-btn active" data-item-id="{{ $itemId }}" data-item-type="{{ $itemType }}" title="Remove from wishlist">
                                             <i class="fa-solid fa-heart"></i>
                                           </a>
                                         </div>
                                         
-                                        @if($item->product->is_on_sale)
-                                          <h4>-{{ $item->product->discount_percentage ?? '10' }}%</h4>
+                                        @if($itemType === 'product' && $itemData->is_on_sale)
+                                          <h4>-{{ $itemData->discount_percentage ?? '10' }}%</h4>
                                         @endif
                                     </div>
                                     
-                                    <span>{{ $item->product->category->name ?? 'Uncategorized' }}</span>
-                                    <a href="{{ route('product.show', $item->product->slug) }}">{{ $item->product->name }}</a>
+                                    <span>{{ $itemType === 'cooked_food' ? ucfirst($itemData->category) : ($itemData->category->name ?? 'Uncategorized') }}</span>
+                                    <a href="{{ route($showRoute, $itemSlug) }}">{{ $itemName }}</a>
                                     
-                                    @if($item->product->is_on_sale)
-                                      <h6><del>₹{{ number_format($item->product->original_price ?? $item->product->price * 1.2, 2) }}</del>₹{{ number_format($item->product->price, 2) }}</h6>
+                                    @if($itemType === 'product' && $itemData->is_on_sale)
+                                      <h6><del>₹{{ number_format($itemData->original_price ?? $itemData->price * 1.2, 2) }}</del>₹{{ number_format($itemPrice, 2) }}</h6>
                                     @else
-                                      <h6>₹{{ number_format($item->product->price, 2) }}</h6>
+                                      <h6>₹{{ number_format($itemPrice, 2) }}</h6>
                                     @endif
                                 </div>
                             </div>
+                            @endif
                         @endforeach
                     </div>
                     
