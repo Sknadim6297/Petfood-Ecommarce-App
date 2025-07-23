@@ -374,6 +374,7 @@ $(document).ready(function() {
         const newSubtotal = response.new_subtotal || '0.00';
         const newTotal = parseFloat(response.cart_total) || 0;
         const shipping = parseFloat(response.shipping) || 0;
+        const discountAmount = parseFloat(response.discount_amount) || 0;
         const finalTotal = parseFloat(response.final_total) || 0;
         
         // Update product subtotal
@@ -384,8 +385,16 @@ $(document).ready(function() {
         // Update quantity input
         row.find('.quantity-input').val(quantity);
         
-        // Update cart subtotal (not the final total)
+        // Update cart subtotal
         $('#cart-subtotal').text(newTotal.toFixed(2));
+        
+        // Update discount row
+        if (discountAmount > 0) {
+            $('#discount-amount').text(discountAmount.toFixed(2));
+            $('#discount-row').show();
+        } else {
+            $('#discount-row').hide();
+        }
         
         // Update shipping display
         $('.Shipping .woocommerce-Price-amount').text(
@@ -394,6 +403,16 @@ $(document).ready(function() {
         
         // Update final total
         $('#cart-total').text(finalTotal.toFixed(2));
+        
+        // Update applied coupon display if coupon exists
+        if (response.applied_coupon) {
+            appliedCoupon = response.applied_coupon;
+            updateCouponDisplay();
+        } else if (discountAmount === 0 && appliedCoupon) {
+            // Coupon was removed due to cart total changes
+            appliedCoupon = null;
+            hideCouponDisplay();
+        }
     }
     
     // Remove item from cart
@@ -420,10 +439,19 @@ $(document).ready(function() {
                             // Update totals with new response structure
                             const newTotal = parseFloat(response.cart_total) || 0;
                             const shipping = parseFloat(response.shipping) || 0;
+                            const discountAmount = parseFloat(response.discount_amount) || 0;
                             const finalTotal = parseFloat(response.final_total) || 0;
                             
                             // Update subtotal
                             $('#cart-subtotal').text(newTotal.toFixed(2));
+                            
+                            // Update discount row
+                            if (discountAmount > 0) {
+                                $('#discount-amount').text(discountAmount.toFixed(2));
+                                $('#discount-row').show();
+                            } else {
+                                $('#discount-row').hide();
+                            }
                             
                             // Update final total
                             $('#cart-total').text(finalTotal.toFixed(2));
@@ -432,6 +460,16 @@ $(document).ready(function() {
                             $('.Shipping .woocommerce-Price-amount').text(
                                 shipping === 0 ? 'free' : `₹${shipping.toFixed(2)}`
                             );
+                            
+                            // Update applied coupon display if coupon exists
+                            if (response.applied_coupon) {
+                                appliedCoupon = response.applied_coupon;
+                                updateCouponDisplay();
+                            } else if (discountAmount === 0 && appliedCoupon) {
+                                // Coupon was removed due to cart total changes
+                                appliedCoupon = null;
+                                hideCouponDisplay();
+                            }
                         }
                         
                         // Update header cart count
@@ -683,6 +721,38 @@ $(document).ready(function() {
         setTimeout(function() {
             container.empty();
         }, 5000);
+    }
+    
+    // Update coupon display with current applied coupon
+    function updateCouponDisplay() {
+        if (appliedCoupon) {
+            showAppliedCoupon(appliedCoupon, appliedCoupon.discount_amount);
+        }
+    }
+    
+    // Hide coupon display when coupon is removed
+    function hideCouponDisplay() {
+        $('#applied-coupon').hide();
+        $('#coupon-form').show();
+        $('#coupon_code').val('');
+    }
+    
+    // Show applied coupon
+    function showAppliedCoupon(coupon, discountAmount) {
+        const discountText = coupon.discount_type === 'percentage' 
+            ? `${coupon.discount}% OFF` 
+            : `₹${coupon.discount} OFF`;
+        
+        $('#coupon-display-code').text(coupon.code);
+        $('#coupon-display-discount').text(discountText);
+        $('#coupon-display-savings').text(`You saved ₹${discountAmount.toFixed(2)}`);
+        
+        $('#coupon-form').hide();
+        $('#applied-coupon').show();
+        
+        // Show discount row in totals
+        $('#discount-amount').text(discountAmount.toFixed(2));
+        $('#discount-row').show();
     }
 });
 </script>

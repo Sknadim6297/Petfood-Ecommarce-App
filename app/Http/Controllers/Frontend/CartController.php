@@ -21,67 +21,88 @@ class CartController extends Controller
         $this->couponService = $couponService ?? app(CouponService::class);
     }
     /**
-     * Get cart items for authenticated user (database) or session (guest)
+     * Get cart items - use session for coupon compatibility
      */
     private function getCart()
     {
-        if (Auth::check()) {
-            // For authenticated users, get cart from database
-            $cartItems = Cart::with(['product.category', 'cookedFood'])
-                ->where('user_id', Auth::id())
-                ->get();
+        // Always use session cart for consistency with coupon system
+        $sessionCart = Session::get('cart', []);
+        
+        // If authenticated user has empty session cart, try to load from database
+        if (Auth::check() && empty($sessionCart)) {
+            $this->loadDatabaseCartToSession();
+            $sessionCart = Session::get('cart', []);
+        }
+        
+        return $sessionCart;
+    }
+    
+    /**
+     * Load database cart to session for authenticated users
+     */
+    private function loadDatabaseCartToSession()
+    {
+        if (!Auth::check()) {
+            return;
+        }
+        
+        $cartItems = Cart::with(['product.category', 'cookedFood'])
+            ->where('user_id', Auth::id())
+            ->get();
+        
+        $cart = [];
+        foreach ($cartItems as $item) {
+            $itemData = null;
+            $itemKey = null;
             
-            $cart = [];
-            foreach ($cartItems as $item) {
-                $itemData = null;
-                $itemKey = null;
-                
-                if ($item->item_type === 'cooked_food' && $item->cookedFood) {
-                    $itemKey = 'cooked_food_' . $item->cooked_food_id;
-                    $itemData = [
-                        'id' => $item->cookedFood->id,
-                        'name' => $item->cookedFood->name,
-                        'slug' => $item->cookedFood->slug,
-                        'price' => $item->cookedFood->price,
-                        'original_price' => $item->cookedFood->price,
-                        'image' => $item->cookedFood->image,
-                        'quantity' => $item->quantity,
-                        'category' => ucfirst($item->cookedFood->category),
-                        'item_type' => 'cooked_food'
-                    ];
-                } elseif ($item->item_type === 'product' && $item->product) {
-                    $itemKey = 'product_' . $item->product_id;
-                    $itemData = [
-                        'id' => $item->product->id,
-                        'name' => $item->product->name,
-                        'slug' => $item->product->slug,
-                        'price' => $item->product->effective_price,
-                        'original_price' => $item->product->price,
-                        'image' => $item->product->image,
-                        'quantity' => $item->quantity,
-                        'category' => $item->product->category->name ?? 'Pet Product',
-                        'item_type' => 'product'
-                    ];
-                }
-                
-                if ($itemData) {
-                    $cart[$itemKey] = $itemData;
-                }
+            if ($item->item_type === 'cooked_food' && $item->cookedFood) {
+                $itemKey = 'cooked_food_' . $item->cooked_food_id;
+                $itemData = [
+                    'id' => $item->cookedFood->id,
+                    'name' => $item->cookedFood->name,
+                    'slug' => $item->cookedFood->slug,
+                    'price' => $item->cookedFood->price,
+                    'original_price' => $item->cookedFood->price,
+                    'image' => $item->cookedFood->image,
+                    'quantity' => $item->quantity,
+                    'category' => ucfirst($item->cookedFood->category),
+                    'item_type' => 'cooked_food'
+                ];
+            } elseif ($item->item_type === 'product' && $item->product) {
+                $itemKey = 'product_' . $item->product_id;
+                $itemData = [
+                    'id' => $item->product->id,
+                    'name' => $item->product->name,
+                    'slug' => $item->product->slug,
+                    'price' => $item->product->effective_price,
+                    'original_price' => $item->product->price,
+                    'image' => $item->product->image,
+                    'quantity' => $item->quantity,
+                    'category' => $item->product->category->name ?? 'Pet Product',
+                    'item_type' => 'product'
+                ];
             }
-            return $cart;
-        } else {
-            // For guests, use session
-            return Session::get('cart', []);
+            
+            if ($itemData) {
+                $cart[$itemKey] = $itemData;
+            }
+        }
+        
+        if (!empty($cart)) {
+            Session::put('cart', $cart);
         }
     }
 
     /**
-     * Save cart (database for auth users, session for guests)
+     * Save cart to session and database
      */
     private function saveCart($cart)
     {
+        // Always save to session for coupon compatibility
+        Session::put('cart', $cart);
+        
+        // Also save to database for authenticated users
         if (Auth::check()) {
-            // For authenticated users, save to database
             $userId = Auth::id();
             
             // Clear existing cart items for user
@@ -105,9 +126,6 @@ class CartController extends Controller
                 
                 Cart::create($cartData);
             }
-        } else {
-            // For guests, save to session
-            Session::put('cart', $cart);
         }
     }
 

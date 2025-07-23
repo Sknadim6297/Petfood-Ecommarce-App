@@ -933,7 +933,7 @@ $(document).ready(function() {
         showLoginRequiredModal('wishlist');
     });
     
-    // Cart sidebar toggle for authenticated users and login modal for guests
+    // Cart sidebar toggle for authenticated users
     $('#show').off('click').on('click', function(e) {
         e.preventDefault();
         @auth

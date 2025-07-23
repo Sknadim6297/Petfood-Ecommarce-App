@@ -745,9 +745,23 @@
 @push('scripts')
 <script>
 $(document).ready(function() {
-    // Add to Cart functionality
+    // Add to Cart functionality with authentication check
     $('.add-to-cart-btn').click(function(e) {
         e.preventDefault();
+        
+        @guest
+            // If user is not authenticated, show login modal
+            if (window.closeAuthModal) {
+                // Use the unified authentication modal from layout
+                showLoginRequiredModal('cart');
+            } else {
+                // Fallback if function doesn't exist
+                alert('Please login to add items to cart');
+                window.location.href = '{{ route("login") }}';
+            }
+            return false;
+        @endguest
+        
         let foodId = $(this).data('food-id');
         let type = $(this).data('type');
         let button = $(this);
@@ -802,9 +816,23 @@ $(document).ready(function() {
         });
     });
 
-    // Wishlist functionality
+    // Wishlist functionality with authentication check
     $('.wishlist-toggle-btn').click(function(e) {
         e.preventDefault();
+        
+        @guest
+            // If user is not authenticated, show login modal
+            if (window.closeAuthModal) {
+                // Use the unified authentication modal from layout
+                showLoginRequiredModal('wishlist');
+            } else {
+                // Fallback if function doesn't exist
+                alert('Please login to manage wishlist');
+                window.location.href = '{{ route("login") }}';
+            }
+            return false;
+        @endguest
+        
         let foodId = $(this).data('food-id');
         let type = $(this).data('type');
         let button = $(this);
@@ -881,6 +909,100 @@ $(document).ready(function() {
             $(this).remove();
         });
     }
+
+    // Authentication Modal Function - Use the same modal from layout
+    window.showLoginRequiredModal = function(type = 'general') {
+        // Close any existing modals first
+        $('.auth-required-modal, .login-prompt-modal').fadeOut(100, function() {
+            $(this).remove();
+        });
+        
+        const messages = {
+            cart: {
+                title: 'Login Required for Cart',
+                subtitle: 'You need to be logged in to add items to your cart.',
+                icon: 'fas fa-shopping-cart'
+            },
+            wishlist: {
+                title: 'Login Required for Wishlist',
+                subtitle: 'You need to be logged in to save items to your wishlist.',
+                icon: 'fas fa-heart'
+            },
+            general: {
+                title: 'Login Required',
+                subtitle: 'You need to be logged in to access this feature.',
+                icon: 'fas fa-paw'
+            }
+        };
+        
+        const message = messages[type] || messages.general;
+        
+        // Create and show authentication required modal
+        const modal = `
+            <div id="authRequiredModal" class="auth-required-modal">
+                <div class="modal-overlay" onclick="closeAuthModal()"></div>
+                <div class="auth-required-content">
+                    <button class="close-auth-modal" onclick="closeAuthModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    
+                    <div class="auth-modal-header">
+                        <div class="auth-modal-icon">
+                            <i class="${message.icon}"></i>
+                        </div>
+                        <h3>${message.title}</h3>
+                        <p class="auth-modal-subtitle">${message.subtitle}</p>
+                    </div>
+                    
+                    <div class="auth-modal-body">
+                        <div class="benefits-showcase">
+                            <div class="benefit-item">
+                                <i class="fas fa-shopping-bag text-primary"></i>
+                                <span>Save items to cart</span>
+                            </div>
+                            <div class="benefit-item">
+                                <i class="fas fa-heart text-danger"></i>
+                                <span>Create wishlist</span>
+                            </div>
+                            <div class="benefit-item">
+                                <i class="fas fa-shipping-fast text-success"></i>
+                                <span>Track your orders</span>
+                            </div>
+                            <div class="benefit-item">
+                                <i class="fas fa-gift text-warning"></i>
+                                <span>Get exclusive deals</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="auth-modal-actions">
+                        <a href="{{ route('login') }}" class="btn-auth-login">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Login Now
+                        </a>
+                        <a href="{{ route('register') }}" class="btn-auth-register">
+                            <i class="fas fa-user-plus"></i>
+                            Create Account
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+        $('body').append(modal);
+        $('body').addClass('modal-open');
+        
+        // Small delay to ensure proper animation
+        setTimeout(() => {
+            $('#authRequiredModal').fadeIn(300);
+        }, 50);
+    };
+    
+    window.closeAuthModal = function() {
+        $('#authRequiredModal').fadeOut(300, function() {
+            $(this).remove();
+            $('body').removeClass('modal-open');
+        });
+    };
 
     // Enhanced Price range functionality
     const lower = document.getElementById('lower');

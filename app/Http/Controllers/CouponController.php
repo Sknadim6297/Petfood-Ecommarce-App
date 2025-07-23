@@ -153,37 +153,20 @@ class CouponController extends Controller
      */
     private function getCartTotal()
     {
-        if (Auth::check()) {
-            // For authenticated users, get cart from database
-            $cartItems = \App\Models\Cart::with(['product', 'cookedFood'])
-                ->where('user_id', Auth::id())
-                ->get();
-            
-            $total = 0;
-            foreach ($cartItems as $item) {
-                if ($item->item_type === 'cooked_food' && $item->cookedFood) {
-                    $total += $item->cookedFood->price * $item->quantity;
-                } elseif ($item->item_type === 'product' && $item->product) {
-                    $total += $item->product->effective_price * $item->quantity;
-                }
-            }
-            return $total;
-        } else {
-            // For guests, use session cart
-            $cart = session('cart', []);
-            
-            if (empty($cart) || !is_array($cart)) {
-                return 0;
-            }
-            
-            $total = 0;
-            foreach ($cart as $item) {
-                if (isset($item['price']) && isset($item['quantity'])) {
-                    $total += (float)$item['price'] * (int)$item['quantity'];
-                }
-            }
-            
-            return $total;
+        // Use session cart for all users (same as CartController)
+        $cart = session('cart', []);
+        
+        if (empty($cart) || !is_array($cart)) {
+            return 0;
         }
+        
+        $total = 0;
+        foreach ($cart as $item) {
+            if (isset($item['price']) && isset($item['quantity'])) {
+                $total += (float)$item['price'] * (int)$item['quantity'];
+            }
+        }
+        
+        return $total;
     }
 }
