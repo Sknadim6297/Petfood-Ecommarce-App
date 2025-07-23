@@ -281,7 +281,7 @@
 </style>
 
 <script>
-// Price range functionality
+// Enhanced Price range functionality
 document.addEventListener('DOMContentLoaded', function() {
   const lowerRange = document.getElementById('lower');
   const upperRange = document.getElementById('upper');
@@ -289,21 +289,81 @@ document.addEventListener('DOMContentLoaded', function() {
   const maxPriceInput = document.getElementById('two');
 
   if (lowerRange && upperRange && minPriceInput && maxPriceInput) {
+    
+    // Function to update the visual range bar
+    function updateRangeVisual() {
+      const min = parseInt(lowerRange.min);
+      const max = parseInt(lowerRange.max);
+      const lowerVal = parseInt(lowerRange.value);
+      const upperVal = parseInt(upperRange.value);
+      
+      // Calculate percentages
+      const lowerPercent = ((lowerVal - min) / (max - min)) * 100;
+      const upperPercent = ((upperVal - min) / (max - min)) * 100;
+      
+      // Update the visual track
+      if (!document.querySelector('.range-track')) {
+        const track = document.createElement('div');
+        track.className = 'range-track';
+        track.innerHTML = '<div class="range-fill"></div>';
+        document.querySelector('.price-field').appendChild(track);
+      }
+      
+      const fill = document.querySelector('.range-fill');
+      if (fill) {
+        fill.style.left = lowerPercent + '%';
+        fill.style.width = (upperPercent - lowerPercent) + '%';
+      }
+    }
+    
+    // Ensure lower range doesn't exceed upper range
+    function validateRanges() {
+      const lowerVal = parseInt(lowerRange.value);
+      const upperVal = parseInt(upperRange.value);
+      
+      if (lowerVal >= upperVal) {
+        lowerRange.value = upperVal - 1;
+        minPriceInput.value = upperVal - 1;
+      }
+      
+      if (upperVal <= lowerVal) {
+        upperRange.value = lowerVal + 1;
+        maxPriceInput.value = lowerVal + 1;
+      }
+    }
+    
+    // Lower range input event
     lowerRange.addEventListener('input', function() {
+      validateRanges();
       minPriceInput.value = this.value;
+      updateRangeVisual();
     });
 
+    // Upper range input event
     upperRange.addEventListener('input', function() {
+      validateRanges();
       maxPriceInput.value = this.value;
+      updateRangeVisual();
     });
 
+    // Min price input event
     minPriceInput.addEventListener('input', function() {
-      lowerRange.value = this.value;
+      const value = parseInt(this.value) || 0;
+      lowerRange.value = Math.max(0, Math.min(value, parseInt(upperRange.value) - 1));
+      validateRanges();
+      updateRangeVisual();
     });
 
+    // Max price input event
     maxPriceInput.addEventListener('input', function() {
-      upperRange.value = this.value;
+      const value = parseInt(this.value) || 1000;
+      upperRange.value = Math.min(1000, Math.max(value, parseInt(lowerRange.value) + 1));
+      validateRanges();
+      updateRangeVisual();
     });
+    
+    // Initialize visual range
+    updateRangeVisual();
   }
 });
 
@@ -315,4 +375,112 @@ document.addEventListener('click', function(e) {
   }
 });
 </script>
+
+<style>
+.price-field {
+  position: relative;
+  height: 50px;
+  margin: 15px 0;
+}
+
+.price-field input[type="range"] {
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background: none;
+  pointer-events: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.price-field input[type="range"]::-webkit-slider-thumb {
+  height: 18px;
+  width: 18px;
+  background: #fa441d;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  pointer-events: auto;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.price-field input[type="range"]::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  background: #fa441d;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  pointer-events: auto;
+  cursor: pointer;
+  -moz-appearance: none;
+}
+
+.range-track {
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.range-fill {
+  position: absolute;
+  height: 100%;
+  background: linear-gradient(90deg, #fa441d, #ff6b47);
+  border-radius: 2px;
+  transition: all 0.1s ease;
+}
+
+.price-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.price-wrap-1, .price-wrap-2 {
+  position: relative;
+  flex: 1;
+}
+
+.price-wrap-1 input, .price-wrap-2 input {
+  width: 100%;
+  padding: 8px 25px 8px 8px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.price-wrap-1 input:focus, .price-wrap-2 input:focus {
+  outline: none;
+  border-color: #fa441d;
+}
+
+.price-wrap-1 label, .price-wrap-2 label {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-weight: 500;
+}
+
+.price-wrap_line {
+  color: #666;
+  font-weight: 500;
+}
+
+.price-title {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+  display: block;
+}
+</style>
 @endsection

@@ -256,8 +256,8 @@ Route::get('/cooked-foods/category/{category}', [CookedFoodController::class, 'c
 // Universal search route
 Route::post('/search', [ProductController::class, 'universalSearch'])->name('universal.search');
 
-// Cart routes
-Route::prefix('cart')->name('cart.')->group(function () {
+// Cart routes - require authentication
+Route::prefix('cart')->name('cart.')->middleware('auth')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');
     Route::post('/add', [CartController::class, 'add'])->name('add');
     Route::match(['PUT', 'PATCH'], '/update', [CartController::class, 'update'])->name('update');
@@ -275,8 +275,8 @@ Route::prefix('coupons')->name('coupons.')->group(function () {
     Route::post('/check', [CouponController::class, 'check'])->name('check');
 });
 
-// Wishlist routes
-Route::prefix('wishlist')->name('wishlist.')->group(function () {
+// Wishlist routes - require authentication
+Route::prefix('wishlist')->name('wishlist.')->middleware('auth')->group(function () {
     Route::get('/', [WishlistController::class, 'index'])->name('index');
     Route::post('/add', [WishlistController::class, 'add'])->name('add');
     Route::delete('/remove', [WishlistController::class, 'remove'])->name('remove');

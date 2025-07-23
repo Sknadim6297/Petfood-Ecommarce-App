@@ -39,31 +39,774 @@
 
 @include('frontend.sections.footer')
 
-<!-- cart-popup -->
-<div id="lightbox" class="lightbox clearfix" style="display: none;">
-    <div class="white_content">
-        <a href="javascript:;" class="textright" id="close"><i class="fa-regular fa-circle-xmark"></i></a>
-        <div class="cart-popup">
-            <div class="shop-cart">
-                <ul id="cart-items">
-                    <!-- Cart items will be loaded here via AJAX -->
-                    <li class="text-center p-4"><p>Your cart is empty</p></li>
-                </ul>
+<!-- cart-sidebar -->
+<div id="cartSidebar" class="cart-sidebar">
+    <div class="cart-overlay"></div>
+    <div class="cart-sidebar-content">
+        <!-- Cart Header -->
+        <div class="cart-sidebar-header">
+            <div class="cart-header-info">
+                <div class="cart-header-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="cart-header-details">
+                    <h3>Shopping Cart</h3>
+                    <span class="cart-items-count">0 items</span>
+                </div>
+            </div>
+            <button class="cart-close-btn" onclick="closeCartSidebar()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Cart Body -->
+        <div class="cart-sidebar-body">
+            <div id="cart-items-container">
+                <!-- Cart items will be loaded here via AJAX -->
+                <div class="empty-cart-state">
+                    <div class="empty-cart-illustration">
+                        <div class="cart-icon-large">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="floating-hearts">
+                            <i class="fas fa-heart"></i>
+                            <i class="fas fa-heart"></i>
+                            <i class="fas fa-heart"></i>
+                        </div>
+                    </div>
+                    <h4>Your cart is empty</h4>
+                    <p>Discover amazing products for your beloved pets!</p>
+                    <a href="{{ route('products.index') }}" class="btn-continue-shopping">
+                        <i class="fas fa-paw"></i>
+                        Start Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cart Footer -->
+        <div class="cart-sidebar-footer">
+            <!-- Subtotal Section -->
+            <div class="cart-subtotal">
+                <div class="subtotal-row">
+                    <span>Subtotal</span>
+                    <span class="subtotal-amount">₹0.00</span>
+                </div>
+                <div class="tax-info">
+                    <small>Shipping and taxes calculated at checkout</small>
+                </div>
             </div>
 
-            <div class="cart-total d-flex align-items-center justify-content-between">
-                <span class="font-semi-bold">Total:</span>
-                <span class="font-semi-bold total-price">₹0.00</span>
+            <!-- Action Buttons -->
+            <div class="cart-actions">
+                <a href="{{ route('cart.index') }}" class="btn-view-cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    View Full Cart
+                </a>
+                <a href="{{ route('checkout.index') }}" class="btn-checkout">
+                    <i class="fas fa-lock"></i>
+                    Secure Checkout
+                </a>
             </div>
 
-            <div class="cart-btns d-flex align-items-center justify-content-between">
-                <a class="font-bold" href="{{ route('cart.index') }}">View Cart</a>
-                <a class="font-bold theme-bg-clr text-white checkout" href="{{ route('checkout.index') }}">Checkout</a>
+            <!-- Security Badge -->
+            <div class="security-badge">
+                <i class="fas fa-shield-alt"></i>
+                <span>Secure & Safe Payment</span>
             </div>
         </div>
     </div>
 </div>
-<!-- cart-popup end -->
+
+<style>
+/* ========================================
+   E-COMMERCE CART SIDEBAR STYLES
+======================================== */
+.cart-sidebar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99999;
+    pointer-events: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cart-sidebar.open {
+    pointer-events: all;
+}
+
+.cart-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(4px);
+}
+
+.cart-sidebar.open .cart-overlay {
+    opacity: 1;
+}
+
+.cart-sidebar-content {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 420px;
+    height: 100%;
+    background: white;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.2);
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.cart-sidebar.open .cart-sidebar-content {
+    transform: translateX(0);
+}
+
+/* Cart Header */
+.cart-sidebar-header {
+    background: linear-gradient(135deg, #FA441D 0%, #FF6B35 100%);
+    color: white;
+    padding: 25px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 10px rgba(250, 68, 29, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.cart-sidebar-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="cartPattern" patternUnits="userSpaceOnUse" width="30" height="30"><circle cx="15" cy="15" r="2" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23cartPattern)"/></svg>') repeat;
+    animation: patternMove 20s linear infinite;
+    opacity: 0.3;
+}
+
+@keyframes patternMove {
+    0% { transform: translateX(-30px) translateY(-30px); }
+    100% { transform: translateX(30px) translateY(30px); }
+}
+
+.cart-header-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.cart-header-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+}
+
+.cart-header-icon::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, rgba(255,255,255,0.3), transparent, rgba(255,255,255,0.3));
+    border-radius: 12px;
+    z-index: -1;
+    animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+}
+
+.cart-header-details h3 {
+    margin: 0 0 5px 0;
+    font-size: 20px;
+    font-weight: 700;
+    font-family: 'DynaPuff', cursive;
+}
+
+.cart-items-count {
+    font-size: 13px;
+    opacity: 0.9;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.cart-close-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.cart-close-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg) scale(1.1);
+}
+
+/* Cart Body */
+.cart-sidebar-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    background: #fafbfc;
+}
+
+.cart-sidebar-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.cart-sidebar-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.cart-sidebar-body::-webkit-scrollbar-thumb {
+    background: #FA441D;
+    border-radius: 10px;
+}
+
+.cart-sidebar-body::-webkit-scrollbar-thumb:hover {
+    background: #e63a1a;
+}
+
+/* Empty Cart State */
+.empty-cart-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 30px;
+    text-align: center;
+    height: 100%;
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+}
+
+.empty-cart-illustration {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.cart-icon-large {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, rgba(250, 68, 29, 0.1) 0%, rgba(255, 107, 53, 0.1) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 50px;
+    color: #FA441D;
+    margin: 0 auto;
+    position: relative;
+    animation: cartBounce 3s ease-in-out infinite;
+    border: 3px solid rgba(250, 68, 29, 0.2);
+}
+
+@keyframes cartBounce {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.floating-hearts {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.floating-hearts i {
+    color: #e74c3c;
+    font-size: 12px;
+    animation: floatHeart 2s ease-in-out infinite;
+}
+
+.floating-hearts i:nth-child(1) { animation-delay: 0s; }
+.floating-hearts i:nth-child(2) { animation-delay: 0.5s; }
+.floating-hearts i:nth-child(3) { animation-delay: 1s; }
+
+@keyframes floatHeart {
+    0%, 100% {
+        transform: translateY(0px) scale(1);
+        opacity: 0.7;
+    }
+    50% {
+        transform: translateY(-8px) scale(1.2);
+        opacity: 1;
+    }
+}
+
+.empty-cart-state h4 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0 0 10px 0;
+    font-family: 'DynaPuff', cursive;
+}
+
+.empty-cart-state p {
+    font-size: 16px;
+    color: #6c757d;
+    margin: 0 0 30px 0;
+    line-height: 1.5;
+}
+
+.btn-continue-shopping {
+    background: linear-gradient(135deg, #FA441D 0%, #FF6B35 100%);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 25px rgba(250, 68, 29, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-continue-shopping::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-continue-shopping:hover::before {
+    left: 100%;
+}
+
+.btn-continue-shopping:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 35px rgba(250, 68, 29, 0.4);
+    text-decoration: none;
+    color: white;
+}
+
+/* Cart Items Container */
+#cart-items-container {
+    min-height: 100%;
+}
+
+/* Cart Item Styling */
+.cart-item {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #f0f2f5;
+    background: white;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.cart-item:hover {
+    background: #f8f9fa;
+    transform: translateX(-5px);
+    box-shadow: 5px 0 15px rgba(250, 68, 29, 0.1);
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.cart-item-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-right: 15px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.cart-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.cart-item:hover .cart-item-image img {
+    transform: scale(1.05);
+}
+
+.cart-item-details {
+    flex: 1;
+    min-width: 0;
+}
+
+.cart-item-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: #2c3e50;
+    margin: 0 0 8px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.3;
+}
+
+.cart-item-meta {
+    font-size: 13px;
+    color: #6c757d;
+    margin: 0 0 10px 0;
+}
+
+.cart-item-quantity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e9ecef;
+}
+
+.quantity-btn {
+    background: none;
+    border: none;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.quantity-btn:hover {
+    background: #FA441D;
+    color: white;
+}
+
+.quantity-input {
+    width: 45px;
+    height: 32px;
+    border: none;
+    background: white;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+.cart-item-price {
+    font-weight: 700;
+    color: #FA441D;
+    font-size: 16px;
+    text-align: right;
+    margin-left: 15px;
+    flex-shrink: 0;
+}
+
+.remove-item-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(231, 76, 60, 0.1);
+    border: none;
+    color: #e74c3c;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+    opacity: 0;
+}
+
+.cart-item:hover .remove-item-btn {
+    opacity: 1;
+}
+
+.remove-item-btn:hover {
+    background: #e74c3c;
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Cart Footer */
+.cart-sidebar-footer {
+    background: white;
+    border-top: 1px solid #f0f2f5;
+    padding: 25px 20px;
+    box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.cart-subtotal {
+    margin-bottom: 20px;
+}
+
+.subtotal-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.subtotal-row span:first-child {
+    font-size: 16px;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.subtotal-amount {
+    font-size: 22px;
+    font-weight: 700;
+    color: #FA441D;
+}
+
+.tax-info {
+    text-align: center;
+}
+
+.tax-info small {
+    color: #6c757d;
+    font-size: 12px;
+}
+
+.cart-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.btn-view-cart,
+.btn-checkout {
+    padding: 15px 20px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-view-cart {
+    background: white;
+    color: #FA441D;
+    border: 2px solid #FA441D;
+}
+
+.btn-view-cart::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: #FA441D;
+    transition: left 0.3s ease;
+    z-index: -1;
+}
+
+.btn-view-cart:hover::before {
+    left: 0;
+}
+
+.btn-view-cart:hover {
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(250, 68, 29, 0.3);
+    text-decoration: none;
+}
+
+.btn-checkout {
+    background: linear-gradient(135deg, #FA441D 0%, #FF6B35 100%);
+    color: white;
+    border: 2px solid transparent;
+    box-shadow: 0 8px 25px rgba(250, 68, 29, 0.3);
+}
+
+.btn-checkout::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn-checkout:hover::before {
+    left: 100%;
+}
+
+.btn-checkout:hover {
+    background: linear-gradient(135deg, #e63a1a 0%, #ff5722 100%);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(250, 68, 29, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.security-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #28a745;
+    font-size: 13px;
+    font-weight: 500;
+    background: rgba(40, 167, 69, 0.1);
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(40, 167, 69, 0.2);
+}
+
+.security-badge i {
+    font-size: 14px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .cart-sidebar-content {
+        width: 100%;
+        max-width: 400px;
+    }
+    
+    .cart-sidebar-header {
+        padding: 20px 15px;
+    }
+    
+    .cart-header-icon {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+    
+    .cart-header-details h3 {
+        font-size: 18px;
+    }
+    
+    .cart-item {
+        padding: 15px;
+    }
+    
+    .cart-item-image {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .cart-item-name {
+        font-size: 15px;
+    }
+    
+    .cart-sidebar-footer {
+        padding: 20px 15px;
+    }
+    
+    .subtotal-amount {
+        font-size: 20px;
+    }
+    
+    .btn-view-cart,
+    .btn-checkout {
+        padding: 14px 18px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cart-sidebar-content {
+        width: 100%;
+    }
+    
+    .empty-cart-state {
+        padding: 40px 20px;
+    }
+    
+    .cart-icon-large {
+        width: 100px;
+        height: 100px;
+        font-size: 40px;
+    }
+    
+    .empty-cart-state h4 {
+        font-size: 20px;
+    }
+    
+    .empty-cart-state p {
+        font-size: 14px;
+    }
+    
+    .btn-continue-shopping {
+        padding: 12px 25px;
+        font-size: 14px;
+    }
+}
+
+/* Ensure cart sidebar appears above other elements */
+.cart-sidebar {
+    z-index: 99999;
+}
+
+/* Body scroll lock when sidebar is open */
+body.cart-sidebar-open {
+    overflow: hidden;
+}
+</style>
+<!-- cart-sidebar end -->
 
 <!-- search-popup -->
 <div class="search-popup">
@@ -170,17 +913,58 @@
 <!-- Page-specific scripts (loaded after jQuery) -->
 @stack('scripts')
 
-<!-- Cart Functionality -->
+<!-- Cart and E-commerce Functionality -->
 <script>
 $(document).ready(function() {
     // Update counts on page load
     if (window.cartWishlistManager) {
         window.cartWishlistManager.updateCounts();
-        // Update wishlist icons to show current state
         window.cartWishlistManager.updateWishlistIcons();
     }
     
-    // Remove from cart (for cart popup only)
+    // Authentication protection for cart and wishlist
+    $('.cart-auth-required').off('click').on('click', function(e) {
+        e.preventDefault();
+        showLoginRequiredModal('cart');
+    });
+    
+    $('.wishlist-auth-required').off('click').on('click', function(e) {
+        e.preventDefault();
+        showLoginRequiredModal('wishlist');
+    });
+    
+    // Cart sidebar toggle for authenticated users and login modal for guests
+    $('#show').off('click').on('click', function(e) {
+        e.preventDefault();
+        @auth
+            updateCartSidebar();
+            openCartSidebar();
+        @else
+            showLoginRequiredModal('cart');
+        @endauth
+    });
+    
+    // Handle add to cart buttons for unauthenticated users
+    $(document).on('click', '.add-to-cart-btn', function(e) {
+        @guest
+            e.preventDefault();
+            e.stopPropagation();
+            showLoginRequiredModal('cart');
+            return false;
+        @endguest
+    });
+    
+    // Handle wishlist toggle buttons for unauthenticated users
+    $(document).on('click', '.wishlist-toggle-btn', function(e) {
+        @guest
+            e.preventDefault();
+            e.stopPropagation();
+            showLoginRequiredModal('wishlist');
+            return false;
+        @endguest
+    });
+    
+    // Remove from cart
     $(document).on('click', '.remove-cart-item', function(e) {
         e.preventDefault();
         
@@ -195,7 +979,7 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
-                    updateCartPopup();
+                    updateCartSidebar();
                     if (window.cartWishlistManager) {
                         window.cartWishlistManager.updateCartCount();
                     }
@@ -208,29 +992,247 @@ $(document).ready(function() {
         });
     });
     
-    // Cart popup toggle - Override the existing #show handler
-    $('#show').off('click').on('click', function(e) {
+    // Update cart item quantity
+    $(document).on('click', '.quantity-btn', function(e) {
         e.preventDefault();
-        updateCartPopup();
-        if (typeof lightbox_open === 'function') {
-            lightbox_open();
-        } else {
-            $("#lightbox").fadeIn(300);
-            $(".white_content").animate({
-                opacity: 1,
-                width: '400px',
-                right: 50
-            }, 300);
+        
+        const isIncrease = $(this).hasClass('increase');
+        const input = $(this).siblings('.quantity-input');
+        const currentQty = parseInt(input.val()) || 1;
+        const productId = $(this).closest('.cart-item').data('product-id');
+        
+        let newQty = isIncrease ? currentQty + 1 : Math.max(1, currentQty - 1);
+        
+        updateCartQuantity(productId, newQty);
+    });
+    
+    $(document).on('change', '.quantity-input', function() {
+        const productId = $(this).closest('.cart-item').data('product-id');
+        const newQty = Math.max(1, parseInt($(this).val()) || 1);
+        updateCartQuantity(productId, newQty);
+    });
+    
+    function updateCartQuantity(productId, quantity) {
+        $.ajax({
+            url: '{{ route("cart.update") }}',
+            method: 'PUT',
+            data: {
+                product_id: productId,
+                quantity: quantity,
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    updateCartSidebar();
+                    if (window.cartWishlistManager) {
+                        window.cartWishlistManager.updateCartCount();
+                    }
+                }
+            },
+            error: function() {
+                showToast('Error updating cart', 'error');
+                updateCartSidebar(); // Refresh to show correct quantities
+            }
+        });
+    }
+    
+    function showLoginRequiredModal(type = 'general') {
+        const messages = {
+            cart: {
+                title: 'Login Required for Cart',
+                subtitle: 'You need to be logged in to access your shopping cart.',
+                icon: 'fas fa-shopping-cart'
+            },
+            wishlist: {
+                title: 'Login Required for Wishlist',
+                subtitle: 'You need to be logged in to save items to your wishlist.',
+                icon: 'fas fa-heart'
+            },
+            general: {
+                title: 'Login Required',
+                subtitle: 'You need to be logged in to access this feature.',
+                icon: 'fas fa-paw'
+            }
+        };
+        
+        const message = messages[type] || messages.general;
+        
+        // Remove existing modal if any
+        $('#authRequiredModal').remove();
+        
+        // Create and show authentication required modal
+        const modal = `
+            <div id="authRequiredModal" class="auth-required-modal">
+                <div class="modal-overlay" onclick="closeAuthModal()"></div>
+                <div class="auth-required-content">
+                    <button class="close-auth-modal" onclick="closeAuthModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    
+                    <div class="auth-modal-header">
+                        <div class="auth-modal-icon">
+                            <i class="${message.icon}"></i>
+                        </div>
+                        <h3>${message.title}</h3>
+                        <p class="auth-modal-subtitle">${message.subtitle}</p>
+                    </div>
+                    
+                    <div class="auth-modal-body">
+                        <div class="benefits-showcase">
+                            <div class="benefit-item">
+                                <i class="fas fa-shopping-bag text-primary"></i>
+                                <span>Save items to cart</span>
+                            </div>
+                            <div class="benefit-item">
+                                <i class="fas fa-heart text-danger"></i>
+                                <span>Create wishlist</span>
+                            </div>
+                            <div class="benefit-item">
+                                <i class="fas fa-shipping-fast text-success"></i>
+                                <span>Track your orders</span>
+                            </div>
+                            <div class="benefit-item">
+                                <i class="fas fa-gift text-warning"></i>
+                                <span>Get exclusive deals</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="auth-modal-actions">
+                        <a href="{{ route('login') }}" class="btn-auth-login">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Login Now
+                        </a>
+                        <a href="{{ route('register') }}" class="btn-auth-register">
+                            <i class="fas fa-user-plus"></i>
+                            Create Account
+                        </a>
+                    </div>
+                </div>
+            </div>
+        `;
+        $('body').append(modal);
+        $('body').addClass('modal-open');
+        $('#authRequiredModal').fadeIn(300);
+    }
+    
+    window.closeAuthModal = function() {
+        $('#authRequiredModal').fadeOut(300, function() {
+            $(this).remove();
+            $('body').removeClass('modal-open');
+        });
+    };
+    
+    // Cart Sidebar Functions
+    window.openCartSidebar = function() {
+        $('#cartSidebar').addClass('open');
+        $('body').addClass('cart-sidebar-open');
+    };
+    
+    window.closeCartSidebar = function() {
+        $('#cartSidebar').removeClass('open');
+        $('body').removeClass('cart-sidebar-open');
+    };
+    
+    // Close cart sidebar when clicking overlay
+    $(document).on('click', '.cart-overlay', function() {
+        closeCartSidebar();
+    });
+    
+    // Close cart sidebar with Escape key
+    $(document).on('keydown', function(e) {
+        if (e.key === 'Escape' && $('#cartSidebar').hasClass('open')) {
+            closeCartSidebar();
         }
     });
     
-    function updateCartPopup() {
+    function updateCartSidebar() {
         $.get('{{ route("cart.popup") }}', function(response) {
-            $('#cart-items').html(response.html);
-            $('.total-price').text('₹' + response.total.toFixed(2));
+            if (response.html && response.html.trim() !== '') {
+                // Convert cart items to sidebar format
+                const cartItemsHtml = convertCartItemsToSidebarFormat(response.html);
+                $('#cart-items-container').html(cartItemsHtml);
+            } else {
+                $('#cart-items-container').html(`
+                    <div class="empty-cart-state">
+                        <div class="empty-cart-illustration">
+                            <div class="cart-icon-large">
+                                <i class="fas fa-shopping-cart"></i>
+                            </div>
+                            <div class="floating-hearts">
+                                <i class="fas fa-heart"></i>
+                                <i class="fas fa-heart"></i>
+                                <i class="fas fa-heart"></i>
+                            </div>
+                        </div>
+                        <h4>Your cart is empty</h4>
+                        <p>Discover amazing products for your beloved pets!</p>
+                        <a href="{{ route('products.index') }}" class="btn-continue-shopping">
+                            <i class="fas fa-paw"></i>
+                            Start Shopping
+                        </a>
+                    </div>
+                `);
+            }
+            
+            // Update totals and counts
+            $('.subtotal-amount').text('₹' + (response.total || 0).toFixed(2));
+            const itemCount = response.count || 0;
+            $('.cart-items-count').text(itemCount + (itemCount === 1 ? ' item' : ' items'));
+            
         }).fail(function() {
-            console.error('Failed to update cart popup');
+            console.error('Failed to update cart sidebar');
         });
+    }
+    
+    function convertCartItemsToSidebarFormat(html) {
+        // Create a temporary container to parse the HTML
+        const $temp = $('<div>').html(html);
+        let sidebarHtml = '';
+        
+        $temp.find('li').each(function() {
+            const $item = $(this);
+            
+            // Skip empty cart message
+            if ($item.hasClass('empty-cart-message')) {
+                return;
+            }
+            
+            const image = $item.find('img').attr('src') || '';
+            const name = $item.find('.cart-item-name').text() || $item.find('h6').text() || 'Product';
+            const price = $item.find('.cart-item-price').text() || $item.find('.price').text() || '₹0.00';
+            const quantity = $item.find('.quantity').text() || '1';
+            const productId = $item.data('product-id') || $item.find('[data-product-id]').data('product-id');
+            
+            sidebarHtml += `
+                <div class="cart-item" data-product-id="${productId}">
+                    <div class="cart-item-image">
+                        <img src="${image}" alt="${name}" onerror="this.src='/assets/images/placeholder.jpg'">
+                    </div>
+                    <div class="cart-item-details">
+                        <div class="cart-item-name">${name}</div>
+                        <div class="cart-item-meta">Fresh & Healthy</div>
+                        <div class="cart-item-quantity">
+                            <div class="quantity-controls">
+                                <button class="quantity-btn decrease" type="button">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="number" class="quantity-input" value="${quantity}" min="1" readonly>
+                                <button class="quantity-btn increase" type="button">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cart-item-price">${price}</div>
+                    <button class="remove-item-btn remove-cart-item" data-product-id="${productId}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+        });
+        
+        return sidebarHtml;
     }
     
     // Use universal toast function from cart-wishlist.js
@@ -258,6 +1260,10 @@ $(document).ready(function() {
     
     // Prevent dropdown from closing when clicking inside
     $('.dropdown-menu').click(function(e) {
+        e.stopPropagation();
+    });
+});
+</script>
         e.stopPropagation();
     });
 });
@@ -337,12 +1343,263 @@ $(document).ready(function() {
     }
 }
 
+/* Authentication Required Modal Styles */
+.auth-required-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    backdrop-filter: blur(5px);
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.auth-required-content {
+    background: white;
+    border-radius: 20px;
+    padding: 0;
+    max-width: 420px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    animation: modalSlideUp 0.3s ease-out;
+    overflow: hidden;
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.close-auth-modal {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    color: #666;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.close-auth-modal:hover {
+    background: #fa441d;
+    color: white;
+    transform: scale(1.1);
+}
+
+.auth-modal-header {
+    background: linear-gradient(135deg, #fa441d 0%, #ff6b47 100%);
+    color: white;
+    padding: 30px 20px 20px;
+    text-align: center;
+    position: relative;
+}
+
+.auth-modal-icon {
+    width: 70px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 28px;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    animation: iconPulse 2s infinite;
+}
+
+@keyframes iconPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.auth-modal-header h3 {
+    margin: 0 0 10px 0;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.auth-modal-subtitle {
+    margin: 0;
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.auth-modal-body {
+    padding: 25px 20px;
+}
+
+.benefits-showcase {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: rgba(250, 68, 29, 0.05);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    border-left: 3px solid #fa441d;
+}
+
+.benefit-item:hover {
+    background: rgba(250, 68, 29, 0.1);
+    transform: translateX(5px);
+}
+
+.benefit-item i {
+    font-size: 16px;
+    min-width: 16px;
+}
+
+.benefit-item span {
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+}
+
+.auth-modal-actions {
+    padding: 0 20px 25px;
+    display: grid;
+    gap: 12px;
+}
+
+.btn-auth-login,
+.btn-auth-register {
+    padding: 12px 20px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-auth-login {
+    background: linear-gradient(135deg, #fa441d 0%, #ff6b47 100%);
+    color: white;
+}
+
+.btn-auth-login:hover {
+    background: linear-gradient(135deg, #e63a1a 0%, #ff5722 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(250, 68, 29, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-auth-register {
+    background: white;
+    color: #fa441d;
+    border: 2px solid #fa441d;
+}
+
+.btn-auth-register:hover {
+    background: #fa441d;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(250, 68, 29, 0.3);
+    text-decoration: none;
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+    .auth-required-content {
+        width: 95%;
+        margin: 20px;
+    }
+    
+    .auth-modal-header {
+        padding: 25px 15px 15px;
+    }
+    
+    .auth-modal-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+        margin-bottom: 15px;
+    }
+    
+    .auth-modal-header h3 {
+        font-size: 20px;
+    }
+    
+    .auth-modal-body {
+        padding: 20px 15px;
+    }
+    
+    .benefits-showcase {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .benefit-item {
+        padding: 10px;
+    }
+    
+    .benefit-item span {
+        font-size: 12px;
+    }
+    
+    .auth-modal-actions {
+        padding: 0 15px 20px;
+        gap: 10px;
+    }
+    
+    .btn-auth-login,
+    .btn-auth-register {
+        padding: 12px 16px;
+        font-size: 13px;
+    }
+}
+
 /* Ensure cart popup appears above other elements */
 #lightbox {
     z-index: 9999;
 }
 
-.white_content {
+.cart-popup-wrapper {
     z-index: 10000;
 }
 

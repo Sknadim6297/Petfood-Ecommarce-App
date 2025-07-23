@@ -122,16 +122,27 @@
                <div class="header-icons">
                    <!-- Wishlist Icon -->
                    <div class="wishlist-icon">
-                       <a href="{{ route('wishlist.index') }}" class="icon-link" title="Wishlist">
-                           <i class="fa-solid fa-heart"></i>
-                           <span class="icon-count wishlist-count">{{ $wishlistCount ?? 0 }}</span>
-                       </a>
+                       @auth
+                           <a href="{{ route('wishlist.index') }}" class="icon-link" title="Wishlist">
+                               <i class="fa-solid fa-heart"></i>
+                               <span class="icon-count wishlist-count">{{ $wishlistCount ?? 0 }}</span>
+                           </a>
+                       @else
+                           <a href="javascript:void(0)" class="icon-link wishlist-auth-required" title="Wishlist">
+                               <i class="fa-solid fa-heart"></i>
+                               <span class="icon-count wishlist-count">0</span>
+                           </a>
+                       @endauth
                    </div>
                    <!-- Cart Icon -->
                    <div class="cart-icon">
                        <a href="JavaScript:void(0)" class="icon-link" id="show" title="Shopping Cart">
                            <i class="fa-solid fa-shopping-bag"></i>
-                           <span class="icon-count cart-count">{{ $cartCount ?? 0 }}</span>
+                           @auth
+                               <span class="icon-count cart-count">{{ $cartCount ?? 0 }}</span>
+                           @else
+                               <span class="icon-count cart-count">0</span>
+                           @endauth
                        </a>
                    </div>
                </div>
@@ -150,58 +161,42 @@
         </a>
       </div>
         <ul>
+          <li><a href="{{ route('home') }}"><i>
+            <img alt="home" src="{{ asset('assets/img/home.png') }}">
+          </i>Home</a></li>
+          
+          <li><a href="{{ route('about') }}">About</a></li>
 
-          <li class="menu-item-has-children"><a href="JavaScript:void(0)">Home</a>
+          <li class="menu-item-has-children"><a href="JavaScript:void(0)">Services</a>
             <ul class="sub-menu">
-
-              <li><a href="{{ route('home') }}">home 1</a></li>
-              <li><a href="{{ route('home') }}">home 2</a></li>
-              <li><a href="{{ route('home') }}">home 3</a></li>
+              <li><a href="{{ route('services') }}">services</a></li>
+              <li><a href="{{ route('services.details') }}">service details</a></li>
             </ul>
           </li>
-          <li><a href="{{ route('about') }}">about</a></li>
-
           
-          <li class="menu-item-has-children"><a href="JavaScript:void(0)">Services</a>
-
-          <ul class="sub-menu">
-
-            <li><a href="{{ route('services') }}">services</a></li>
-            <li><a href="{{ route('services.details') }}">service details</a></li>
-
-          </ul>
-
-          </li>
-          <li class="menu-item-has-children"><a href="JavaScript:void(0)">pages</a>
+          <li class="menu-item-has-children"><a href="JavaScript:void(0)">Pages</a>
               <ul class="sub-menu">
-                <li><a href="{{ route('team') }}">team details</a></li>
                 <li><a href="{{ route('how-we-work') }}">how we works</a></li>
-                <li><a href="{{ route('history') }}">history</a></li>
-                <li><a href="{{ route('pricing') }}">pricing packages</a></li>
                 <li><a href="{{ route('gallery') }}">photo gallery</a></li>
-                <li><a href="{{ route('login') }}">login</a></li>
+                <li><a href="{{ route('team') }}">our team</a></li>
+                <li><a href="{{ route('pricing') }}">pricing packages</a></li>
               </ul>
-
           </li>
-          <li class="menu-item-has-children"><a href="JavaScript:void(0)">shop</a>
-
+          
+          <li class="menu-item-has-children"><a href="JavaScript:void(0)">Shop</a>
               <ul class="sub-menu">
                 <li><a href="{{ route('products.index') }}">our products</a></li>
                 <li><a href="{{ route('cooked-foods.index') }}">cooked foods</a></li>
-                <li><a href="{{ route('wishlist.index') }}">wishlist</a></li>
-              
               </ul>
-
           </li>
+          
           <li class="menu-item-has-children"><a href="JavaScript:void(0)">News</a>
-
               <ul class="sub-menu">
                 <li><a href="{{ route('blog') }}">our blog</a></li>
               </ul>
-
           </li>
 
-          <li><a href="{{ route('contact') }}">contacts</a></li>
+          <li><a href="{{ route('contact') }}">Contact</a></li>
 
           </ul>
 

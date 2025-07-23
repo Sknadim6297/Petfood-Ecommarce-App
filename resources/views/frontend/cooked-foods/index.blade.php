@@ -882,35 +882,193 @@ $(document).ready(function() {
         });
     }
 
-    // Price range functionality
+    // Enhanced Price range functionality
     const lower = document.getElementById('lower');
     const upper = document.getElementById('upper');
     const one = document.getElementById('one');
     const two = document.getElementById('two');
 
     if (lower && upper && one && two) {
-        lower.oninput = function() {
-            if (parseInt(this.value) >= parseInt(upper.value)) {
-                this.value = parseInt(upper.value) - 1;
+        
+        // Function to update the visual range bar
+        function updateRangeVisual() {
+            const min = parseInt(lower.min);
+            const max = parseInt(lower.max);
+            const lowerVal = parseInt(lower.value);
+            const upperVal = parseInt(upper.value);
+            
+            // Calculate percentages
+            const lowerPercent = ((lowerVal - min) / (max - min)) * 100;
+            const upperPercent = ((upperVal - min) / (max - min)) * 100;
+            
+            // Update the visual track
+            if (!document.querySelector('.range-track')) {
+                const track = document.createElement('div');
+                track.className = 'range-track';
+                track.innerHTML = '<div class="range-fill"></div>';
+                document.querySelector('.price-field').appendChild(track);
             }
+            
+            const fill = document.querySelector('.range-fill');
+            if (fill) {
+                fill.style.left = lowerPercent + '%';
+                fill.style.width = (upperPercent - lowerPercent) + '%';
+            }
+        }
+        
+        // Ensure ranges don't overlap
+        function validateRanges() {
+            const lowerVal = parseInt(lower.value);
+            const upperVal = parseInt(upper.value);
+            
+            if (lowerVal >= upperVal) {
+                lower.value = upperVal - 1;
+                one.value = upperVal - 1;
+            }
+            
+            if (upperVal <= lowerVal) {
+                upper.value = lowerVal + 1;
+                two.value = lowerVal + 1;
+            }
+        }
+        
+        lower.oninput = function() {
+            validateRanges();
             one.value = this.value;
+            updateRangeVisual();
         };
 
         upper.oninput = function() {
-            if (parseInt(this.value) <= parseInt(lower.value)) {
-                this.value = parseInt(lower.value) + 1;
-            }
+            validateRanges();
             two.value = this.value;
+            updateRangeVisual();
         };
 
         one.oninput = function() {
-            lower.value = this.value;
+            const value = parseInt(this.value) || 0;
+            lower.value = Math.max(0, Math.min(value, parseInt(upper.value) - 1));
+            validateRanges();
+            updateRangeVisual();
         };
 
         two.oninput = function() {
-            upper.value = this.value;
+            const value = parseInt(this.value) || 1000;
+            upper.value = Math.min(1000, Math.max(value, parseInt(lower.value) + 1));
+            validateRanges();
+            updateRangeVisual();
         };
+        
+        // Initialize visual range
+        updateRangeVisual();
     }
 });
 </script>
+
+<style>
+.price-field {
+  position: relative;
+  height: 50px;
+  margin: 15px 0;
+}
+
+.price-field input[type="range"] {
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background: none;
+  pointer-events: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.price-field input[type="range"]::-webkit-slider-thumb {
+  height: 18px;
+  width: 18px;
+  background: #fa441d;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  pointer-events: auto;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.price-field input[type="range"]::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  background: #fa441d;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  pointer-events: auto;
+  cursor: pointer;
+  -moz-appearance: none;
+}
+
+.range-track {
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.range-fill {
+  position: absolute;
+  height: 100%;
+  background: linear-gradient(90deg, #fa441d, #ff6b47);
+  border-radius: 2px;
+  transition: all 0.1s ease;
+}
+
+.price-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.price-wrap-1, .price-wrap-2 {
+  position: relative;
+  flex: 1;
+}
+
+.price-wrap-1 input, .price-wrap-2 input {
+  width: 100%;
+  padding: 8px 25px 8px 8px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.price-wrap-1 input:focus, .price-wrap-2 input:focus {
+  outline: none;
+  border-color: #fa441d;
+}
+
+.price-wrap-1 label, .price-wrap-2 label {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-weight: 500;
+}
+
+.price-wrap_line {
+  color: #666;
+  font-weight: 500;
+}
+
+.price-title {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+  display: block;
+}
+</style>
 @endpush
