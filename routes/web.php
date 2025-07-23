@@ -143,6 +143,27 @@ Route::get('/debug/cart-calculations', function () {
         'item_calculations' => $itemCalculations
     ]);
 });
+
+// Debug route for testing order placement
+Route::get('/debug/order-items', function () {
+    if (!Auth::check()) {
+        return response()->json(['error' => 'Not authenticated']);
+    }
+    
+    $orderController = new \App\Http\Controllers\Frontend\OrderController();
+    $reflection = new ReflectionClass($orderController);
+    $getCartItemsMethod = $reflection->getMethod('getCartItems');
+    $getCartItemsMethod->setAccessible(true);
+    $cart = $getCartItemsMethod->invoke($orderController, Auth::id());
+    
+    return response()->json([
+        'user_id' => Auth::id(),
+        'cart_items_for_order' => $cart,
+        'cart_count' => count($cart),
+        'ready_for_order' => !empty($cart)
+    ]);
+});
+
 Route::get('/debug/test-wishlist/{productId}', function ($productId) {
     if (!Auth::check()) {
         return response()->json(['error' => 'Not authenticated']);

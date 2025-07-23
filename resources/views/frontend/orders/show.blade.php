@@ -636,20 +636,53 @@
                         <h3 class="section-title">Order Items</h3>
                         @foreach($order->orderItems as $item)
                         <div class="order-item">
-                            <img src="{{ $item->product->image ? asset('storage/' . $item->product->image) : asset('assets/img/product-placeholder.jpg') }}" 
-                                 alt="{{ $item->product->name }}" class="order-item-image">
-                            <div class="order-item-details">
-                                <h6>{{ $item->product->name }}</h6>
-                                <div class="item-meta">
-                                    <strong>Quantity:</strong> {{ $item->quantity }}
+                            @if($item->item_type === 'cooked_food' && $item->cookedFood)
+                                {{-- Cooked Food Item --}}
+                                <img src="{{ $item->cookedFood->image ? asset('storage/' . $item->cookedFood->image) : asset('assets/img/product-placeholder.jpg') }}" 
+                                     alt="{{ $item->cookedFood->name }}" class="order-item-image">
+                                <div class="order-item-details">
+                                    <h6>{{ $item->cookedFood->name }} <span class="badge bg-success ms-2">Cooked Food</span></h6>
+                                    <div class="item-meta">
+                                        <strong>Quantity:</strong> {{ $item->quantity }}
+                                    </div>
+                                    <div class="item-meta">
+                                        <strong>Unit Price:</strong> ₹{{ number_format($item->price, 2) }}
+                                    </div>
+                                    @if($item->cookedFood->description)
+                                    <div class="item-description">{{ $item->cookedFood->description }}</div>
+                                    @endif
                                 </div>
-                                <div class="item-meta">
-                                    <strong>Unit Price:</strong> ₹{{ number_format($item->price, 2) }}
+                            @elseif($item->product)
+                                {{-- Regular Product Item --}}
+                                <img src="{{ $item->product->image ? asset('storage/' . $item->product->image) : asset('assets/img/product-placeholder.jpg') }}" 
+                                     alt="{{ $item->product->name }}" class="order-item-image">
+                                <div class="order-item-details">
+                                    <h6>{{ $item->product->name }} <span class="badge bg-primary ms-2">Product</span></h6>
+                                    <div class="item-meta">
+                                        <strong>Quantity:</strong> {{ $item->quantity }}
+                                    </div>
+                                    <div class="item-meta">
+                                        <strong>Unit Price:</strong> ₹{{ number_format($item->price, 2) }}
+                                    </div>
+                                    @if($item->product->short_description)
+                                    <div class="item-description">{{ $item->product->short_description }}</div>
+                                    @endif
                                 </div>
-                                @if($item->product->short_description)
-                                <div class="item-description">{{ $item->product->short_description }}</div>
-                                @endif
-                            </div>
+                            @else
+                                {{-- Fallback for items with no valid product/cooked food --}}
+                                <img src="{{ asset('assets/img/product-placeholder.jpg') }}" 
+                                     alt="Unknown Item" class="order-item-image">
+                                <div class="order-item-details">
+                                    <h6>Unknown Item <span class="badge bg-warning ms-2">Error</span></h6>
+                                    <div class="item-meta">
+                                        <strong>Quantity:</strong> {{ $item->quantity }}
+                                    </div>
+                                    <div class="item-meta">
+                                        <strong>Unit Price:</strong> ₹{{ number_format($item->price, 2) }}
+                                    </div>
+                                    <div class="item-description">This item could not be loaded properly.</div>
+                                </div>
+                            @endif
                             <div class="order-item-pricing">
                                 <div class="item-total">₹{{ number_format($item->total, 2) }}</div>
                             </div>

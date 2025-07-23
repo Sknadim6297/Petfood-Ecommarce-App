@@ -10,7 +10,7 @@ class AdminOrderController extends Controller
 {
     public function index()
     {
-        $orders = Order::with(['user', 'orderItems.product'])
+        $orders = Order::with(['user', 'orderItems.product', 'orderItems.cookedFood'])
                       ->orderBy('created_at', 'desc')
                       ->paginate(15);
         
@@ -19,7 +19,7 @@ class AdminOrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load(['user', 'orderItems.product']);
+        $order->load(['user', 'orderItems.product', 'orderItems.cookedFood']);
         
         return view('admin.orders.show', compact('order'));
     }

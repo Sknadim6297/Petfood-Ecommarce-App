@@ -65,6 +65,32 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+.table-scroll-container {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    scrollbar-width: thin;
+    scrollbar-color: #fe5716 #f1f1f1;
+}
+
+.table-scroll-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-scroll-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb {
+    background: #fe5716;
+    border-radius: 10px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #e04d0d;
+}
+
 .orders-table-header {
     background: #f8f9fa;
     padding: 20px 25px;
@@ -108,16 +134,25 @@
     color: #2c3e50;
     border-bottom: 2px solid #e9ecef;
     font-size: 14px;
+    white-space: nowrap; /* Prevent header text wrapping */
 }
 
 .orders-table td {
     padding: 20px 15px;
     border-bottom: 1px solid #f1f3f4;
     vertical-align: middle;
+    white-space: nowrap; /* Prevent cell content wrapping */
 }
 
 .orders-table tr:hover {
     background: rgba(254, 87, 22, 0.02);
+}
+
+/* Allow items column to wrap on mobile */
+.order-items-preview {
+    white-space: normal !important;
+    min-width: 200px;
+    max-width: 250px;
 }
 
 .order-id {
@@ -376,11 +411,13 @@
     
     .orders-table {
         font-size: 12px;
+        min-width: 800px; /* Ensure minimum width for horizontal scroll */
     }
     
     .orders-table th,
     .orders-table td {
         padding: 10px 8px;
+        white-space: nowrap; /* Prevent text wrapping */
     }
     
     .action-buttons {
@@ -388,9 +425,48 @@
         gap: 5px;
     }
     
+    .action-buttons .btn {
+        font-size: 11px;
+        padding: 5px 10px;
+        min-width: 60px; /* Ensure buttons are touch-friendly */
+        margin: 2px 0; /* Add some spacing between stacked buttons */
+    }
+    
+    /* Improve touch targets for mobile */
+    .orders-table td {
+        min-height: 60px; /* Ensure adequate touch target size */
+    }
+    
+    /* Make order ID links more touch-friendly */
+    .order-id {
+        display: inline-block;
+        padding: 5px;
+        margin: -5px;
+    }
+    
+    /* Add scroll hint for mobile */
+    .table-scroll-container::after {
+        content: "← Scroll horizontally to see more →";
+        display: block;
+        text-align: center;
+        font-size: 12px;
+        color: #6c757d;
+        padding: 10px;
+        background: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+        font-style: italic;
+    }
+    
     .status-modal-content {
         min-width: 90%;
         margin: 20px;
+    }
+}
+
+/* Hide scroll hint on larger screens */
+@media (min-width: 769px) {
+    .table-scroll-container::after {
+        display: none;
     }
 }
 </style>
@@ -448,13 +524,14 @@
         </div>
 
         @if($orders->count() > 0)
-        <table class="orders-table">
-            <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Date</th>
-                    <th>Items</th>
+        <div class="table-scroll-container">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Items</th>
                     <th>Amount</th>
                     <th>Payment</th>
                     <th>Status</th>
@@ -482,7 +559,15 @@
                     <td>
                         <div class="order-items-preview">
                             @foreach($order->orderItems->take(2) as $item)
-                            <div class="item-preview">{{ $item->product->name }} ({{ $item->quantity }}x)</div>
+                            <div class="item-preview">
+                                @if($item->item_type === 'cooked_food' && $item->cookedFood)
+                                    {{ $item->cookedFood->name }} ({{ $item->quantity }}x) <span class="badge bg-success">Cooked Food</span>
+                                @elseif($item->product)
+                                    {{ $item->product->name }} ({{ $item->quantity }}x) <span class="badge bg-primary">Product</span>
+                                @else
+                                    Unknown Item ({{ $item->quantity }}x) <span class="badge bg-warning">Error</span>
+                                @endif
+                            </div>
                             @endforeach
                             @if($order->orderItems->count() > 2)
                             <div class="items-count">+{{ $order->orderItems->count() - 2 }} more items</div>
@@ -513,6 +598,7 @@
                 @endforeach
             </tbody>
         </table>
+        </div> <!-- Close table-scroll-container -->
 
         <!-- Pagination -->
         <div class="pagination-wrapper">

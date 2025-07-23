@@ -8,9 +8,11 @@
    ADMIN ORDER DETAILS STYLES
 ======================================== */
 .order-details-wrapper {
-    padding: 20px;
+    padding: 15px;
     background: #f8f9fa;
-    min-height: calc(100vh - 100px);
+    min-height: calc(100vh - 80px);
+    max-width: 100%;
+    overflow-x: hidden;
 }
 
 /* Breadcrumb Styling */
@@ -38,27 +40,29 @@
 
 .order-details-header {
     background: white;
-    padding: 25px;
-    border-radius: 15px;
-    margin-bottom: 25px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     border-left: 4px solid #fe5716;
+    overflow: hidden;
 }
 
 .order-title-section {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     flex-wrap: wrap;
-    gap: 20px;
+    gap: 15px;
 }
 
 .order-title-left h1 {
     color: #2c3e50;
     font-weight: 700;
-    margin-bottom: 10px;
-    font-size: 28px;
+    margin-bottom: 8px;
+    font-size: 24px;
+    line-height: 1.2;
 }
 
 .order-meta-info {
@@ -147,19 +151,21 @@
 
 .order-actions-top {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .btn-action-top {
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 11px;
     font-weight: 500;
     text-decoration: none;
     border: none;
     cursor: pointer;
     transition: all 0.3s ease;
+    white-space: nowrap;
 }
 
 .btn-print {
@@ -179,30 +185,41 @@
 
 .order-content-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 25px;
+    grid-template-columns: 1fr 350px;
+    gap: 20px;
+    max-width: 100%;
+}
+
+@media (max-width: 1200px) {
+    .order-content-grid {
+        grid-template-columns: 1fr 300px;
+        gap: 15px;
+    }
 }
 
 .order-main-content {
     display: flex;
     flex-direction: column;
-    gap: 25px;
+    gap: 20px;
+    min-width: 0; /* Prevent flex item from overflowing */
 }
 
 .order-sidebar {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
+    min-width: 0; /* Prevent flex item from overflowing */
 }
 
 .content-card {
     background: white;
-    border-radius: 15px;
-    padding: 25px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     border: 1px solid #f0f2f5;
     position: relative;
     overflow: hidden;
+    word-wrap: break-word;
 }
 
 .content-card::before {
@@ -218,9 +235,9 @@
 .card-title {
     color: #2c3e50;
     font-weight: 700;
-    margin-bottom: 20px;
-    font-size: 18px;
-    padding-bottom: 10px;
+    margin-bottom: 15px;
+    font-size: 16px;
+    padding-bottom: 8px;
     border-bottom: 2px solid #f8f9fa;
     position: relative;
 }
@@ -236,23 +253,52 @@
 }
 
 /* Order Items Table */
+.table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    scrollbar-width: thin;
+    scrollbar-color: #fe5716 #f1f1f1;
+}
+
+.table-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #fe5716;
+    border-radius: 3px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #e04d0d;
+}
+
 .order-items-table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 600px; /* Ensure minimum width for scrolling */
 }
 
 .order-items-table th {
     background: #f8f9fa;
-    padding: 12px;
+    padding: 10px 8px;
     text-align: left;
     font-weight: 600;
     color: #2c3e50;
     border-bottom: 2px solid #e9ecef;
-    font-size: 14px;
+    font-size: 13px;
+    white-space: nowrap;
 }
 
 .order-items-table td {
-    padding: 15px 12px;
+    padding: 12px 8px;
     border-bottom: 1px solid #f1f3f4;
     vertical-align: middle;
 }
@@ -260,27 +306,31 @@
 .item-info {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
+    min-width: 200px;
 }
 
 .item-image {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
     border-radius: 8px;
     object-fit: cover;
     border: 2px solid #f1f3f4;
+    flex-shrink: 0;
 }
 
 .item-details h6 {
     color: #2c3e50;
     font-weight: 600;
-    margin-bottom: 5px;
-    font-size: 14px;
+    margin-bottom: 4px;
+    font-size: 13px;
+    line-height: 1.3;
 }
 
 .item-details .item-meta {
     color: #6c757d;
-    font-size: 12px;
+    font-size: 11px;
+    line-height: 1.3;
 }
 
 .quantity-display {
@@ -458,22 +508,24 @@
 .management-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-top: 20px;
+    gap: 10px;
+    margin-top: 15px;
 }
 
 .action-btn {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 12px 20px;
-    border-radius: 10px;
+    gap: 8px;
+    padding: 10px 15px;
+    border-radius: 8px;
     text-decoration: none;
     font-weight: 500;
     transition: all 0.3s ease;
     border: none;
     cursor: pointer;
     justify-content: center;
+    font-size: 13px;
+    text-align: center;
 }
 
 .action-btn-primary {
@@ -600,12 +652,21 @@
 /* Responsive Design */
 @media (max-width: 768px) {
     .order-details-wrapper {
+        padding: 10px;
+    }
+    
+    .order-details-header {
         padding: 15px;
+    }
+    
+    .order-title-left h1 {
+        font-size: 20px;
     }
     
     .order-title-section {
         flex-direction: column;
         align-items: stretch;
+        gap: 15px;
     }
     
     .order-title-right {
@@ -615,19 +676,109 @@
     .status-management {
         flex-direction: column;
         align-items: stretch;
+        gap: 10px;
+    }
+    
+    .order-actions-top {
+        justify-content: flex-start;
     }
     
     .order-content-grid {
         grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .content-card {
+        padding: 15px;
+    }
+    
+    .card-title {
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+    
+    .order-items-table {
+        font-size: 12px;
+        min-width: 500px;
+    }
+    
+    .order-items-table th,
+    .order-items-table td {
+        padding: 8px 6px;
+    }
+    
+    .item-image {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .item-details h6 {
+        font-size: 12px;
+    }
+    
+    .item-details .item-meta {
+        font-size: 10px;
     }
     
     .management-actions {
         grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    
+    .action-btn {
+        padding: 10px 15px;
+        font-size: 13px;
     }
     
     .status-modal-content {
         min-width: 90%;
         margin: 20px;
+        padding: 20px;
+    }
+    
+    .customer-card {
+        padding: 15px;
+    }
+    
+    .address-card {
+        padding: 15px;
+    }
+    
+    .order-summary {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .order-details-wrapper {
+        padding: 8px;
+    }
+    
+    .order-details-header {
+        padding: 12px;
+    }
+    
+    .order-title-left h1 {
+        font-size: 18px;
+    }
+    
+    .content-card {
+        padding: 12px;
+    }
+    
+    .order-items-table {
+        min-width: 450px;
+    }
+    
+    .btn-update-status,
+    .btn-action-top {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+    
+    .current-status {
+        font-size: 12px;
+        padding: 8px 15px;
     }
 }
 </style>
@@ -684,29 +835,52 @@
             <!-- Order Items -->
             <div class="content-card">
                 <h3 class="card-title"><i class="fas fa-box me-2"></i>Order Items</h3>
-                <table class="order-items-table">
-                    <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Quantity</th>
-                            <th>Unit Price</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+                <div class="table-container">
+                    <table class="order-items-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                         @foreach($order->orderItems as $item)
                         <tr>
                             <td>
                                 <div class="item-info">
-                                    <img src="{{ $item->product->image ? asset('storage/' . $item->product->image) : asset('assets/img/product-placeholder.jpg') }}" 
-                                         alt="{{ $item->product->name }}" class="item-image">
-                                    <div class="item-details">
-                                        <h6>{{ $item->product->name }}</h6>
-                                        <div class="item-meta">SKU: {{ $item->product->id }}</div>
-                                        @if($item->product->short_description)
-                                        <div class="item-meta">{{ Str::limit($item->product->short_description, 50) }}</div>
-                                        @endif
-                                    </div>
+                                    @if($item->item_type === 'cooked_food' && $item->cookedFood)
+                                        {{-- Cooked Food Item --}}
+                                        <img src="{{ $item->cookedFood->image ? asset('storage/' . $item->cookedFood->image) : asset('assets/img/product-placeholder.jpg') }}" 
+                                             alt="{{ $item->cookedFood->name }}" class="item-image">
+                                        <div class="item-details">
+                                            <h6>{{ $item->cookedFood->name }} <span class="badge bg-success">Cooked Food</span></h6>
+                                            <div class="item-meta">ID: {{ $item->cookedFood->id }}</div>
+                                            @if($item->cookedFood->description)
+                                            <div class="item-meta">{{ Str::limit($item->cookedFood->description, 50) }}</div>
+                                            @endif
+                                        </div>
+                                    @elseif($item->product)
+                                        {{-- Regular Product Item --}}
+                                        <img src="{{ $item->product->image ? asset('storage/' . $item->product->image) : asset('assets/img/product-placeholder.jpg') }}" 
+                                             alt="{{ $item->product->name }}" class="item-image">
+                                        <div class="item-details">
+                                            <h6>{{ $item->product->name }} <span class="badge bg-primary">Product</span></h6>
+                                            <div class="item-meta">SKU: {{ $item->product->id }}</div>
+                                            @if($item->product->short_description)
+                                            <div class="item-meta">{{ Str::limit($item->product->short_description, 50) }}</div>
+                                            @endif
+                                        </div>
+                                    @else
+                                        {{-- Fallback for items with no valid product/cooked food --}}
+                                        <img src="{{ asset('assets/img/product-placeholder.jpg') }}" 
+                                             alt="Unknown Item" class="item-image">
+                                        <div class="item-details">
+                                            <h6>Unknown Item <span class="badge bg-warning">Error</span></h6>
+                                            <div class="item-meta">Item could not be loaded</div>
+                                        </div>
+                                    @endif
                                 </div>
                             </td>
                             <td class="quantity-display">{{ $item->quantity }}</td>
@@ -716,6 +890,7 @@
                         @endforeach
                     </tbody>
                 </table>
+                </div> <!-- Close table-container -->
 
                 <!-- Order Summary -->
                 <div class="order-summary mt-4">

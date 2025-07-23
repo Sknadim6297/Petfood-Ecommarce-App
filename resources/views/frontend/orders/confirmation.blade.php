@@ -210,13 +210,37 @@
                         </h5>
                         @foreach($order->orderItems as $item)
                         <div class="order-item">
-                            <img src="{{ $item->product->image ? asset('storage/' . $item->product->image) : asset('assets/img/product-placeholder.jpg') }}" 
-                                 alt="{{ $item->product->name }}" class="item-image">
-                            <div class="flex-grow-1">
-                                <h6 class="mb-1">{{ $item->product->name }}</h6>
-                                <p class="text-muted mb-1">Quantity: {{ $item->quantity }}</p>
-                                <p class="text-muted mb-0">₹{{ number_format($item->price, 2) }} each</p>
-                            </div>
+                            @if($item->item_type === 'cooked_food' && $item->cookedFood)
+                                {{-- Cooked Food Item --}}
+                                <img src="{{ $item->cookedFood->image ? asset('storage/' . $item->cookedFood->image) : asset('assets/img/product-placeholder.jpg') }}" 
+                                     alt="{{ $item->cookedFood->name }}" class="item-image">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ $item->cookedFood->name }}</h6>
+                                    <span class="badge bg-success mb-1">Cooked Food</span>
+                                    <p class="text-muted mb-1">Quantity: {{ $item->quantity }}</p>
+                                    <p class="text-muted mb-0">₹{{ number_format($item->price, 2) }} each</p>
+                                </div>
+                            @elseif($item->product)
+                                {{-- Regular Product Item --}}
+                                <img src="{{ $item->product->image ? asset('storage/' . $item->product->image) : asset('assets/img/product-placeholder.jpg') }}" 
+                                     alt="{{ $item->product->name }}" class="item-image">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">{{ $item->product->name }}</h6>
+                                    <span class="badge bg-primary mb-1">Product</span>
+                                    <p class="text-muted mb-1">Quantity: {{ $item->quantity }}</p>
+                                    <p class="text-muted mb-0">₹{{ number_format($item->price, 2) }} each</p>
+                                </div>
+                            @else
+                                {{-- Fallback for items with no valid product/cooked food --}}
+                                <img src="{{ asset('assets/img/product-placeholder.jpg') }}" 
+                                     alt="Unknown Item" class="item-image">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-1">Unknown Item</h6>
+                                    <span class="badge bg-warning mb-1">Error</span>
+                                    <p class="text-muted mb-1">Quantity: {{ $item->quantity }}</p>
+                                    <p class="text-muted mb-0">₹{{ number_format($item->price, 2) }} each</p>
+                                </div>
+                            @endif
                             <div class="text-end">
                                 <h6 class="mb-0 text-primary">₹{{ number_format($item->total, 2) }}</h6>
                             </div>

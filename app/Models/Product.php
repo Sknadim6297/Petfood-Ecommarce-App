@@ -60,7 +60,17 @@ class Product extends Model
     // Get the effective price (sale price if available, otherwise regular price)
     public function getEffectivePriceAttribute()
     {
-        return $this->sale_price ?? $this->price;
+        // Ensure we always return a valid numeric value
+        if (!is_null($this->sale_price) && is_numeric($this->sale_price) && $this->sale_price > 0) {
+            return (float) $this->sale_price;
+        }
+        
+        if (!is_null($this->price) && is_numeric($this->price)) {
+            return (float) $this->price;
+        }
+        
+        // Fallback to 0 if no valid price found
+        return 0.00;
     }
 
     // Check if product is on sale

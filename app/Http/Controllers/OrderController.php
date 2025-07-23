@@ -39,8 +39,34 @@ class OrderController extends Controller
             
             // Get cart items - use database for authenticated users, session for guests
             if (Auth::check()) {
-                // For authenticated users, get cart from database
-                $cartItems = Cart::with('product')->where('user_id', $user->id)->get();
+                // For authenticated users, get cart from database - load both product and cooked food relationships
+                $cartItems = Cart::with(['product', 'cookedFood'])->where('user_id', $user->id)->get();
+                
+                // Clean up any cart items with null/deleted products or cooked foods
+                $cartItems = $cartItems->filter(function($item) {
+                    if ($item->item_type === 'cooked_food') {
+                        if (!$item->cookedFood || $item->cookedFood->price === null) {
+                            Log::warning('Removing cart item with null/invalid cooked food', [
+                                'cart_item_id' => $item->id,
+                                'cooked_food_id' => $item->cooked_food_id,
+                                'has_cooked_food' => $item->cookedFood !== null
+                            ]);
+                            $item->delete(); // Remove invalid cart item
+                            return false;
+                        }
+                    } else {
+                        if (!$item->product || $item->product->price === null) {
+                            Log::warning('Removing cart item with null/invalid product', [
+                                'cart_item_id' => $item->id,
+                                'product_id' => $item->product_id,
+                                'has_product' => $item->product !== null
+                            ]);
+                            $item->delete(); // Remove invalid cart item
+                            return false;
+                        }
+                    }
+                    return true;
+                });
                 
                 if ($cartItems->isEmpty()) {
                     return response()->json([
@@ -52,7 +78,31 @@ class OrderController extends Controller
                 // Calculate totals from database cart
                 $subtotal = 0;
                 foreach ($cartItems as $item) {
-                    $subtotal += $item->product->price * $item->quantity;
+                    if ($item->item_type === 'cooked_food') {
+                        // Handle cooked food items
+                        if ($item->cookedFood && $item->cookedFood->price !== null) {
+                            $subtotal += $item->cookedFood->price * $item->quantity;
+                        } else {
+                            Log::warning('Cart item has null cooked food or price', [
+                                'cart_item_id' => $item->id,
+                                'cooked_food_id' => $item->cooked_food_id,
+                                'has_cooked_food' => $item->cookedFood !== null,
+                                'cooked_food_price' => $item->cookedFood ? $item->cookedFood->price : 'cooked_food_null'
+                            ]);
+                        }
+                    } else {
+                        // Handle regular product items
+                        if ($item->product && $item->product->price !== null) {
+                            $subtotal += $item->product->price * $item->quantity;
+                        } else {
+                            Log::warning('Cart item has null product or price', [
+                                'cart_item_id' => $item->id,
+                                'product_id' => $item->product_id,
+                                'has_product' => $item->product !== null,
+                                'product_price' => $item->product ? $item->product->price : 'product_null'
+                            ]);
+                        }
+                    }
                 }
             } else {
                 // For guests, get cart from session
@@ -121,13 +171,45 @@ class OrderController extends Controller
 
                 // Create order items
                 foreach ($cartItems as $cartItem) {
-                    OrderItem::create([
-                        'order_id' => $order->id,
-                        'product_id' => $cartItem->product_id,
-                        'quantity' => $cartItem->quantity,
-                        'price' => $cartItem->product->price,
-                        'total' => $cartItem->product->price * $cartItem->quantity
-                    ]);
+                    if ($cartItem->item_type === 'cooked_food') {
+                        // Handle cooked food items
+                        if ($cartItem->cookedFood && $cartItem->cookedFood->price !== null) {
+                            OrderItem::create([
+                                'order_id' => $order->id,
+                                'cooked_food_id' => $cartItem->cooked_food_id,
+                                'item_type' => 'cooked_food',
+                                'quantity' => $cartItem->quantity,
+                                'price' => $cartItem->cookedFood->price,
+                                'total' => $cartItem->cookedFood->price * $cartItem->quantity
+                            ]);
+                        } else {
+                            // Log the problematic cart item and skip it
+                            Log::warning('Skipping cart item with null cooked food in order creation', [
+                                'cart_item_id' => $cartItem->id,
+                                'cooked_food_id' => $cartItem->cooked_food_id,
+                                'has_cooked_food' => $cartItem->cookedFood !== null
+                            ]);
+                        }
+                    } else {
+                        // Handle regular product items
+                        if ($cartItem->product && $cartItem->product->price !== null) {
+                            OrderItem::create([
+                                'order_id' => $order->id,
+                                'product_id' => $cartItem->product_id,
+                                'item_type' => 'product',
+                                'quantity' => $cartItem->quantity,
+                                'price' => $cartItem->product->price,
+                                'total' => $cartItem->product->price * $cartItem->quantity
+                            ]);
+                        } else {
+                            // Log the problematic cart item and skip it
+                            Log::warning('Skipping cart item with null product in order creation', [
+                                'cart_item_id' => $cartItem->id,
+                                'product_id' => $cartItem->product_id,
+                                'has_product' => $cartItem->product !== null
+                            ]);
+                        }
+                    }
                 }
 
                 // Clear cart after successful order
@@ -173,7 +255,11 @@ class OrderController extends Controller
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
-            Log::error('Order store error: ' . $e->getMessage());
+            Log::error('Order store error: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong. Please try again.'
@@ -183,7 +269,7 @@ class OrderController extends Controller
 
     public function confirmation($orderId)
     {
-        $order = Order::with('orderItems.product')
+        $order = Order::with(['orderItems.product', 'orderItems.cookedFood'])
                      ->where('id', $orderId)
                      ->where('user_id', Auth::id())
                      ->first();
@@ -249,7 +335,7 @@ class OrderController extends Controller
     public function index()
     {
         $orders = Order::where('user_id', Auth::id())
-                      ->with('orderItems.product')
+                      ->with(['orderItems.product', 'orderItems.cookedFood'])
                       ->orderBy('created_at', 'desc')
                       ->paginate(10);
 
@@ -258,7 +344,7 @@ class OrderController extends Controller
 
     public function show($orderId)
     {
-        $order = Order::with('orderItems.product')
+        $order = Order::with(['orderItems.product', 'orderItems.cookedFood'])
                      ->where('id', $orderId)
                      ->where('user_id', Auth::id())
                      ->first();

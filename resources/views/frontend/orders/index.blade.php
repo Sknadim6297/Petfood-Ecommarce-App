@@ -483,12 +483,31 @@
                 <div class="order-items">
                     @foreach($order->orderItems->take(3) as $item)
                     <div class="order-item">
-                        <img src="{{ $item->product->image ? asset('storage/' . $item->product->image) : asset('assets/img/product-placeholder.jpg') }}" 
-                             alt="{{ $item->product->name }}" class="order-item-image">
-                        <div class="order-item-details">
-                            <h6>{{ $item->product->name }}</h6>
-                            <div class="item-info">Qty: {{ $item->quantity }} × ₹{{ number_format($item->price, 2) }}</div>
-                        </div>
+                        @if($item->item_type === 'cooked_food' && $item->cookedFood)
+                            {{-- Cooked Food Item --}}
+                            <img src="{{ $item->cookedFood->image ? asset('storage/' . $item->cookedFood->image) : asset('assets/img/product-placeholder.jpg') }}" 
+                                 alt="{{ $item->cookedFood->name }}" class="order-item-image">
+                            <div class="order-item-details">
+                                <h6>{{ $item->cookedFood->name }} <span class="badge bg-success ms-1">Cooked Food</span></h6>
+                                <div class="item-info">Qty: {{ $item->quantity }} × ₹{{ number_format($item->price, 2) }}</div>
+                            </div>
+                        @elseif($item->product)
+                            {{-- Regular Product Item --}}
+                            <img src="{{ $item->product->image ? asset('storage/' . $item->product->image) : asset('assets/img/product-placeholder.jpg') }}" 
+                                 alt="{{ $item->product->name }}" class="order-item-image">
+                            <div class="order-item-details">
+                                <h6>{{ $item->product->name }} <span class="badge bg-primary ms-1">Product</span></h6>
+                                <div class="item-info">Qty: {{ $item->quantity }} × ₹{{ number_format($item->price, 2) }}</div>
+                            </div>
+                        @else
+                            {{-- Fallback for items with no valid product/cooked food --}}
+                            <img src="{{ asset('assets/img/product-placeholder.jpg') }}" 
+                                 alt="Unknown Item" class="order-item-image">
+                            <div class="order-item-details">
+                                <h6>Unknown Item <span class="badge bg-warning ms-1">Error</span></h6>
+                                <div class="item-info">Qty: {{ $item->quantity }} × ₹{{ number_format($item->price, 2) }}</div>
+                            </div>
+                        @endif
                         <div class="order-item-price">₹{{ number_format($item->total, 2) }}</div>
                     </div>
                     @endforeach

@@ -448,18 +448,20 @@ class CartController extends Controller
         
         // Prepare cart items for display with proper data structure
         $cartItems = [];
-        foreach ($cart as $productId => $item) {
-            $product = Product::find($productId);
-            if ($product) {
-                $cartItems[] = [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'image' => $product->image,
-                    'price' => $product->price,
-                    'quantity' => $item['quantity'],
-                    'total' => $product->price * $item['quantity']
-                ];
-            }
+        foreach ($cart as $itemKey => $item) {
+            // Handle both product and cooked food items
+            $cartItem = [
+                'id' => $item['id'],
+                'name' => $item['name'],
+                'image' => $item['image'],
+                'price' => $item['price'],
+                'quantity' => $item['quantity'],
+                'total' => $item['price'] * $item['quantity'],
+                'item_type' => $item['item_type'] ?? 'product',
+                'category' => $item['category'] ?? 'Pet Product'
+            ];
+            
+            $cartItems[] = $cartItem;
         }
 
         return view('frontend.cart.checkout', [
