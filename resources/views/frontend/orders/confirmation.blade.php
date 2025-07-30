@@ -72,6 +72,29 @@
     padding: 20px;
     margin-top: 20px;
 }
+
+/* Coupon Display Styles */
+.coupon-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+    padding: 8px 16px;
+    border-radius: 25px;
+    border: 1px solid #c3e6cb;
+    font-size: 14px;
+    font-weight: 600;
+    color: #28a745;
+}
+
+.coupon-info i {
+    font-size: 13px;
+}
+
+.discount-applied {
+    font-weight: 700;
+    color: #28a745 !important;
+}
 .btn-continue {
     background: linear-gradient(45deg, #fa441d, #ff6b3d);
     border: none;
@@ -198,7 +221,7 @@
                                 </p>
                             </div>
                             <div class="col-md-6 text-md-end">
-                                <span class="status-badge">{{ ucfirst($order->order_status) }}</span>
+                                <span class="status-badge">{{ ucfirst($order->status) }}</span>
                             </div>
                         </div>
                     </div>
@@ -253,12 +276,20 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <h6>Subtotal:</h6>
+                                @if($order->coupon_code && $order->discount_amount > 0)
+                                <h6 class="text-success">
+                                    <i class="fas fa-tag me-1"></i>Coupon ({{ $order->coupon_code }}):
+                                </h6>
+                                @endif
                                 <h6>Shipping:</h6>
                                 <h5 class="text-success">Total Amount:</h5>
                             </div>
                             <div class="col-md-6 text-end">
                                 <h6>₹{{ number_format($order->subtotal, 2) }}</h6>
-                                <h6>{{ $order->shipping_cost == 0 ? 'Free' : '₹' . number_format($order->shipping_cost, 2) }}</h6>
+                                @if($order->coupon_code && $order->discount_amount > 0)
+                                <h6 class="text-success">-₹{{ number_format($order->discount_amount, 2) }}</h6>
+                                @endif
+                                <h6>{{ $order->shipping_amount == 0 ? 'Free' : '₹' . number_format($order->shipping_amount, 2) }}</h6>
                                 <h5 class="text-success">₹{{ number_format($order->total_amount, 2) }}</h5>
                             </div>
                         </div>
@@ -271,9 +302,9 @@
                                 <i class="fas fa-truck me-2 text-primary"></i>Delivery Address
                             </h5>
                             <div class="p-3 bg-light rounded">
-                                <h6 class="mb-2">{{ $order->shipping_name }}</h6>
+                                <h6 class="mb-2">{{ $order->user->name }}</h6>
                                 <p class="mb-1">{{ $order->shipping_address }}</p>
-                                <p class="mb-0"><strong>Phone:</strong> {{ $order->shipping_phone }}</p>
+                                <p class="mb-0"><strong>Phone:</strong> {{ $order->phone }}</p>
                             </div>
                         </div>
                         <div class="col-md-6">

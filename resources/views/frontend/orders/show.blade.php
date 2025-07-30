@@ -351,6 +351,24 @@
     color: #fe5716;
 }
 
+/* Coupon Display Styles for Frontend Show Page */
+.summary-row.discount {
+    background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid #c3e6cb;
+    margin: 5px 0;
+}
+
+.summary-row.discount span {
+    color: #28a745 !important;
+    font-weight: 600;
+}
+
+.summary-row.discount i {
+    margin-right: 5px;
+}
+
 /* Shipping & Billing */
 .address-section {
     display: grid;
@@ -696,6 +714,14 @@
                             <span>Subtotal:</span>
                             <span>₹{{ number_format($order->subtotal, 2) }}</span>
                         </div>
+                        @if($order->coupon_code && $order->discount_amount > 0)
+                        <div class="summary-row discount">
+                            <span class="text-success">
+                                <i class="fas fa-tag me-1"></i>Coupon ({{ $order->coupon_code }}):
+                            </span>
+                            <span class="text-success">-₹{{ number_format($order->discount_amount, 2) }}</span>
+                        </div>
+                        @endif
                         <div class="summary-row">
                             <span>Shipping:</span>
                             <span>{{ $order->shipping_amount == 0 ? 'Free' : '₹' . number_format($order->shipping_amount, 2) }}</span>

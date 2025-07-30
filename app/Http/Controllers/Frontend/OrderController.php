@@ -50,7 +50,7 @@ class OrderController extends Controller
         ]);
         
         // Get cart items using the same logic as CartController
-        $cart = $this->getCartItems($user->id);
+        $cart = $this->getCart();
         
         // Debug: Log cart items with more detail
         Log::info('Order placement - Cart retrieval details', [
@@ -318,7 +318,7 @@ class OrderController extends Controller
                      ->where('user_id', Auth::id())
                      ->findOrFail($orderId);
 
-        return view('frontend.order.confirmation', compact('order'));
+        return view('frontend.orders.confirmation', compact('order'));
     }
 
     /**
@@ -331,7 +331,7 @@ class OrderController extends Controller
                       ->latest()
                       ->paginate(10);
 
-        return view('frontend.order.index', compact('orders'));
+        return view('frontend.orders.index', compact('orders'));
     }
 
     /**
@@ -343,7 +343,7 @@ class OrderController extends Controller
                      ->where('user_id', Auth::id())
                      ->findOrFail($orderId);
 
-        return view('frontend.order.show', compact('order'));
+        return view('frontend.orders.show', compact('order'));
     }
 
     /**
@@ -381,6 +381,71 @@ class OrderController extends Controller
             'message' => 'Payment successful! Your order has been confirmed.',
             'redirect_url' => route('order.confirmation', $order->id)
         ]);
+    }
+
+    /**
+     * Get cart items - use session for coupon compatibility
+     * (Same logic as CartController)
+     */
+    private function getCart()
+    {
+        // Always use session cart for consistency with coupon system
+        $sessionCart = Session::get('cart', []);
+        
+        // If authenticated user has empty session cart, try to load from database
+        if (Auth::check() && empty($sessionCart)) {
+            $this->loadDatabaseCartToSession();
+            $sessionCart = Session::get('cart', []);
+        }
+        
+        return $sessionCart;
+    }
+    
+    /**
+     * Load database cart to session for authenticated users
+     * (Same logic as CartController)
+     */
+    private function loadDatabaseCartToSession()
+    {
+        if (!Auth::check()) {
+            return;
+        }
+        
+        $cartItems = Cart::with(['product.category', 'cookedFood'])
+            ->where('user_id', Auth::id())
+            ->get();
+
+        if ($cartItems->isEmpty()) {
+            return;
+        }
+
+        $sessionCart = [];
+        foreach ($cartItems as $item) {
+            if ($item->item_type === 'cooked_food' && $item->cookedFood) {
+                $sessionCart["cooked_food_{$item->cooked_food_id}"] = [
+                    'id' => $item->cooked_food_id,
+                    'name' => $item->cookedFood->name,
+                    'image' => $item->cookedFood->image,
+                    'price' => (float) $item->cookedFood->price,
+                    'quantity' => $item->quantity,
+                    'item_type' => 'cooked_food',
+                    'category' => 'Cooked Food'
+                ];
+            } elseif ($item->item_type === 'product' && $item->product) {
+                $effectivePrice = $item->product->effective_price ?? $item->product->price;
+                $sessionCart["product_{$item->product_id}"] = [
+                    'id' => $item->product_id,
+                    'name' => $item->product->name,
+                    'image' => $item->product->image,
+                    'price' => (float) $effectivePrice,
+                    'quantity' => $item->quantity,
+                    'item_type' => 'product',
+                    'category' => $item->product->category ? $item->product->category->name : 'Pet Product'
+                ];
+            }
+        }
+
+        Session::put('cart', $sessionCart);
     }
 
     /**

@@ -1258,6 +1258,47 @@ $(document).ready(function() {
                     // Show success message
                     showNotification('Order placed successfully! Redirecting...', 'success');
                     
+                    // Clear the cart sidebar immediately after successful order
+                    if (window.clearCartSidebar) {
+                        window.clearCartSidebar();
+                    } else {
+                        // Fallback: manually clear cart sidebar if function doesn't exist
+                        $('#cart-items-container').html(`
+                            <div class="empty-cart-state">
+                                <div class="empty-cart-illustration">
+                                    <div class="cart-icon-large">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </div>
+                                    <div class="floating-hearts">
+                                        <i class="fas fa-heart"></i>
+                                        <i class="fas fa-heart"></i>
+                                        <i class="fas fa-heart"></i>
+                                    </div>
+                                </div>
+                                <h4>Your cart is empty</h4>
+                                <p>Your order has been placed successfully!</p>
+                                <a href="{{ route('products.index') }}" class="btn-continue-shopping">
+                                    <i class="fas fa-paw"></i>
+                                    Continue Shopping
+                                </a>
+                            </div>
+                        `);
+                        
+                        // Update totals and counts
+                        $('.subtotal-amount').text('₹0.00');
+                        $('.cart-items-count').text('0 items');
+                        
+                        // Update cart count in header if cartWishlistManager exists
+                        if (window.cartWishlistManager) {
+                            window.cartWishlistManager.updateCartCount();
+                        }
+                    }
+                    
+                    // Force update the cart sidebar by calling the server
+                    if (typeof updateCartSidebar === 'function') {
+                        updateCartSidebar();
+                    }
+                    
                     // Redirect to order confirmation or success page
                     setTimeout(() => {
                         if (response.redirect_url) {

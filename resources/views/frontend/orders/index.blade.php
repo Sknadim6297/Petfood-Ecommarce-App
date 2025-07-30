@@ -232,6 +232,28 @@
     color: #fe5716;
 }
 
+/* Coupon Display Styles */
+.coupon-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid #c3e6cb;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.coupon-info i {
+    font-size: 11px;
+}
+
+.discount-applied {
+    font-weight: 700;
+    color: #28a745 !important;
+}
+
 .order-actions {
     display: flex;
     gap: 10px;
@@ -520,6 +542,13 @@
                 </div>
 
                 <div class="order-footer">
+                    @if($order->coupon_code && $order->discount_amount > 0)
+                    <div class="coupon-info mb-2">
+                        <i class="fas fa-tag text-success me-1"></i>
+                        <span class="text-success">{{ $order->coupon_code }}</span>
+                        <span class="text-success">(-₹{{ number_format($order->discount_amount, 2) }})</span>
+                    </div>
+                    @endif
                     <div class="order-total">
                         Total: <span class="amount">₹{{ number_format($order->total_amount, 2) }}</span>
                     </div>

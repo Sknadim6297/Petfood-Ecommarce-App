@@ -135,8 +135,18 @@ class OrderController extends Controller
                 }
             }
 
+            // Check for applied coupon in session
+            $appliedCoupon = session('applied_coupon');
+            $discountAmount = 0;
+            $couponCode = null;
+            
+            if ($appliedCoupon && isset($appliedCoupon['code']) && isset($appliedCoupon['discount_amount'])) {
+                $couponCode = $appliedCoupon['code'];
+                $discountAmount = $appliedCoupon['discount_amount']; // Use discount_amount, not discount
+            }
+
             $shipping = $subtotal >= 500 ? 0 : 50;
-            $finalTotal = $subtotal + $shipping;
+            $finalTotal = $subtotal + $shipping - $discountAmount;
 
             // Get shipping address
             $shippingAddress = Address::where('id', $request->shipping_address_id)
@@ -160,6 +170,8 @@ class OrderController extends Controller
                     'subtotal' => $subtotal,
                     'shipping_amount' => $shipping,
                     'total_amount' => $finalTotal,
+                    'coupon_code' => $couponCode,
+                    'discount_amount' => $discountAmount,
                     'payment_method' => $request->payment_method === 'cod' ? 'cash_on_delivery' : 'online_payment',
                     'payment_status' => 'pending',
                     'status' => 'pending',
@@ -216,10 +228,16 @@ class OrderController extends Controller
                 if (Auth::check()) {
                     // Clear database cart for authenticated users
                     Cart::where('user_id', $user->id)->delete();
+                    
+                    // Also clear session cart to ensure consistency
+                    session()->forget('cart');
                 } else {
                     // Clear session cart for guests
                     session()->forget('cart');
                 }
+
+                // Clear applied coupon from session
+                session()->forget('applied_coupon');
 
                 DB::commit();
 
@@ -267,16 +285,15 @@ class OrderController extends Controller
         }
     }
 
-    public function confirmation($orderId)
+    public function confirmation(Order $order)
     {
-        $order = Order::with(['orderItems.product', 'orderItems.cookedFood'])
-                     ->where('id', $orderId)
-                     ->where('user_id', Auth::id())
-                     ->first();
-
-        if (!$order) {
+        // Check if the order belongs to the authenticated user
+        if ($order->user_id !== Auth::id()) {
             abort(404, 'Order not found');
         }
+
+        // Load the relationships if not already loaded
+        $order->load(['orderItems.product', 'orderItems.cookedFood']);
 
         return view('frontend.orders.confirmation', compact('order'));
     }

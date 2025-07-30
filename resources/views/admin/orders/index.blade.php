@@ -193,6 +193,25 @@
     font-size: 16px;
 }
 
+/* Coupon Display Styles for Admin */
+.admin-coupon-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+    padding: 4px 8px;
+    border-radius: 15px;
+    border: 1px solid #c3e6cb;
+    font-size: 11px;
+    font-weight: 600;
+    color: #28a745;
+    margin-top: 3px;
+}
+
+.admin-coupon-info i {
+    font-size: 10px;
+}
+
 .status-badge {
     padding: 6px 12px;
     border-radius: 20px;
@@ -576,6 +595,11 @@
                     </td>
                     <td>
                         <div class="order-amount">₹{{ number_format($order->total_amount, 2) }}</div>
+                        @if($order->coupon_code && $order->discount_amount > 0)
+                        <div class="admin-coupon-info">
+                            <i class="fas fa-tag"></i> {{ $order->coupon_code }} (-₹{{ number_format($order->discount_amount, 2) }})
+                        </div>
+                        @endif
                     </td>
                     <td>
                         <div class="status-badge {{ $order->payment_status }}">

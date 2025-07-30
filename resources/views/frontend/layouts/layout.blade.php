@@ -968,15 +968,33 @@ $(document).ready(function() {
     $(document).on('click', '.remove-cart-item', function(e) {
         e.preventDefault();
         
+        // Get item details from data attributes
+        const itemId = $(this).data('item-id') || $(this).data('product-id');
+        const itemType = $(this).data('item-type') || 'product';
+        
+        // Fallback for older format
         const productId = $(this).data('product-id');
+        
+        // Prepare data object
+        let requestData = {
+            _token: '{{ csrf_token() }}'
+        };
+        
+        // Set the appropriate field based on available data
+        if (itemId && itemType) {
+            requestData.item_id = itemId;
+            requestData.item_type = itemType;
+        } else if (productId) {
+            requestData.product_id = productId;
+        } else {
+            showToast('Error: Could not identify item to remove', 'error');
+            return;
+        }
         
         $.ajax({
             url: '{{ route("cart.remove") }}',
             method: 'DELETE',
-            data: {
-                product_id: productId,
-                _token: '{{ csrf_token() }}'
-            },
+            data: requestData,
             success: function(response) {
                 if (response.success) {
                     updateCartSidebar();
@@ -999,28 +1017,42 @@ $(document).ready(function() {
         const isIncrease = $(this).hasClass('increase');
         const input = $(this).siblings('.quantity-input');
         const currentQty = parseInt(input.val()) || 1;
-        const productId = $(this).closest('.cart-item').data('product-id');
+        
+        // Get item ID and type from button or closest cart item
+        const itemId = $(this).data('item-id') || $(this).closest('.cart-item').data('item-id') || $(this).data('product-id') || $(this).closest('.cart-item').data('product-id');
+        const itemType = $(this).data('item-type') || $(this).closest('.cart-item').data('item-type') || 'product';
         
         let newQty = isIncrease ? currentQty + 1 : Math.max(1, currentQty - 1);
         
-        updateCartQuantity(productId, newQty);
+        updateCartQuantity(itemId, newQty, itemType);
     });
     
     $(document).on('change', '.quantity-input', function() {
-        const productId = $(this).closest('.cart-item').data('product-id');
+        // Get item ID and type from input or closest cart item
+        const itemId = $(this).data('item-id') || $(this).closest('.cart-item').data('item-id') || $(this).data('product-id') || $(this).closest('.cart-item').data('product-id');
+        const itemType = $(this).data('item-type') || $(this).closest('.cart-item').data('item-type') || 'product';
         const newQty = Math.max(1, parseInt($(this).val()) || 1);
-        updateCartQuantity(productId, newQty);
+        updateCartQuantity(itemId, newQty, itemType);
     });
     
-    function updateCartQuantity(productId, quantity) {
+    function updateCartQuantity(itemId, quantity, itemType = 'product') {
+        const data = {
+            quantity: quantity,
+            _token: '{{ csrf_token() }}'
+        };
+        
+        // Use appropriate parameter based on item type
+        if (itemType === 'product') {
+            data.product_id = itemId;
+        } else {
+            data.item_id = itemId;
+            data.item_type = itemType;
+        }
+        
         $.ajax({
             url: '{{ route("cart.update") }}',
             method: 'PUT',
-            data: {
-                product_id: productId,
-                quantity: quantity,
-                _token: '{{ csrf_token() }}'
-            },
+            data: data,
             success: function(response) {
                 if (response.success) {
                     // Update the cart sidebar
@@ -1031,20 +1063,20 @@ $(document).ready(function() {
                         window.cartWishlistManager.updateCartCount();
                     }
                     
-                    // Update quantity input value
-                    const input = $(`.quantity-input[data-product-id="${productId}"]`);
+                    // Update quantity input value using both selectors
+                    const input = $(`.quantity-input[data-item-id="${itemId}"][data-item-type="${itemType}"], .quantity-input[data-product-id="${itemId}"]`);
                     if (input.length) {
                         input.val(quantity);
                     }
                     
                     // Update product price if available
                     if (response.current_price) {
-                        $(`.cart-item[data-product-id="${productId}"] .item-price`).text('₹' + parseFloat(response.current_price).toFixed(2));
+                        $(`.cart-item[data-item-id="${itemId}"][data-item-type="${itemType}"] .item-price, .cart-item[data-product-id="${itemId}"] .item-price`).text('₹' + parseFloat(response.current_price).toFixed(2));
                     }
                     
                     // Update subtotal if available
                     if (response.new_subtotal) {
-                        $(`.cart-item[data-product-id="${productId}"] .item-subtotal`).text('₹' + parseFloat(response.new_subtotal).toFixed(2));
+                        $(`.cart-item[data-item-id="${itemId}"][data-item-type="${itemType}"] .item-subtotal, .cart-item[data-product-id="${itemId}"] .item-subtotal`).text('₹' + parseFloat(response.new_subtotal).toFixed(2));
                     }
                     
                     // Update cart total
@@ -1216,6 +1248,45 @@ $(document).ready(function() {
         });
     }
     
+    // Function to immediately clear cart sidebar (for after successful order)
+    window.clearCartSidebar = function() {
+        // Immediately show empty state
+        $('#cart-items-container').html(`
+            <div class="empty-cart-state">
+                <div class="empty-cart-illustration">
+                    <div class="cart-icon-large">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="floating-hearts">
+                        <i class="fas fa-heart"></i>
+                        <i class="fas fa-heart"></i>
+                        <i class="fas fa-heart"></i>
+                    </div>
+                </div>
+                <h4>Your cart is empty</h4>
+                <p>Your order has been placed successfully!</p>
+                <a href="{{ route('products.index') }}" class="btn-continue-shopping">
+                    <i class="fas fa-paw"></i>
+                    Continue Shopping
+                </a>
+            </div>
+        `);
+        
+        // Update totals and counts immediately
+        $('.subtotal-amount').text('₹0.00');
+        $('.cart-items-count').text('0 items');
+        
+        // Update cart count in header if cartWishlistManager exists
+        if (window.cartWishlistManager) {
+            window.cartWishlistManager.updateCartCount();
+        }
+        
+        // Force refresh from server to ensure data consistency
+        setTimeout(() => {
+            updateCartSidebar();
+        }, 500);
+    };
+    
     function convertCartItemsToSidebarFormat(html) {
         // Create a temporary container to parse the HTML
         const $temp = $('<div>').html(html);
@@ -1241,12 +1312,15 @@ $(document).ready(function() {
             const quantity = priceMatch ? priceMatch[1] : '1';
             const unitPrice = priceMatch ? priceMatch[2] : '0.00';
             
-            // Get product ID from the remove button's data-item-id attribute
-            const productId = $item.find('.remove-cart-item').data('item-id') || $item.find('[data-item-id]').data('item-id');
+            // Get item ID and type from the remove button's data attributes
+            const $removeBtn = $item.find('.remove-cart-item');
+            const itemId = $removeBtn.data('item-id') || $removeBtn.data('product-id') || '';
+            const itemType = $removeBtn.data('item-type') || 'product';
             
-            // Debug: Log product ID extraction
+            // Debug: Log item extraction
             console.log('Cart sidebar item:', {
-                productId: productId,
+                itemId: itemId,
+                itemType: itemType,
                 name: name,
                 quantity: quantity,
                 unitPrice: unitPrice,
@@ -1254,7 +1328,7 @@ $(document).ready(function() {
             });
             
             sidebarHtml += `
-                <div class="cart-item" data-product-id="${productId}">
+                <div class="cart-item" data-item-id="${itemId}" data-item-type="${itemType}">
                     <div class="cart-item-image">
                         <img src="${image}" alt="${name}" onerror="this.src='/assets/images/placeholder.jpg'">
                     </div>
@@ -1263,18 +1337,18 @@ $(document).ready(function() {
                         <div class="cart-item-meta">Fresh & Healthy</div>
                         <div class="cart-item-quantity">
                             <div class="quantity-controls">
-                                <button class="quantity-btn decrease qty-btn dec" type="button" data-product-id="${productId}">
+                                <button class="quantity-btn decrease qty-btn dec" type="button" data-item-id="${itemId}" data-item-type="${itemType}">
                                     <i class="fas fa-minus"></i>
                                 </button>
-                                <input type="number" class="quantity-input" value="${quantity}" min="1" readonly data-product-id="${productId}" data-item-type="product">
-                                <button class="quantity-btn increase qty-btn inc" type="button" data-product-id="${productId}">
+                                <input type="number" class="quantity-input" value="${quantity}" min="1" readonly data-item-id="${itemId}" data-item-type="${itemType}">
+                                <button class="quantity-btn increase qty-btn inc" type="button" data-item-id="${itemId}" data-item-type="${itemType}">
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
                     <div class="cart-item-price">₹${unitPrice}</div>
-                    <button class="remove-item-btn remove-cart-item" data-product-id="${productId}">
+                    <button class="remove-item-btn remove-cart-item" data-item-id="${itemId}" data-item-type="${itemType}">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
