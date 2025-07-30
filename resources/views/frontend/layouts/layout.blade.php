@@ -1023,20 +1023,51 @@ $(document).ready(function() {
             },
             success: function(response) {
                 if (response.success) {
+                    // Update the cart sidebar
                     updateCartSidebar();
+                    
+                    // Update cart count
                     if (window.cartWishlistManager) {
                         window.cartWishlistManager.updateCartCount();
                     }
+                    
+                    // Update quantity input value
+                    const input = $(`.quantity-input[data-product-id="${productId}"]`);
+                    if (input.length) {
+                        input.val(quantity);
+                    }
+                    
+                    // Update product price if available
+                    if (response.current_price) {
+                        $(`.cart-item[data-product-id="${productId}"] .item-price`).text('₹' + parseFloat(response.current_price).toFixed(2));
+                    }
+                    
+                    // Update subtotal if available
+                    if (response.new_subtotal) {
+                        $(`.cart-item[data-product-id="${productId}"] .item-subtotal`).text('₹' + parseFloat(response.new_subtotal).toFixed(2));
+                    }
+                    
+                    // Update cart total
+                    if (response.cart_total) {
+                        $('.cart-subtotal-amount, #cart-subtotal').text(parseFloat(response.cart_total).toFixed(2));
+                    }
+                    
+                    showToast('Cart updated successfully', 'success');
                 }
             },
             error: function() {
                 showToast('Error updating cart', 'error');
-                updateCartSidebar(); // Refresh to show correct quantities
+                updateCartSidebar(); 
             }
         });
     }
     
     function showLoginRequiredModal(type = 'general') {
+        // Remove ALL existing login modals first to prevent duplicates
+        $('#authRequiredModal, #loginRequiredModal, .login-required-modal, .login-prompt-modal').remove();
+        $('.modal-backdrop').remove();
+        $('body').removeClass('modal-open');
+        
         const messages = {
             cart: {
                 title: 'Login Required for Cart',
@@ -1189,20 +1220,38 @@ $(document).ready(function() {
         // Create a temporary container to parse the HTML
         const $temp = $('<div>').html(html);
         let sidebarHtml = '';
+        let hasItems = false;
         
         $temp.find('li').each(function() {
             const $item = $(this);
             
             // Skip empty cart message
-            if ($item.hasClass('empty-cart-message')) {
+            if ($item.hasClass('empty-cart-message') || $item.text().includes('Your cart is empty')) {
                 return;
             }
             
+            hasItems = true;
+            
             const image = $item.find('img').attr('src') || '';
-            const name = $item.find('.cart-item-name').text() || $item.find('h6').text() || 'Product';
-            const price = $item.find('.cart-item-price').text() || $item.find('.price').text() || '₹0.00';
-            const quantity = $item.find('.quantity').text() || '1';
-            const productId = $item.data('product-id') || $item.find('[data-product-id]').data('product-id');
+            const name = $item.find('h3').text() || $item.find('.cart-item-name').text() || 'Product';
+            
+            // Extract quantity and price from the "2 x ₹50.00" format in p.theme-clr
+            const priceText = $item.find('p.theme-clr').text() || '1 x ₹0.00';
+            const priceMatch = priceText.match(/(\d+)\s*x\s*₹([\d,]+\.?\d*)/);
+            const quantity = priceMatch ? priceMatch[1] : '1';
+            const unitPrice = priceMatch ? priceMatch[2] : '0.00';
+            
+            // Get product ID from the remove button's data-item-id attribute
+            const productId = $item.find('.remove-cart-item').data('item-id') || $item.find('[data-item-id]').data('item-id');
+            
+            // Debug: Log product ID extraction
+            console.log('Cart sidebar item:', {
+                productId: productId,
+                name: name,
+                quantity: quantity,
+                unitPrice: unitPrice,
+                priceText: priceText
+            });
             
             sidebarHtml += `
                 <div class="cart-item" data-product-id="${productId}">
@@ -1214,23 +1263,47 @@ $(document).ready(function() {
                         <div class="cart-item-meta">Fresh & Healthy</div>
                         <div class="cart-item-quantity">
                             <div class="quantity-controls">
-                                <button class="quantity-btn decrease" type="button">
+                                <button class="quantity-btn decrease qty-btn dec" type="button" data-product-id="${productId}">
                                     <i class="fas fa-minus"></i>
                                 </button>
-                                <input type="number" class="quantity-input" value="${quantity}" min="1" readonly>
-                                <button class="quantity-btn increase" type="button">
+                                <input type="number" class="quantity-input" value="${quantity}" min="1" readonly data-product-id="${productId}" data-item-type="product">
+                                <button class="quantity-btn increase qty-btn inc" type="button" data-product-id="${productId}">
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
-                    <div class="cart-item-price">${price}</div>
+                    <div class="cart-item-price">₹${unitPrice}</div>
                     <button class="remove-item-btn remove-cart-item" data-product-id="${productId}">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
             `;
         });
+        
+        // If no items found, return empty cart state
+        if (!hasItems) {
+            return `
+                <div class="empty-cart-state">
+                    <div class="empty-cart-illustration">
+                        <div class="cart-icon-large">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="floating-hearts">
+                            <i class="fas fa-heart"></i>
+                            <i class="fas fa-heart"></i>
+                            <i class="fas fa-heart"></i>
+                        </div>
+                    </div>
+                    <h4>Your cart is empty</h4>
+                    <p>Discover amazing products for your beloved pets!</p>
+                    <a href="{{ route('products.index') }}" class="btn-continue-shopping">
+                        <i class="fas fa-paw"></i>
+                        Start Shopping
+                    </a>
+                </div>
+            `;
+        }
         
         return sidebarHtml;
     }
@@ -1241,7 +1314,7 @@ $(document).ready(function() {
             window.cartWishlistManager.showToast(message, type);
         } else {
             // Fallback if cart-wishlist.js isn't loaded
-            console.log(type.toUpperCase() + ': ' + message);
+            console.log(type.toUpperCase() + ': ' + message);a
         }
     }
     

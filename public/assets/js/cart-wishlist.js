@@ -65,7 +65,7 @@ class CartWishlistManager {
                 e.preventDefault();
                 const button = e.target.closest('.qty-btn');
                 const input = button.parentNode.querySelector('input[type="number"]');
-                const itemId = input.getAttribute('data-item-id');
+                const itemId = input.getAttribute('data-item-id') || input.getAttribute('data-product-id');
                 const itemType = input.getAttribute('data-item-type') || 'product';
                 
                 if (button.classList.contains('inc')) {
@@ -82,9 +82,9 @@ class CartWishlistManager {
 
         // Cart quantity input change
         document.addEventListener('change', (e) => {
-            if (e.target.matches('input[data-item-id]')) {
+            if (e.target.matches('input[data-item-id], input[data-product-id]')) {
                 const input = e.target;
-                const itemId = input.getAttribute('data-item-id');
+                const itemId = input.getAttribute('data-item-id') || input.getAttribute('data-product-id');
                 const itemType = input.getAttribute('data-item-type') || 'product';
                 const quantity = Math.max(0, parseInt(input.value) || 0);
                 input.value = quantity;
@@ -98,7 +98,10 @@ class CartWishlistManager {
             // Check authentication first
             const authCheck = await this.checkAuthentication();
             if (!authCheck.authenticated) {
-                this.showLoginPrompt('add items to cart');
+                // Redirect directly to login page without showing popup
+                const currentUrl = window.location.href;
+                const loginUrl = `/login?redirect=${encodeURIComponent(currentUrl)}`;
+                window.location.href = loginUrl;
                 return;
             }
 
@@ -143,7 +146,10 @@ class CartWishlistManager {
                 }
             } else {
                 if (response.status === 401) {
-                    this.showLoginPrompt('add items to cart');
+                    // Redirect directly to login page without showing popup
+                    const currentUrl = window.location.href;
+                    const loginUrl = `/login?redirect=${encodeURIComponent(currentUrl)}`;
+                    window.location.href = loginUrl;
                 } else {
                     this.showToast(data.message || 'Error adding to cart', 'error');
                 }
@@ -162,7 +168,10 @@ class CartWishlistManager {
             // Check authentication first
             const authCheck = await this.checkAuthentication();
             if (!authCheck.authenticated) {
-                this.showLoginPrompt('add items to wishlist');
+                // Redirect directly to login page without showing popup
+                const currentUrl = window.location.href;
+                const loginUrl = `/login?redirect=${encodeURIComponent(currentUrl)}`;
+                window.location.href = loginUrl;
                 return;
             }
 
@@ -224,7 +233,10 @@ class CartWishlistManager {
                 this.updateWishlistCount();
             } else {
                 if (response.status === 401) {
-                    this.showLoginPrompt('add items to wishlist');
+                    // Redirect directly to login page without showing popup
+                    const currentUrl = window.location.href;
+                    const loginUrl = `/login?redirect=${encodeURIComponent(currentUrl)}`;
+                    window.location.href = loginUrl;
                 } else {
                     this.showToast(data.message || 'Error updating wishlist', 'error');
                 }
@@ -263,6 +275,14 @@ class CartWishlistManager {
     }
 
     showLoginPrompt(action) {
+        // Remove any existing login modals first to prevent duplicates
+        const existingModals = document.querySelectorAll('.login-prompt-modal, .login-required-modal, #loginRequiredModal, #authRequiredModal');
+        existingModals.forEach(modal => {
+            if (modal.parentNode) {
+                modal.parentNode.removeChild(modal);
+            }
+        });
+
         const modal = this.createLoginModal(action);
         document.body.appendChild(modal);
         modal.style.display = 'block';
@@ -882,18 +902,22 @@ function updateCartQuantity(itemId, itemType = 'product', quantity = 1, element 
         element.disabled = true;
     }
 
+    const requestData = {
+        product_id: itemId,  // Changed from item_id to product_id
+        quantity: quantity,
+        _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    };
+    
+    // Debug: Log what we're sending
+    console.log('Sending cart update request:', requestData);
+
     fetch('/cart/update', {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
-        body: JSON.stringify({
-            item_id: itemId,
-            item_type: itemType,
-            quantity: quantity,
-            _method: 'PUT'
-        })
+        body: JSON.stringify(requestData)
     })
     .then(response => response.json())
     .then(data => {
@@ -907,44 +931,57 @@ function updateCartQuantity(itemId, itemType = 'product', quantity = 1, element 
                 window.cartWishlistManager.updateCartCount();
             }
 
-            // Update cart total displays
-            const cartTotal = document.querySelector('.cart-total');
-            if (cartTotal) {
-                cartTotal.textContent = '₹' + data.new_total;
+            // Update item subtotal display (quantity × unit price) - Fix for correct subtotal calculation
+            if (data.new_subtotal && element) {
+                const itemRow = element.closest('tr, .cart-item');
+                if (itemRow) {
+                    // Update subtotal elements (this should show quantity × unit price)
+                    const subtotalElements = itemRow.querySelectorAll('.item-subtotal, .product-subtotal .woocommerce-Price-amount, .cart-item-price');
+                    subtotalElements.forEach(subtotalElement => {
+                        if (subtotalElement) {
+                            subtotalElement.innerHTML = `<span class="woocommerce-Price-currencySymbol">₹</span>${parseFloat(data.new_subtotal).toFixed(2)}`;
+                        }
+                    });
+                }
             }
 
-            // Update item subtotal if element exists
-            if (element) {
-                const row = element.closest('tr');
-                if (row) {
-                    const subtotalElement = row.querySelector('.item-subtotal');
-                    if (subtotalElement && data.new_subtotal) {
-                        subtotalElement.textContent = '₹' + data.new_subtotal;
-                    }
-                }
+            // Note: We don't update the unit price because it should remain constant
+            // The unit price (per item) should not change when quantity changes
+            // Only the subtotal (unit price × quantity) should update
+
+            // Update cart total displays
+            const cartTotal = document.querySelector('.cart-total, #cart-subtotal');
+            if (cartTotal && data.cart_total) {
+                cartTotal.textContent = parseFloat(data.cart_total).toFixed(2);
             }
 
             // Update shipping and final total
             const shippingElement = document.querySelector('.shipping-cost');
-            if (shippingElement) {
-                shippingElement.textContent = '₹' + (data.shipping || 0);
+            if (shippingElement && data.shipping) {
+                shippingElement.textContent = parseFloat(data.shipping).toFixed(2);
             }
 
-            const finalTotalElement = document.querySelector('.final-total');
-            if (finalTotalElement) {
-                finalTotalElement.textContent = '₹' + data.final_total;
+            const finalTotalElement = document.querySelector('.final-total, #cart-total');
+            if (finalTotalElement && data.final_total) {
+                finalTotalElement.textContent = parseFloat(data.final_total).toFixed(2);
             }
 
             // Remove item if quantity is 0
             if (quantity == 0 && element) {
-                const row = element.closest('tr');
-                if (row) {
-                    row.remove();
+                const itemRow = element.closest('tr, .cart-item');
+                if (itemRow) {
+                    itemRow.remove();
                 }
+            }
+
+            // Update cart sidebar to show proper empty state if needed
+            if (typeof updateCartSidebar === 'function') {
+                updateCartSidebar();
             }
 
             window.showToast('Cart updated successfully', 'success');
         } else {
+            console.error('Cart update failed:', data);
             window.showToast(data.message || 'Failed to update cart', 'error');
         }
     })
@@ -988,6 +1025,11 @@ function removeCartItem(itemId, itemType = 'product', element = null) {
                 if (row) {
                     row.remove();
                 }
+            }
+
+            // Update cart sidebar to show proper empty state if needed
+            if (typeof updateCartSidebar === 'function') {
+                updateCartSidebar();
             }
 
             // Update totals
