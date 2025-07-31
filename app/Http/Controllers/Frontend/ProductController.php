@@ -88,10 +88,17 @@ class ProductController extends Controller
 
     public function show($slug)
     {
-        $product = Product::with(['category', 'brand'])
+        $product = Product::with(['category', 'brand', 'reviews' => function($query) {
+                $query->approved()->latest()->with('user');
+            }])
             ->where('slug', $slug)
             ->active()
             ->firstOrFail();
+
+        // Calculate average rating
+        $approvedReviews = $product->reviews()->approved()->get();
+        $product->rating = $approvedReviews->count() > 0 ? $approvedReviews->avg('rating') : 0;
+        $product->reviews_count = $approvedReviews->count();
 
         // Get related products from same category
         $relatedProducts = Product::with(['category', 'brand'])
@@ -107,10 +114,17 @@ class ProductController extends Controller
 
     public function showById($id)
     {
-        $product = Product::with(['category', 'brand'])
+        $product = Product::with(['category', 'brand', 'reviews' => function($query) {
+                $query->approved()->latest()->with('user');
+            }])
             ->where('id', $id)
             ->active()
             ->firstOrFail();
+
+        // Calculate average rating
+        $approvedReviews = $product->reviews()->approved()->get();
+        $product->rating = $approvedReviews->count() > 0 ? $approvedReviews->avg('rating') : 0;
+        $product->reviews_count = $approvedReviews->count();
 
         // Get related products from same category
         $relatedProducts = Product::with(['category', 'brand'])

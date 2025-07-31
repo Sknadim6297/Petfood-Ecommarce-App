@@ -14,6 +14,60 @@ use App\Http\Controllers\CouponController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
+Route::get('/test-reviews', function() {
+    $reviews = \App\Models\Review::with(['product', 'user'])->get();
+    return response()->json([
+        'total_reviews' => $reviews->count(),
+        'approved_reviews' => $reviews->where('is_approved', true)->count(),
+        'reviews' => $reviews->take(3)->map(function($review) {
+            return [
+                'id' => $review->id,
+                'product_name' => $review->product->name,
+                'reviewer_name' => $review->name,
+                'rating' => $review->rating,
+                'is_approved' => $review->is_approved,
+                'comment' => substr($review->comment, 0, 50) . '...'
+            ];
+        })
+    ]);
+});
+
+Route::get('/test-products', function() {
+    $products = \App\Models\Product::with(['reviews' => function($q) { $q->approved(); }])->take(3)->get();
+    return response()->json([
+        'products' => $products->map(function($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'slug' => $product->slug,
+                'reviews_count' => $product->reviews->count(),
+                'rating' => $product->reviews->avg('rating') ?: 0
+            ];
+        })
+    ]);
+});
+
+// Temporary admin reviews access (without authentication for testing)
+Route::get('/test-admin-reviews', function() {
+    $controller = new \App\Http\Controllers\Admin\ReviewController();
+    $request = new \Illuminate\Http\Request();
+    return $controller->index($request);
+});
+
+// Temporary admin login for testing
+Route::get('/test-admin-login', function() {
+    session([
+        'is_admin' => true, 
+        'admin_email' => 'admin@gmail.com',
+        'admin_user' => [
+            'id' => 1,
+            'email' => 'admin@gmail.com',
+            'name' => 'Administrator'
+        ]
+    ]);
+    return redirect('/admin/reviews');
+});
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Static pages routes
@@ -245,6 +299,10 @@ Route::get('/products', [ProductController::class, 'index'])->name('products.ind
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 Route::get('/product-details/{id}', [ProductController::class, 'showById'])->name('product.details');
 Route::post('/products/search', [ProductController::class, 'search'])->name('products.search');
+
+// Review routes
+Route::post('/reviews', [App\Http\Controllers\ReviewController::class, 'store'])->name('reviews.store');
+Route::get('/products/{productId}/reviews', [App\Http\Controllers\ReviewController::class, 'getProductReviews'])->name('reviews.product');
 
 // Frontend cooked food routes
 Route::get('/cooked-foods', [CookedFoodController::class, 'index'])->name('cooked-foods.index');

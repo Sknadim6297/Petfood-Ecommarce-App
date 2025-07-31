@@ -33,6 +33,17 @@ Route::middleware('admin')->group(function () {
     // Product Management
     Route::resource('products', ProductController::class, ['as' => 'admin']);
     
+    // Review Management
+    Route::prefix('reviews')->name('admin.reviews.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\ReviewController::class, 'index'])->name('index');
+        Route::get('/{review}', [App\Http\Controllers\Admin\ReviewController::class, 'show'])->name('show');
+        Route::post('/{review}/approve', [App\Http\Controllers\Admin\ReviewController::class, 'approve'])->name('approve');
+        Route::post('/{review}/reject', [App\Http\Controllers\Admin\ReviewController::class, 'reject'])->name('reject');
+        Route::delete('/{review}', [App\Http\Controllers\Admin\ReviewController::class, 'destroy'])->name('destroy');
+        Route::post('/bulk-approve', [App\Http\Controllers\Admin\ReviewController::class, 'bulkApprove'])->name('bulk-approve');
+        Route::post('/bulk-delete', [App\Http\Controllers\Admin\ReviewController::class, 'bulkDelete'])->name('bulk-delete');
+    });
+    
     // Coupon Management
     Route::prefix('coupons')->name('admin.coupons.')->group(function () {
         Route::get('/', [CouponController::class, 'index'])->name('index');

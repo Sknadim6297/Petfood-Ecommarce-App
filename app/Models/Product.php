@@ -74,6 +74,22 @@ class Product extends Model
         return $this->belongsTo(Brand::class);
     }
 
+    /**
+     * Get the reviews for the product
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Get approved reviews for the product
+     */
+    public function approvedReviews()
+    {
+        return $this->hasMany(Review::class)->where('is_approved', true);
+    }
+
     // Get the effective price (sale price if available, otherwise regular price)
     public function getEffectivePriceAttribute()
     {

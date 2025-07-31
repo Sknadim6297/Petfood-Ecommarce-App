@@ -753,6 +753,13 @@
                     </a>
                 </div>
                 <div class="nav-item">
+                    <a href="{{ route('admin.reviews.index') }}" class="nav-link {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-star"></i>
+                        <span class="nav-text">Reviews</span>
+                        <span class="nav-badge">{{ \App\Models\Review::count() }}</span>
+                    </a>
+                </div>
+                <div class="nav-item">
                     <a href="{{ route('admin.coupons.index') }}" class="nav-link {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-percent"></i>
                         <span class="nav-text">Coupons</span>
