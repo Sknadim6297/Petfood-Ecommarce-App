@@ -518,6 +518,34 @@
 
 .review-stats .total-reviews {
     color: var(--text-light);
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.review-stats .btn-primary {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.review-stats .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(250, 68, 29, 0.3);
+}
+
+.review-stats .btn-primary i {
+    margin-right: 8px;
+    font-size: 14px;
+}
     font-size: 14px;
     font-weight: 500;
 }
@@ -652,6 +680,42 @@
     font-size: 64px;
     margin-bottom: 20px;
     color: var(--border-color);
+}
+
+.no-reviews h5 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: var(--text-dark);
+}
+
+.no-reviews p {
+    font-size: 16px;
+    margin-bottom: 25px;
+    color: var(--text-light);
+}
+
+.no-reviews .btn-primary {
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    color: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.no-reviews .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(250, 68, 29, 0.3);
+}
+
+.no-reviews .btn-primary i {
+    margin-right: 8px;
+    font-size: 14px;
 }
 
 /* Related Products */
@@ -1200,16 +1264,6 @@
               </span>
             </div>
           </div>
-          
-          <div class="care-instructions mt-4">
-            <h5><i class="fa-solid fa-heart me-2 text-danger"></i>Care Instructions:</h5>
-            <ul class="care-list">
-              <li><i class="fa-solid fa-temperature-low text-primary"></i> Store in a cool, dry place</li>
-              <li><i class="fa-solid fa-sun text-warning"></i> Keep away from direct sunlight</li>
-              <li><i class="fa-solid fa-shield-alt text-success"></i> Keep container tightly closed</li>
-              <li><i class="fa-solid fa-calendar-alt text-info"></i> Use before expiry date</li>
-            </ul>
-          </div>
         </div>
         
         <!-- Reviews Tab -->
@@ -1503,20 +1557,39 @@ document.getElementById('reviewSubmitForm')?.addEventListener('submit', function
         return;
     }
     
+    // Get CSRF token from meta tag or form
+    let csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    if (!csrfToken) {
+        // Fallback to form CSRF token
+        csrfToken = formData.get('_token');
+    }
+    
+    if (!csrfToken) {
+        alert('Security token missing. Please refresh the page and try again.');
+        return;
+    }
+    
     // Add loading state
     submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
     submitBtn.disabled = true;
     
-    // Submit via AJAX
+    // Since we're using FormData, the CSRF token from @csrf should already be included
+    // But let's also add it to headers for extra safety
     fetch(this.action, {
         method: 'POST',
         body: formData,
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             alert('Thank you! Your review has been submitted and will be published after approval.');
@@ -1529,11 +1602,18 @@ document.getElementById('reviewSubmitForm')?.addEventListener('submit', function
             toggleReviewForm();
         } else {
             alert('Error: ' + (data.message || 'Unable to submit review. Please try again.'));
+            if (data.errors) {
+                console.error('Validation errors:', data.errors);
+            }
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error submitting review. Please try again.');
+        if (error.message.includes('419')) {
+            alert('Session expired. Please refresh the page and try again.');
+        } else {
+            alert('Error submitting review. Please try again.');
+        }
     })
     .finally(() => {
         submitBtn.innerHTML = originalText;

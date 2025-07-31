@@ -165,23 +165,21 @@
                                                 </a>
                                                 
                                                 @if($review->is_approved)
-                                                    <form action="{{ route('admin.reviews.reject', $review) }}" 
-                                                          method="POST" class="d-inline" 
-                                                          onsubmit="return confirm('Are you sure you want to reject this review?')">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-warning btn-sm" title="Reject Review">
-                                                            <i class="fas fa-times"></i>
-                                                        </button>
-                                                    </form>
+                                                    <button type="button" 
+                                                            class="btn btn-warning btn-sm approve-reject-btn" 
+                                                            data-url="{{ route('admin.reviews.reject', $review) }}"
+                                                            data-action="reject"
+                                                            title="Reject Review">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
                                                 @else
-                                                    <form action="{{ route('admin.reviews.approve', $review) }}" 
-                                                          method="POST" class="d-inline" 
-                                                          onsubmit="return confirm('Are you sure you want to approve this review?')">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-success btn-sm" title="Approve Review">
-                                                            <i class="fas fa-check"></i>
-                                                        </button>
-                                                    </form>
+                                                    <button type="button" 
+                                                            class="btn btn-success btn-sm approve-reject-btn" 
+                                                            data-url="{{ route('admin.reviews.approve', $review) }}"
+                                                            data-action="approve"
+                                                            title="Approve Review">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
                                                 @endif
                                                 
                                                 <form action="{{ route('admin.reviews.destroy', $review) }}" 
@@ -231,6 +229,122 @@
 @section('scripts')
 <script>
 $(document).ready(function() {
+    // Check if jQuery is loaded
+    if (typeof jQuery === 'undefined') {
+        console.error('jQuery is not loaded! Admin functionality may not work.');
+        alert('JavaScript Error: jQuery is missing. Please refresh the page.');
+        return;
+    }
+    
+    console.log('jQuery loaded successfully. Version:', jQuery.fn.jquery);
+    
+    // Setup AJAX CSRF token
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    
+    // Handle approve/reject buttons with AJAX
+    $('.approve-reject-btn').on('click', function(e) {
+        e.preventDefault();
+        
+        const btn = $(this);
+        const url = btn.data('url');
+        const action = btn.data('action');
+        const actionText = action === 'approve' ? 'approve' : 'reject';
+        
+        if (confirm(`Are you sure you want to ${actionText} this review?`)) {
+            // Show loading state
+            const originalHtml = btn.html();
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+            
+            // Make AJAX request
+            $.ajax({
+                url: url,
+                method: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    // Show success message
+                    if (response.message) {
+                        const alertDiv = $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+                            response.message +
+                            '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+                            '</div>');
+                        $('.card-body').prepend(alertDiv);
+                        
+                        // Auto-dismiss after 3 seconds
+                        setTimeout(() => alertDiv.alert('close'), 3000);
+                    }
+                    
+                    // Reload page to show updated status
+                    setTimeout(() => window.location.reload(), 1000);
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', xhr, status, error);
+                    let errorMessage = 'Something went wrong';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    } else if (xhr.responseText) {
+                        errorMessage = 'Server error: ' + xhr.status;
+                    }
+                    alert('Error: ' + errorMessage);
+                    btn.prop('disabled', false).html(originalHtml);
+                }
+            });
+        }
+    });
+    
+    // Handle legacy form submissions (fallback)
+    $('.approve-reject-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        const form = $(this);
+        const action = form.data('action');
+        const actionText = action === 'approve' ? 'approve' : 'reject';
+        
+        if (confirm(`Are you sure you want to ${actionText} this review?`)) {
+            // Show loading state
+            const submitBtn = form.find('button[type="submit"]');
+            const originalHtml = submitBtn.html();
+            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+            
+            // Submit form via AJAX to prevent URL issues
+            $.ajax({
+                url: form.attr('action'),
+                method: 'POST',
+                data: form.serialize(),
+                success: function(response) {
+                    // Show success message
+                    if (response.message) {
+                        // Create a simple alert or you can use a toast
+                        const alertDiv = $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+                            response.message +
+                            '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+                            '</div>');
+                        $('.card-body').prepend(alertDiv);
+                        
+                        // Auto-dismiss after 3 seconds
+                        setTimeout(() => alertDiv.alert('close'), 3000);
+                    }
+                    
+                    // Reload page to show updated status
+                    setTimeout(() => window.location.reload(), 1000);
+                },
+                error: function(xhr, status, error) {
+                    let errorMessage = 'Something went wrong';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    alert('Error: ' + errorMessage);
+                    submitBtn.prop('disabled', false).html(originalHtml);
+                }
+            });
+        }
+    });
+    
     // Select all checkbox functionality
     $('#select-all').change(function() {
         $('.review-checkbox').prop('checked', $(this).prop('checked'));
@@ -247,6 +361,11 @@ $(document).ready(function() {
 });
 
 function bulkApprove() {
+    if (typeof $ === 'undefined') {
+        alert('jQuery is not loaded. Please refresh the page.');
+        return;
+    }
+    
     const selected = $('.review-checkbox:checked').map(function() {
         return $(this).val();
     }).get();
@@ -281,6 +400,11 @@ function bulkApprove() {
 }
 
 function bulkDelete() {
+    if (typeof $ === 'undefined') {
+        alert('jQuery is not loaded. Please refresh the page.');
+        return;
+    }
+    
     const selected = $('.review-checkbox:checked').map(function() {
         return $(this).val();
     }).get();

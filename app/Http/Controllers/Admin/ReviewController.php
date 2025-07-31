@@ -72,9 +72,27 @@ class ReviewController extends Controller
             $this->updateProductRating($review->product);
             
             DB::commit();
+            
+            // Return JSON response for AJAX requests
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Review approved successfully.'
+                ]);
+            }
+            
             return redirect()->back()->with('success', 'Review approved successfully.');
         } catch (\Exception $e) {
             DB::rollback();
+            
+            // Return JSON error for AJAX requests
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to approve review.'
+                ], 500);
+            }
+            
             return redirect()->back()->with('error', 'Failed to approve review.');
         }
     }
@@ -90,9 +108,27 @@ class ReviewController extends Controller
             $this->updateProductRating($review->product);
             
             DB::commit();
+            
+            // Return JSON response for AJAX requests
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Review rejected successfully.'
+                ]);
+            }
+            
             return redirect()->back()->with('success', 'Review rejected successfully.');
         } catch (\Exception $e) {
             DB::rollback();
+            
+            // Return JSON error for AJAX requests
+            if (request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to reject review.'
+                ], 500);
+            }
+            
             return redirect()->back()->with('error', 'Failed to reject review.');
         }
     }
