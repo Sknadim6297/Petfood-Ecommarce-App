@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\AdminOrderController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\BlogCategoryController;
@@ -25,6 +26,9 @@ Route::middleware('admin')->group(function () {
     
     // Category Management
     Route::resource('categories', CategoryController::class, ['as' => 'admin']);
+    
+    // Brand Management
+    Route::resource('brands', BrandController::class, ['as' => 'admin']);
     
     // Product Management
     Route::resource('products', ProductController::class, ['as' => 'admin']);

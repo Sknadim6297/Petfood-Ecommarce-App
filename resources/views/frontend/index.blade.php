@@ -280,6 +280,11 @@
                         @endif
                     </div>
                     <span>{{ $product->category->name ?? 'Animal Feed' }}</span>
+                    @if($product->brand)
+                        <div class="product-brand">
+                            <i class="fas fa-tag"></i> {{ $product->brand->name }}
+                        </div>
+                    @endif
                     <a href="{{ route('product.show', $product->slug) }}">{{ $product->name }}</a>
                     <h6>
                         @if($product->sale_price)

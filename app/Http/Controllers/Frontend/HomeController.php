@@ -21,7 +21,7 @@ class HomeController extends Controller
             ->get();
 
         // Get featured products for "Healthy Products" section
-        $featuredProducts = Product::with('category')
+        $featuredProducts = Product::with(['category', 'brand'])
             ->active()
             ->inStock()
             ->featured()
@@ -29,7 +29,7 @@ class HomeController extends Controller
             ->get();
 
         // Get healthy products for "Healthy Products" section
-        $healthyProducts = Product::with('category')
+        $healthyProducts = Product::with(['category', 'brand'])
             ->active()
             ->inStock()
             ->healthy()
@@ -37,7 +37,7 @@ class HomeController extends Controller
             ->get();
 
         // Get deal of the week
-        $dealOfWeek = Product::with('category')
+        $dealOfWeek = Product::with(['category', 'brand'])
             ->active()
             ->inStock()
             ->dealOfWeek()
@@ -45,7 +45,7 @@ class HomeController extends Controller
 
         // If no deal of week product, get one with highest discount
         if (!$dealOfWeek) {
-            $dealOfWeek = Product::with('category')
+            $dealOfWeek = Product::with(['category', 'brand'])
                 ->active()
                 ->inStock()
                 ->whereNotNull('sale_price')

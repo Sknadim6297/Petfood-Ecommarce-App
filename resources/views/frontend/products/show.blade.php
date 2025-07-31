@@ -363,6 +363,9 @@
             @endif
             <ul class="product_meta mt-4">
               <li><span class="theme-bg-clr">Category:</span> {{ $product->category->name }}</li>
+              @if($product->brand)
+              <li><span class="theme-bg-clr">Brand:</span> {{ $product->brand->name }}</li>
+              @endif
               <li><span class="theme-bg-clr">SKU:</span> {{ $product->sku }}</li>
             </ul>
           </form>

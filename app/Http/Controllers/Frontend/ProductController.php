@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Brand;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -19,14 +20,30 @@ class ProductController extends Controller
             ->ordered()
             ->get();
 
+        // Get all active brands with product counts
+        $brands = Brand::active()
+            ->withCount(['products' => function ($query) {
+                $query->active()->inStock();
+            }])
+            ->ordered()
+            ->get();
+
         // Build the products query
-        $query = Product::with('category')->active();
+        $query = Product::with(['category', 'brand'])->active();
 
         // Filter by category if specified
         if ($request->has('category') && $request->category) {
             $category = Category::where('slug', $request->category)->first();
             if ($category) {
                 $query->where('category_id', $category->id);
+            }
+        }
+
+        // Filter by brand if specified
+        if ($request->has('brand') && $request->brand) {
+            $brand = Brand::where('slug', $request->brand)->first();
+            if ($brand) {
+                $query->where('brand_id', $brand->id);
             }
         }
 
@@ -66,18 +83,18 @@ class ProductController extends Controller
         // Paginate results
         $products = $query->paginate(12);
 
-        return view('frontend.products.index', compact('products', 'categories'));
+        return view('frontend.products.index', compact('products', 'categories', 'brands'));
     }
 
     public function show($slug)
     {
-        $product = Product::with('category')
+        $product = Product::with(['category', 'brand'])
             ->where('slug', $slug)
             ->active()
             ->firstOrFail();
 
         // Get related products from same category
-        $relatedProducts = Product::with('category')
+        $relatedProducts = Product::with(['category', 'brand'])
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->active()
@@ -90,13 +107,13 @@ class ProductController extends Controller
 
     public function showById($id)
     {
-        $product = Product::with('category')
+        $product = Product::with(['category', 'brand'])
             ->where('id', $id)
             ->active()
             ->firstOrFail();
 
         // Get related products from same category
-        $relatedProducts = Product::with('category')
+        $relatedProducts = Product::with(['category', 'brand'])
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->active()
@@ -116,7 +133,7 @@ class ProductController extends Controller
         $searchTerm = $request->search;
         
         // Search products by name, description, or category name
-        $query = Product::with('category')
+        $query = Product::with(['category', 'brand'])
             ->active()
             ->inStock()
             ->where(function($q) use ($searchTerm) {

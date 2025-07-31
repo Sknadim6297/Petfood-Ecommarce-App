@@ -82,6 +82,17 @@
                         </div>
 
                         <div class="row mb-3">
+                            <div class="col-sm-4"><strong>Brand:</strong></div>
+                            <div class="col-sm-8">
+                                @if($product->brand)
+                                    <span class="badge bg-success">{{ $product->brand->name }}</span>
+                                @else
+                                    <span class="text-muted">No brand</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
                             <div class="col-sm-4"><strong>Price:</strong></div>
                             <div class="col-sm-8">
                                 @if($product->sale_price)

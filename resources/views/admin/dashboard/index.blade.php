@@ -497,11 +497,17 @@
                 <a href="{{ route('admin.products.index') }}" class="view-all-link">View All</a>
             </div>
             <div class="recent-content">
-                @foreach(\App\Models\Product::latest()->take(5)->get() as $product)
+                @foreach(\App\Models\Product::with(['category', 'brand'])->latest()->take(5)->get() as $product)
                 <div class="recent-item">
                     <div class="recent-item-info">
                         <h6>{{ $product->name }}</h6>
-                        <div class="recent-item-meta">{{ $product->category->name ?? 'No Category' }} • Stock: {{ $product->stock_quantity }}</div>
+                        <div class="recent-item-meta">
+                            {{ $product->category->name ?? 'No Category' }}
+                            @if($product->brand)
+                                • {{ $product->brand->name }}
+                            @endif
+                            • Stock: {{ $product->stock_quantity }}
+                        </div>
                     </div>
                     <div class="recent-item-value">₹{{ number_format($product->price, 2) }}</div>
                 </div>

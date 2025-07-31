@@ -90,6 +90,11 @@
                                             </span>
                                         </div>
                                         <span>{{ $product->category->name ?? 'Pet Product' }}</span>
+                                        @if($product->brand)
+                                            <div class="product-brand">
+                                                <i class="fas fa-tag"></i> {{ $product->brand->name }}
+                                            </div>
+                                        @endif
                                         <h4><a href="{{ route('product.show', $product->slug) }}">{{ $product->name }}</a></h4>
                                         <span class="price">
                                             @if($product->is_on_sale)

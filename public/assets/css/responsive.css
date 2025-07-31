@@ -2096,9 +2096,9 @@
     left: 21px;
     top: 22px;
 	}
-	.products-section .healthy-product .healthy-product-img img {
+	/* .products-section .healthy-product .healthy-product-img img {
     width: auto;
-	}
+	} */
 	.items-number {
 		flex-wrap: wrap;
 	}

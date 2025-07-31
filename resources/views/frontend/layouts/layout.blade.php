@@ -2444,6 +2444,93 @@ $(document).ready(function() {
 body.modal-open {
     overflow: hidden;
 }
+
+/* Product Brand Styling - Global */
+.product-brand {
+    font-size: 11px;
+    color: #666;
+    margin-top: 3px;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.product-brand i {
+    font-size: 10px;
+}
+
+/* Mobile Brand Styling */
+@media (max-width: 768px) {
+    .product-brand {
+        font-size: 10px;
+        margin-top: 2px;
+        margin-bottom: 3px;
+        gap: 3px;
+    }
+    
+    .product-brand i {
+        font-size: 8px;
+    }
+    
+    /* Better mobile product card spacing */
+    .healthy-product {
+        margin-bottom: 20px;
+        padding: 15px;
+    }
+    
+    .healthy-product span {
+        font-size: 12px;
+        margin-bottom: 3px;
+        display: block;
+        line-height: 1.3;
+    }
+    
+    .healthy-product a {
+        font-size: 14px;
+        line-height: 1.3;
+        margin: 5px 0;
+        display: block;
+    }
+    
+    .healthy-product h6 {
+        font-size: 16px;
+        margin-top: 8px;
+        font-weight: 600;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-brand {
+        font-size: 9px;
+        gap: 2px;
+        margin-top: 1px;
+        margin-bottom: 2px;
+    }
+    
+    .product-brand i {
+        font-size: 7px;
+    }
+    
+    .healthy-product {
+        padding: 12px;
+        margin-bottom: 15px;
+    }
+    
+    .healthy-product span {
+        font-size: 11px;
+    }
+    
+    .healthy-product a {
+        font-size: 13px;
+        line-height: 1.2;
+    }
+    
+    .healthy-product h6 {
+        font-size: 15px;
+        margin-top: 5px;
+    }
+}
 </style>
 
 </body>

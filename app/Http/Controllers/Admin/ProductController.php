@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -16,7 +17,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with('category')->ordered()->paginate(10);
+        $products = Product::with(['category', 'brand'])->ordered()->paginate(10);
         return view('admin.products.index', compact('products'));
     }
 
@@ -26,7 +27,8 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::active()->ordered()->get();
-        return view('admin.products.create', compact('categories'));
+        $brands = Brand::active()->ordered()->get();
+        return view('admin.products.create', compact('categories', 'brands'));
     }
 
     /**
@@ -38,18 +40,26 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'short_description' => 'nullable|string|max:500',
+            'additional_information' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0|lt:price',
             'sku' => 'required|string|max:100|unique:products,sku',
             'stock_quantity' => 'required|integer|min:0',
+            'weight' => 'nullable|numeric|min:0',
+            'manufactured_date' => 'nullable|date',
+            'expiry_date' => 'nullable|date|after:manufactured_date',
             'category_id' => 'required|exists:categories,id',
+            'brand_id' => 'nullable|exists:brands,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'gallery.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_featured' => 'boolean',
             'is_active' => 'boolean',
             'is_healthy' => 'boolean',
             'is_deal_of_week' => 'boolean',
-            'sort_order' => 'nullable|integer|min:0'
+            'sort_order' => 'nullable|integer|min:0',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_keywords' => 'nullable|string|max:500',
+            'meta_description' => 'nullable|string|max:500',
         ]);
 
         $data = $request->except(['image', 'gallery']);
@@ -85,7 +95,7 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        $product->load('category');
+        $product->load(['category', 'brand']);
         return view('admin.products.show', compact('product'));
     }
 
@@ -95,7 +105,8 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::active()->ordered()->get();
-        return view('admin.products.edit', compact('product', 'categories'));
+        $brands = Brand::active()->ordered()->get();
+        return view('admin.products.edit', compact('product', 'categories', 'brands'));
     }
 
     /**
@@ -107,18 +118,26 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'short_description' => 'nullable|string|max:500',
+            'additional_information' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'sale_price' => 'nullable|numeric|min:0|lt:price',
             'sku' => 'required|string|max:100|unique:products,sku,' . $product->id,
             'stock_quantity' => 'required|integer|min:0',
+            'weight' => 'nullable|numeric|min:0',
+            'manufactured_date' => 'nullable|date',
+            'expiry_date' => 'nullable|date|after:manufactured_date',
             'category_id' => 'required|exists:categories,id',
+            'brand_id' => 'nullable|exists:brands,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'gallery.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'is_featured' => 'boolean',
             'is_active' => 'boolean',
             'is_healthy' => 'boolean',
             'is_deal_of_week' => 'boolean',
-            'sort_order' => 'nullable|integer|min:0'
+            'sort_order' => 'nullable|integer|min:0',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_keywords' => 'nullable|string|max:500',
+            'meta_description' => 'nullable|string|max:500',
         ]);
 
         $data = $request->except(['image', 'gallery']);

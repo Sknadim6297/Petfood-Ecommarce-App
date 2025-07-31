@@ -273,6 +273,15 @@
     font-weight: 500;
 }
 
+.brand-badge {
+    background: #e8f5e8;
+    color: #2d5a2d;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
 .action-buttons {
     display: flex;
     gap: 8px;
@@ -514,6 +523,7 @@
                 <tr>
                     <th>Product</th>
                     <th>Category</th>
+                    <th>Brand</th>
                     <th>Price</th>
                     <th>Stock</th>
                     <th>Status</th>
@@ -545,6 +555,13 @@
                             <span class="category-badge">{{ $product->category->name }}</span>
                         @else
                             <span class="category-badge" style="background: #f8d7da; color: #721c24;">No Category</span>
+                        @endif
+                    </td>
+                    <td>
+                        @if($product->brand)
+                            <span class="brand-badge">{{ $product->brand->name }}</span>
+                        @else
+                            <span class="brand-badge" style="background: #f8d7da; color: #721c24;">No Brand</span>
                         @endif
                     </td>
                     <td>

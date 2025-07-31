@@ -129,6 +129,11 @@
                         </div>
                         <h4><a href="{{ route('product.show', $product->slug) }}">{{ $product->name }}</a></h4>
                         <p class="category">{{ $product->category->name ?? 'Pet Product' }}</p>
+                        @if($product->brand)
+                            <p class="product-brand">
+                                <i class="fas fa-tag"></i> {{ $product->brand->name }}
+                            </p>
+                        @endif
                         <div class="price">
                             @if($product->sale_price)
                                 <del>₹{{ number_format($product->price, 2) }}</del>

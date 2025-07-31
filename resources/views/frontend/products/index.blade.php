@@ -2,6 +2,174 @@
 
 @section('title', 'Our Products - PetNet')
 
+@push('styles')
+<style>
+.active-filters {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #fe5716;
+}
+
+.filter-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.filter-tag {
+    background: #fe5716;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.remove-filter {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 1;
+    width: 16px;
+    height: 16px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove-filter:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    text-decoration: none;
+}
+
+.clear-all-filters {
+    color: #fe5716;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid #fe5716;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: white;
+}
+
+.clear-all-filters:hover {
+    background: #fe5716;
+    color: white;
+    text-decoration: none;
+}
+
+/* Product Brand Styling */
+.product-brand {
+    font-size: 11px;
+    color: #666;
+    margin-top: 3px;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.product-brand i {
+    font-size: 10px;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    .active-filters {
+        padding: 10px;
+        margin-bottom: 15px !important;
+    }
+    
+    .active-filters h6 {
+        font-size: 14px;
+        margin-bottom: 8px !important;
+    }
+    
+    .filter-tag {
+        font-size: 10px;
+        padding: 4px 8px;
+        gap: 4px;
+    }
+    
+    .remove-filter {
+        width: 14px;
+        height: 14px;
+        font-size: 12px;
+    }
+    
+    .clear-all-filters {
+        font-size: 10px;
+        padding: 4px 8px;
+    }
+    
+    .product-brand {
+        font-size: 10px;
+        margin-top: 2px;
+        margin-bottom: 3px;
+    }
+    
+    .product-brand i {
+        font-size: 8px;
+    }
+    
+    /* Adjust product card layout for mobile */
+    .healthy-product {
+        margin-bottom: 20px;
+    }
+    
+    .healthy-product span {
+        font-size: 12px;
+        margin-bottom: 3px;
+        display: block;
+    }
+    
+    .healthy-product a {
+        font-size: 14px;
+        line-height: 1.3;
+        margin-bottom: 5px;
+        display: block;
+    }
+    
+    .healthy-product h6 {
+        font-size: 16px;
+        margin-top: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .filter-tags {
+        gap: 4px;
+    }
+    
+    .filter-tag {
+        font-size: 9px;
+        padding: 3px 6px;
+    }
+    
+    .product-brand {
+        font-size: 9px;
+    }
+    
+    .healthy-product span {
+        font-size: 11px;
+    }
+    
+    .healthy-product a {
+        font-size: 13px;
+    }
+}
+</style>
+@endpush
+
 @section('content')
 <section class="banner" style="background-color: #fff8e5; background-image:url({{ asset('assets/img/banner.png') }})">
     <div class="container">
@@ -72,12 +240,42 @@
         </div>
         
         <div class="sidebar">
+            <h3>Brand</h3>
+            <div class="boder-bar"></div>
+            <ul class="category">
+              @forelse($brands as $brand)
+              <li>
+                <a href="{{ route('products.index', array_merge(request()->query(), ['brand' => $brand->slug])) }}" 
+                   class="{{ request('brand') == $brand->slug ? 'active' : '' }}">
+                   {{ $brand->name }}
+                   <span>{{ $brand->products_count }}</span>
+                </a>
+              </li>
+              @empty
+              <li>
+                <a href="#">No brands available<span>0</span></a>
+              </li>
+              @endforelse
+              @if(request('brand'))
+              <li>
+                <a href="{{ route('products.index', request()->except('brand')) }}" class="text-primary">
+                  <i class="fas fa-times me-1"></i>Clear Brand Filter
+                </a>
+              </li>
+              @endif
+            </ul>
+        </div>
+        
+        <div class="sidebar">
             <h3>Price range</h3>
             <div class="boder-bar"></div>
             <div class="wrapper">
               <form method="GET" action="{{ route('products.index') }}">
                 @if(request('category'))
                   <input type="hidden" name="category" value="{{ request('category') }}">
+                @endif
+                @if(request('brand'))
+                  <input type="hidden" name="brand" value="{{ request('brand') }}">
                 @endif
                 <fieldset class="filter-price">
                  <div class="price-wrap">
@@ -114,6 +312,9 @@
               @if(request('category'))
                 <input type="hidden" name="category" value="{{ request('category') }}">
               @endif
+              @if(request('brand'))
+                <input type="hidden" name="brand" value="{{ request('brand') }}">
+              @endif
               @if(request('min_price'))
                 <input type="hidden" name="min_price" value="{{ request('min_price') }}">
               @endif
@@ -130,6 +331,43 @@
             </form>
           </div>
         </div>
+        
+        <!-- Active Filters Display -->
+        @if(request('category') || request('brand') || request('min_price') || request('max_price'))
+        <div class="active-filters mb-4">
+            <h6 class="mb-2">Active Filters:</h6>
+            <div class="filter-tags d-flex flex-wrap gap-2">
+                @if(request('category'))
+                    @php 
+                        $categoryName = \App\Models\Category::where('slug', request('category'))->first()->name ?? request('category');
+                    @endphp
+                    <span class="filter-tag">
+                        Category: {{ $categoryName }}
+                        <a href="{{ route('products.index', request()->except('category')) }}" class="remove-filter">×</a>
+                    </span>
+                @endif
+                
+                @if(request('brand'))
+                    @php 
+                        $brandName = \App\Models\Brand::where('slug', request('brand'))->first()->name ?? request('brand');
+                    @endphp
+                    <span class="filter-tag">
+                        Brand: {{ $brandName }}
+                        <a href="{{ route('products.index', request()->except('brand')) }}" class="remove-filter">×</a>
+                    </span>
+                @endif
+                
+                @if(request('min_price') || request('max_price'))
+                    <span class="filter-tag">
+                        Price: ₹{{ request('min_price', 0) }} - ₹{{ request('max_price', 1000) }}
+                        <a href="{{ route('products.index', request()->except(['min_price', 'max_price'])) }}" class="remove-filter">×</a>
+                    </span>
+                @endif
+                
+                <a href="{{ route('products.index') }}" class="clear-all-filters">Clear All Filters</a>
+            </div>
+        </div>
+        @endif
         
         <div class="row">
           @forelse($products as $product)
@@ -165,6 +403,11 @@
                     </div>
                     
                     <span>{{ $product->category->name ?? 'Uncategorized' }}</span>
+                    @if($product->brand)
+                        <div class="product-brand">
+                            <i class="fas fa-tag"></i> {{ $product->brand->name }}
+                        </div>
+                    @endif
                     <a href="{{ route('product.show', $product->slug) }}">{{ $product->name }}</a>
                     
                     @if($product->is_on_sale)

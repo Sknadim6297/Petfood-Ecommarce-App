@@ -12,31 +12,42 @@ class Product extends Model
         'slug',
         'description',
         'short_description',
+        'additional_information',
         'price',
         'sale_price',
         'sku',
         'stock_quantity',
+        'weight',
+        'manufactured_date',
+        'expiry_date',
         'image',
         'gallery',
         'category_id',
+        'brand_id',
         'is_featured',
         'is_active',
         'is_healthy',
         'is_deal_of_week',
         'rating',
         'reviews_count',
-        'sort_order'
+        'sort_order',
+        'meta_title',
+        'meta_keywords',
+        'meta_description'
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
         'sale_price' => 'decimal:2',
+        'weight' => 'decimal:2',
         'rating' => 'decimal:1',
         'gallery' => 'array',
         'is_featured' => 'boolean',
         'is_active' => 'boolean',
         'is_healthy' => 'boolean',
         'is_deal_of_week' => 'boolean',
+        'manufactured_date' => 'date',
+        'expiry_date' => 'date',
     ];
 
     // Automatically generate slug from name
@@ -55,6 +66,12 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    // Relationship with brand
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class);
     }
 
     // Get the effective price (sale price if available, otherwise regular price)
