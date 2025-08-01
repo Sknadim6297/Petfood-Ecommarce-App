@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin Dashboard') - PetNet</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/img/logo/petnet_logo.png') }}">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -291,15 +296,37 @@
         .brand-logo {
             width: 50px;
             height: 50px;
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            background: white;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 0.75rem;
-            color: white;
+            color: var(--primary-color);
             font-size: 1.5rem;
             box-shadow: var(--shadow-md);
+            padding: 8px;
+            transition: var(--transition);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .brand-logo:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(254, 87, 22, 0.3);
+            text-decoration: none;
+        }
+
+        .brand-logo .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .brand-logo:hover .logo-img {
+            transform: scale(1.1);
         }
 
         .brand-text {
@@ -418,6 +445,39 @@
             display: flex;
             align-items: center;
             gap: 1rem;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: var(--transition);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .header-brand:hover {
+            background: rgba(254, 87, 22, 0.05);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .header-logo {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            border-radius: 6px;
+            background: rgba(254, 87, 22, 0.1);
+            padding: 4px;
+            transition: var(--transition);
+        }
+
+        .header-brand:hover .header-logo {
+            transform: scale(1.1);
+            background: rgba(254, 87, 22, 0.2);
         }
 
         .sidebar-toggle {
@@ -708,9 +768,9 @@
     <nav class="sidebar" id="sidebar">
         <!-- Brand -->
         <div class="sidebar-brand">
-            <div class="brand-logo">
-                <i class="fas fa-paw"></i>
-            </div>
+            <a href="{{ route('admin.dashboard') }}" class="brand-logo">
+                <img src="{{ asset('assets/img/logo/petnet_logo.png') }}" alt="PetNet Logo" class="logo-img">
+            </a>
             <div class="brand-text">PetNet</div>
             <div class="brand-subtitle">Admin Panel</div>
         </div>
@@ -882,24 +942,25 @@
                 <button class="sidebar-toggle" id="sidebarToggle">
                     <i class="fas fa-bars"></i>
                 </button>
-                <div>
+                <a href="{{ route('admin.dashboard') }}" class="header-brand">
+                    <img src="{{ asset('assets/img/logo/petnet_logo.png') }}" alt="PetNet Logo" class="header-logo">
                     <h1 class="page-title">@yield('page-title', 'Dashboard')</h1>
-                    @if(isset($breadcrumbs))
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb">
-                                @foreach($breadcrumbs as $breadcrumb)
-                                    @if($loop->last)
-                                        <li class="breadcrumb-item active">{{ $breadcrumb['title'] }}</li>
-                                    @else
-                                        <li class="breadcrumb-item">
-                                            <a href="{{ $breadcrumb['url'] }}">{{ $breadcrumb['title'] }}</a>
-                                        </li>
-                                    @endif
-                                @endforeach
-                            </ol>
-                        </nav>
-                    @endif
-                </div>
+                </a>
+                @if(isset($breadcrumbs))
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            @foreach($breadcrumbs as $breadcrumb)
+                                @if($loop->last)
+                                    <li class="breadcrumb-item active">{{ $breadcrumb['title'] }}</li>
+                                @else
+                                    <li class="breadcrumb-item">
+                                        <a href="{{ $breadcrumb['url'] }}">{{ $breadcrumb['title'] }}</a>
+                                    </li>
+                                @endif
+                            @endforeach
+                        </ol>
+                    </nav>
+                @endif
             </div>
 
             <div class="header-right">
