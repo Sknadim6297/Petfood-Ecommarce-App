@@ -237,6 +237,7 @@ $(document).ready(function() {
     }
     
     console.log('jQuery loaded successfully. Version:', jQuery.fn.jquery);
+    console.log('CSRF Token:', $('meta[name="csrf-token"]').attr('content'));
     
     // Setup AJAX CSRF token
     $.ajaxSetup({
@@ -254,6 +255,8 @@ $(document).ready(function() {
         const action = btn.data('action');
         const actionText = action === 'approve' ? 'approve' : 'reject';
         
+        console.log('Button clicked:', action, 'URL:', url);
+        
         if (confirm(`Are you sure you want to ${actionText} this review?`)) {
             // Show loading state
             const originalHtml = btn.html();
@@ -264,13 +267,21 @@ $(document).ready(function() {
                 url: url,
                 method: 'POST',
                 data: {
-                    _token: $('meta[name="csrf-token"]').attr('content')
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    _method: 'POST'
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content'),
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 },
                 success: function(response) {
+                    console.log('Success response:', response);
+                    
                     // Show success message
                     if (response.message) {
                         const alertDiv = $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
-                            response.message +
+                            '<i class="fas fa-check-circle me-2"></i>' + response.message +
                             '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
                             '</div>');
                         $('.card-body').prepend(alertDiv);
@@ -283,14 +294,33 @@ $(document).ready(function() {
                     setTimeout(() => window.location.reload(), 1000);
                 },
                 error: function(xhr, status, error) {
-                    console.error('AJAX Error:', xhr, status, error);
+                    console.error('AJAX Error:', {
+                        xhr: xhr,
+                        status: status,
+                        error: error,
+                        responseText: xhr.responseText,
+                        responseJSON: xhr.responseJSON
+                    });
+                    
                     let errorMessage = 'Something went wrong';
                     if (xhr.responseJSON && xhr.responseJSON.message) {
                         errorMessage = xhr.responseJSON.message;
+                    } else if (xhr.status === 419) {
+                        errorMessage = 'CSRF token mismatch. Please refresh the page and try again.';
+                    } else if (xhr.status === 404) {
+                        errorMessage = 'Review not found or URL is incorrect.';
+                    } else if (xhr.status === 500) {
+                        errorMessage = 'Server error occurred. Please try again.';
                     } else if (xhr.responseText) {
                         errorMessage = 'Server error: ' + xhr.status;
                     }
-                    alert('Error: ' + errorMessage);
+                    
+                    const alertDiv = $('<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
+                        '<i class="fas fa-exclamation-circle me-2"></i>Error: ' + errorMessage +
+                        '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+                        '</div>');
+                    $('.card-body').prepend(alertDiv);
+                    
                     btn.prop('disabled', false).html(originalHtml);
                 }
             });
@@ -437,5 +467,40 @@ function bulkDelete() {
         form.submit();
     }
 }
+</script>
+
+<script>
+// Test function for debugging
+function testAjaxConnection() {
+    console.log('Testing AJAX connection...');
+    
+    $.ajax({
+        url: '{{ route("admin.reviews.index") }}',
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
+        success: function(response) {
+            console.log('AJAX test successful:', response);
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX test failed:', {
+                xhr: xhr,
+                status: status,
+                error: error,
+                responseText: xhr.responseText
+            });
+        }
+    });
+}
+
+// Add test button for debugging (temporary)
+$(document).ready(function() {
+    if (window.location.search.includes('debug=1')) {
+        $('<button class="btn btn-info btn-sm" onclick="testAjaxConnection()">Test AJAX</button>')
+            .appendTo('.card-tools');
+    }
+});
 </script>
 @endsection

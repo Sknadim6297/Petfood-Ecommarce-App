@@ -7,6 +7,7 @@ use App\Models\Review;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ReviewController extends Controller
 {
@@ -74,22 +75,24 @@ class ReviewController extends Controller
             DB::commit();
             
             // Return JSON response for AJAX requests
-            if (request()->ajax()) {
+            if (request()->ajax() || request()->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Review approved successfully.'
+                    'message' => 'Review approved successfully.',
+                    'status' => 'approved'
                 ]);
             }
             
             return redirect()->back()->with('success', 'Review approved successfully.');
         } catch (\Exception $e) {
             DB::rollback();
+            Log::error('Error approving review: ' . $e->getMessage());
             
             // Return JSON error for AJAX requests
-            if (request()->ajax()) {
+            if (request()->ajax() || request()->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to approve review.'
+                    'message' => 'Failed to approve review: ' . $e->getMessage()
                 ], 500);
             }
             
@@ -110,22 +113,24 @@ class ReviewController extends Controller
             DB::commit();
             
             // Return JSON response for AJAX requests
-            if (request()->ajax()) {
+            if (request()->ajax() || request()->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'Review rejected successfully.'
+                    'message' => 'Review rejected successfully.',
+                    'status' => 'rejected'
                 ]);
             }
             
             return redirect()->back()->with('success', 'Review rejected successfully.');
         } catch (\Exception $e) {
             DB::rollback();
+            Log::error('Error rejecting review: ' . $e->getMessage());
             
             // Return JSON error for AJAX requests
-            if (request()->ajax()) {
+            if (request()->ajax() || request()->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to reject review.'
+                    'message' => 'Failed to reject review: ' . $e->getMessage()
                 ], 500);
             }
             
