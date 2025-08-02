@@ -652,7 +652,7 @@
     color: #fa441d;
     font-size: 18px;
     font-weight: 700;
-    font-family: 'DynaPuff', cursive;
+    font-family: 'Poppins', sans-serif;
 }
 
 /* Empty State */

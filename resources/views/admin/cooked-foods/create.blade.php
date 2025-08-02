@@ -94,7 +94,7 @@
     }
     
     .slug-preview {
-        font-family: 'Courier New', monospace;
+        font-family: 'Poppins', monospace;
         background-color: #f8fafc;
         border: 1px solid #e2e8f0;
         border-radius: 4px;

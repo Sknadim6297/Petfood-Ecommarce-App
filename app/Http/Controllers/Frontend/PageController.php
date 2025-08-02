@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\ImageLibrary;
+use App\Models\ContactSetting;
 use Illuminate\Http\Request;
 
 class PageController extends Controller
@@ -37,7 +38,9 @@ class PageController extends Controller
      */
     public function contact()
     {
-        return view('frontend.pages.contact');
+        $contactSettings = ContactSetting::getSettings();
+        
+        return view('frontend.pages.contact', compact('contactSettings'));
     }
 
     /**

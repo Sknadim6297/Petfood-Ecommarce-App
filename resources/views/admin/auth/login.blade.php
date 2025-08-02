@@ -12,8 +12,7 @@
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Anybody:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-color: #fe5716;
@@ -48,7 +47,7 @@
         }
 
         body {
-            font-family: 'Anybody', sans-serif;
+            font-family: 'Poppins', sans-serif;
             background: var(--bg-light);
             min-height: 100vh;
             display: flex;
@@ -254,7 +253,7 @@
         }
 
         .login-title {
-            font-family: 'DynaPuff', cursive;
+            font-family: 'Poppins', sans-serif;
             font-size: 28px;
             font-weight: 700;
             margin-bottom: 8px;
@@ -286,7 +285,7 @@
             font-weight: 600;
             color: var(--text-dark);
             font-size: 14px;
-            font-family: 'DynaPuff', cursive;
+            font-family: 'Poppins', sans-serif;
         }
 
         .form-control {
@@ -297,7 +296,7 @@
             font-size: 16px;
             transition: all 0.3s ease;
             background: #f8fafc;
-            font-family: 'Anybody', sans-serif;
+            font-family: 'Poppins', sans-serif;
             font-weight: 500;
         }
 
@@ -344,7 +343,7 @@
             position: relative;
             overflow: hidden;
             margin-top: 10px;
-            font-family: 'DynaPuff', cursive;
+            font-family: 'Poppins', sans-serif;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -453,7 +452,7 @@
             }
             
             .login-header {
-                padding: 30px 20px 25px;
+                padding: 21px 20px 25px;
             }
             
             .login-body {
@@ -693,7 +692,7 @@
                     <div class="success-icon">
                         <i class="fas fa-check"></i>
                     </div>
-                    <h3 style="color: #2c3e50; margin-bottom: 10px; font-family: 'DynaPuff', cursive;">Login Successful!</h3>
+                    <h3 style="color: #2c3e50; margin-bottom: 10px; font-family: 'Poppins', sans-serif;">Login Successful!</h3>
                     <p style="color: #6c757d; margin: 0;">Redirecting to dashboard...</p>
                 </div>
             `);

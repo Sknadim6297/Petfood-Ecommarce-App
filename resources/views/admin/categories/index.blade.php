@@ -59,7 +59,7 @@
     font-weight: 700;
     color: #fe5716;
     margin-bottom: 5px;
-    font-family: 'DynaPuff', cursive;
+    font-family: 'Poppins', sans-serif;
 }
 
 .stat-label {

@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\ImageLibraryController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CookedFoodController;
+use App\Http\Controllers\Admin\ContactController;
+use App\Http\Controllers\Admin\WebsiteSettingsController;
 
 // Admin Authentication
 Route::get('login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
@@ -152,5 +154,18 @@ Route::middleware('admin')->group(function () {
             Route::post('/{imageLibrary}/view', [ImageLibraryController::class, 'trackView'])->name('track-view');
             Route::post('/bulk-delete', [ImageLibraryController::class, 'bulkDelete'])->name('bulk-delete');
         });
+    });
+    
+    // Website Management
+    Route::prefix('website')->name('admin.website.')->group(function () {
+        // Contact Page Management
+        Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
+        Route::post('/contact', [ContactController::class, 'update'])->name('contact.update');
+        
+        // Website Settings Management
+        Route::get('/settings', [WebsiteSettingsController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [WebsiteSettingsController::class, 'store'])->name('settings.store');
+        Route::put('/settings/{key}', [WebsiteSettingsController::class, 'update'])->name('settings.update');
+        Route::delete('/settings/{key}', [WebsiteSettingsController::class, 'destroy'])->name('settings.destroy');
     });
 });

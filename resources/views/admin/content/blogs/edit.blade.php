@@ -343,7 +343,7 @@
 }
 
 #content {
-    font-family: 'Georgia', serif;
+    font-family: 'Poppins', serif;
     line-height: 1.6;
 }
 

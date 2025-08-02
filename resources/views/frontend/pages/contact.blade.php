@@ -1,6 +1,6 @@
 @extends('frontend.layouts.layout')
 
-@section('title', 'Contact Us')
+@section('title', $contactSettings->page_title ?? 'Contact Us')
 
 @section('content')
 <section class="banner" style="background-color: #fff8e5; background-image:url(assets/img/banner.png)">
@@ -8,12 +8,12 @@
         <div class="row align-items-center">
             <div class="col-lg-6">
                 <div class="banner-text">
-                    <h2>Contact Us</h2>
+                    <h2>{{ $contactSettings->page_title ?? 'Contact Us' }}</h2>
                     <ol class="breadcrumb">
                       <li class="breadcrumb-item">
-                        <a href="index.html">Home</a>
+                        <a href="{{ route('home') }}">Home</a>
                       </li>
-                        <li class="breadcrumb-item active" aria-current="page">Contact Us</li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ $contactSettings->page_title ?? 'Contact Us' }}</li>
                     </ol>
                 </div>
             </div>
@@ -41,8 +41,8 @@
 <section class="gap">
     <div class="container">
         <div class="heading">
-            <h6>We would love to hear from you.</h6>
-            <h2>Expert Pet Care with a personal touch</h2>
+            <h6>{{ $contactSettings->hero_title ?? 'We would love to hear from you.' }}</h6>
+            <h2>{{ $contactSettings->hero_description ?? 'Expert Pet Care with a personal touch' }}</h2>
         </div>
         <div class="row">
             <div class="col-lg-4 col-md-6">
@@ -56,8 +56,8 @@
                            M51.213,401l135.489-135.489L256,325.896l69.298-60.384L460.787,401H51.213z M482,379.788L347.969,245.756L482,128.967V379.788z"></path>
                         </svg>
                       </i>
-                      <span>Email Address.</span>
-                      <a href="mallto:Username@domain.com">Username@domain.com</a>
+                      <span>{{ $contactSettings->email_title ?? 'Email Address.' }}</span>
+                      <a href="mailto:{{ $contactSettings->email_address ?? 'info@petnet.com' }}">{{ $contactSettings->email_address ?? 'info@petnet.com' }}</a>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6">
@@ -68,9 +68,9 @@
                     <i>
                         <svg height="112" viewBox="0 0 24 24" width="112" xmlns="http://www.w3.org/2000/svg"><g clip-rule="evenodd" fill="rgb(255255,255)" fill-rule="evenodd"><path d="m7 2.75c-.41421 0-.75.33579-.75.75v17c0 .4142.33579.75.75.75h10c.4142 0 .75-.3358.75-.75v-17c0-.41421-.3358-.75-.75-.75zm-2.25.75c0-1.24264 1.00736-2.25 2.25-2.25h10c1.2426 0 2.25 1.00736 2.25 2.25v17c0 1.2426-1.0074 2.25-2.25 2.25h-10c-1.24264 0-2.25-1.0074-2.25-2.25z"></path><path d="m10.25 5c0-.41421.3358-.75.75-.75h2c.4142 0 .75.33579.75.75s-.3358.75-.75.75h-2c-.4142 0-.75-.33579-.75-.75z"></path><path d="m9.25 19c0-.4142.33579-.75.75-.75h4c.4142 0 .75.3358.75.75s-.3358.75-.75.75h-4c-.41421 0-.75-.3358-.75-.75z"></path></g></svg>
                       </i>
-                      <span>Email Address.</span>
-                      <a href="callto:+091213596224">+09 121 359 6224</a>
-                      <h6>24/7 Support team</h6>
+                      <span>{{ $contactSettings->phone_title ?? 'Phone Number.' }}</span>
+                      <a href="tel:{{ $contactSettings->phone_number ?? '+09 121 359 6224' }}">{{ $contactSettings->phone_number ?? '+09 121 359 6224' }}</a>
+                      <h6>{{ $contactSettings->phone_subtitle ?? '24/7 Support team' }}</h6>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6">
@@ -115,9 +115,9 @@
                                     c-8.781,0-15.898-7.117-15.898-15.898s7.117-15.898,15.898-15.898s15.898,7.117,15.898,15.898S219.611,226.728,210.83,226.728z"/>
                         </svg>
                       </i>
-                      <span>Working Hours.</span>
-                      <a href="#">9:00 AM - 5:00 PM</a>
-                      <h6>Monday - Friday</h6>
+                      <span>{{ $contactSettings->hours_title ?? 'Working Hours.' }}</span>
+                      <a href="#">{{ $contactSettings->working_hours ?? '9:00 AM - 5:00 PM' }}</a>
+                      <h6>{{ $contactSettings->working_days ?? 'Monday - Friday' }}</h6>
                 </div>
             </div>
         </div>
@@ -127,87 +127,168 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-6">
-                <div class="find-a-dog contact">
-                    <h2>Find a dog walker or pet care</h2>
-                    <p>Place your trust in We Love Pets, an award-winning dog walking and pet care</p>
-                    <form>
-                        <input type="text" name="Enter" placeholder="Enter address or postcode...">
-                        <button class="button">Find Branch</button>
-                    </form>
-                    <div class="head-office">
-                        <div class="d-flex align-items-center">
-                            <i class="fa-solid fa-location-dot"></i>
-                            <h6>Head Office United State:</h6>
+                <div class="office-locations">
+                    <h2>Our Office Locations</h2>
+                    <div class="office-card mb-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fa-solid fa-location-dot me-3" style="color: #fa441d; font-size: 1.5rem;"></i>
+                            <h5 class="mb-0" style="color: #fa441d;">{{ $contactSettings->office1_title ?? 'Head Office United State:' }}</h5>
                         </div>
-                        <p>#201 1218 9th Avenue SE, Calgary, AB T2G 0T1</p>
+                        <p class="ms-5">{{ $contactSettings->office1_address ?? '#201 1218 9th Avenue SE, Calgary, AB T2G 0T1' }}</p>
                     </div>
-                    <div class="head-office mb-lg-0">
-                        <div class="d-flex align-items-center">
-                            <i class="fa-solid fa-location-dot"></i>
-                            <h6>Head Office United State:</h6>
+                    <div class="office-card">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fa-solid fa-location-dot me-3" style="color: #fa441d; font-size: 1.5rem;"></i>
+                            <h5 class="mb-0" style="color: #fa441d;">{{ $contactSettings->office2_title ?? 'Head Office Canada:' }}</h5>
                         </div>
-                        <p>#201 1218 9th Avenue SE, Calgary, AB T2G 0T1</p>
+                        <p class="ms-5">{{ $contactSettings->office2_address ?? '#201 1218 9th Avenue SE, Calgary, AB T2G 0T1' }}</p>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="looking position-relative contact">
-                    <form class="looking-form">
-                        <h3>Book Your Place or Find out More</h3>
-                        <ul>
-                          <li>
-                            <input type="radio" id="f-option" name="selector">
-                            <label for="f-option">dog</label>
-                            <div class="check"></div>
-                          </li>
-                          <li>
-                            <input type="radio" id="s-option" name="selector">
-                            <label for="s-option">cat</label>
-                            <div class="check"><div class="inside"></div></div>
-                          </li>
-                        </ul>
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <input type="text" name="Complete Name" placeholder="Complete Name">
-                            </div>
-                            <div class="col-lg-6">
-                                <input type="text" name="Email Address" placeholder="Email Address">
-                            </div>
-                            <div class="col-lg-6">
-                                <input type="text" name="Complete Name" placeholder="Complete Name">
-                            </div>
-                            <div class="col-lg-6">
-                                <input type="text" name="Email Address" placeholder="Email Address">
-                            </div>
-                            <div class="col-lg-12">
-                                <select class="nice-select Advice">
-                                    <option>Select Service</option>
-                                    <option>Services 1</option>
-                                    <option>Services 2</option>
-                                    <option>Services 3</option>
-                                    <option>Services 4</option>
-                                </select>
-                            </div>
-                            <div class="col-lg-6">
-                                <input type="text" name="Complete Name" placeholder="Complete Name">
-                            </div>
-                            <div class="col-lg-6">
-                                <input type="text" name="Email Address" placeholder="Email Address">
-                            </div>
-                            <div class="col-lg-12">
-                                <textarea placeholder="Please let us know which day package you're interested"></textarea>
+                <div class="contact-form-modern">
+                    <div class="form-header">
+                        <h3>{{ $contactSettings->form_title ?? 'Book Your Place or Find out More' }}</h3>
+                        <p>We'd love to hear from you! Send us a message and we'll respond as soon as possible.</p>
+                    </div>
+                    
+                    <form class="modern-contact-form" action="#" method="POST">
+                        @csrf
+                        
+                        <!-- Pet Type Selection -->
+                        <div class="pet-selection mb-4">
+                            <label class="form-label">I'm interested in services for:</label>
+                            <div class="pet-options">
+                                <div class="pet-option">
+                                    <input type="radio" id="dog-option" name="pet_type" value="dog" class="pet-radio">
+                                    <label for="dog-option" class="pet-label">
+                                        <i class="fas fa-dog"></i>
+                                        <span>Dog</span>
+                                    </label>
+                                </div>
+                                <div class="pet-option">
+                                    <input type="radio" id="cat-option" name="pet_type" value="cat" class="pet-radio">
+                                    <label for="cat-option" class="pet-label">
+                                        <i class="fas fa-cat"></i>
+                                        <span>Cat</span>
+                                    </label>
+                                </div>
+                                <div class="pet-option">
+                                    <input type="radio" id="both-option" name="pet_type" value="both" class="pet-radio">
+                                    <label for="both-option" class="pet-label">
+                                        <i class="fas fa-paw"></i>
+                                        <span>Both</span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
-                        <button class="button">Submit Now</button>
+
+                        <!-- Personal Information -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    <label for="first_name" class="form-label">First Name *</label>
+                                    <input type="text" id="first_name" name="first_name" class="form-control modern-input" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    <label for="last_name" class="form-label">Last Name *</label>
+                                    <input type="text" id="last_name" name="last_name" class="form-control modern-input" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    <label for="email" class="form-label">Email Address *</label>
+                                    <input type="email" id="email" name="email" class="form-control modern-input" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    <label for="phone" class="form-label">Phone Number</label>
+                                    <input type="tel" id="phone" name="phone" class="form-control modern-input">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Service Selection -->
+                        <div class="mb-3">
+                            <div class="form-group">
+                                <label for="service" class="form-label">Service Interested In *</label>
+                                <select id="service" name="service" class="form-control modern-select" required>
+                                    <option value="">Select a Service</option>
+                                    <option value="dog-walking">Dog Walking</option>
+                                    <option value="pet-sitting">Pet Sitting</option>
+                                    <option value="pet-grooming">Pet Grooming</option>
+                                    <option value="veterinary">Veterinary Care</option>
+                                    <option value="training">Pet Training</option>
+                                    <option value="daycare">Pet Daycare</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Preferred Date -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    <label for="preferred_date" class="form-label">Preferred Date</label>
+                                    <input type="date" id="preferred_date" name="preferred_date" class="form-control modern-input">
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="form-group">
+                                    <label for="preferred_time" class="form-label">Preferred Time</label>
+                                    <select id="preferred_time" name="preferred_time" class="form-control modern-select">
+                                        <option value="">Select Time</option>
+                                        <option value="morning">Morning (8AM - 12PM)</option>
+                                        <option value="afternoon">Afternoon (12PM - 5PM)</option>
+                                        <option value="evening">Evening (5PM - 8PM)</option>
+                                        <option value="flexible">I'm Flexible</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Message -->
+                        <div class="mb-4">
+                            <div class="form-group">
+                                <label for="message" class="form-label">Additional Information</label>
+                                <textarea id="message" name="message" rows="4" class="form-control modern-textarea" 
+                                          placeholder="{{ $contactSettings->form_textarea_placeholder ?? 'Please let us know which day package you\'re interested in, any specific requirements, or questions you might have...' }}"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Newsletter Subscription -->
+                        <div class="mb-4">
+                            <div class="form-check modern-checkbox">
+                                <input type="checkbox" id="newsletter" name="newsletter" class="form-check-input">
+                                <label for="newsletter" class="form-check-label">
+                                    I'd like to receive updates and special offers via email
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="form-submit">
+                            <button type="submit" class="btn modern-submit-btn">
+                                <i class="fas fa-paper-plane me-2"></i>
+                                Send Message
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </section>
+@if($contactSettings->show_awards ?? true)
 <div class="gap">
     <div class="container">
-        <h3 class="awards">Awards Winning Company</h3>
+        <h3 class="awards">{{ $contactSettings->awards_title ?? 'Awards Winning Company' }}</h3>
         <div class="awards">
             <img src="assets/img/awards-1.png" alt="awards">
             <img src="assets/img/awards-2.png" alt="awards">
@@ -216,4 +297,321 @@
         </div>
     </div>
 </div>
+@endif
 @endsection
+
+@push('styles')
+<style>
+/* Office Locations Styling */
+.office-locations {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    height: fit-content;
+}
+
+.office-locations h2 {
+    color: #1f2937;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    font-size: 1.75rem;
+}
+
+.office-card {
+    padding: 1.5rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    border-left: 4px solid #fa441d;
+    transition: all 0.3s ease;
+}
+
+.office-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(250, 68, 29, 0.15);
+}
+
+.office-card h5 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+}
+
+.office-card p {
+    color: #64748b;
+    margin-bottom: 0;
+    line-height: 1.6;
+}
+
+/* Modern Contact Form Styling */
+.contact-form-modern {
+    background: #fff;
+    padding: 2.5rem;
+    border-radius: 20px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.contact-form-modern::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #fa441d, #ff6b47, #fedc4f);
+}
+
+.form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+.form-header h3 {
+    color: #1f2937;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 1.75rem;
+}
+
+.form-header p {
+    color: #64748b;
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+
+/* Pet Selection Styling */
+.pet-selection .form-label {
+    color: #1f2937;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    margin-bottom: 1rem;
+}
+
+.pet-options {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.pet-option {
+    flex: 1;
+    min-width: 120px;
+}
+
+.pet-radio {
+    display: none;
+}
+
+.pet-label {
+    display: block;
+    padding: 1rem;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500;
+}
+
+.pet-label i {
+    display: block;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #64748b;
+    transition: all 0.3s ease;
+}
+
+.pet-label span {
+    color: #64748b;
+    transition: all 0.3s ease;
+}
+
+.pet-radio:checked + .pet-label {
+    background: linear-gradient(135deg, #fa441d, #ff6b47);
+    border-color: #fa441d;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(250, 68, 29, 0.3);
+}
+
+.pet-radio:checked + .pet-label i,
+.pet-radio:checked + .pet-label span {
+    color: white;
+}
+
+.pet-label:hover {
+    border-color: #fa441d;
+    transform: translateY(-1px);
+}
+
+/* Form Controls */
+.form-label {
+    color: #374151;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.modern-input,
+.modern-select,
+.modern-textarea {
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #fff;
+    width: 100%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.modern-input:focus,
+.modern-select:focus,
+.modern-textarea:focus {
+    outline: none;
+    border-color: #fa441d;
+    box-shadow: 0 0 0 3px rgba(250, 68, 29, 0.1);
+    transform: translateY(-1px);
+}
+
+.modern-textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* Checkbox Styling */
+.modern-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.modern-checkbox .form-check-input {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e5e7eb;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.modern-checkbox .form-check-input:checked {
+    background-color: #fa441d;
+    border-color: #fa441d;
+}
+
+.modern-checkbox .form-check-label {
+    color: #64748b;
+    font-size: 0.95rem;
+    cursor: pointer;
+    margin-bottom: 0;
+}
+
+/* Submit Button */
+.form-submit {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.modern-submit-btn {
+    background: linear-gradient(135deg, #fa441d, #ff6b47);
+    border: none;
+    color: white;
+    padding: 1rem 2.5rem;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(250, 68, 29, 0.3);
+    text-transform: none;
+    min-width: 200px;
+}
+
+.modern-submit-btn:hover {
+    background: linear-gradient(135deg, #e55a4f, #fa441d);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(250, 68, 29, 0.4);
+    color: white;
+}
+
+.modern-submit-btn:active {
+    transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .office-locations,
+    .contact-form-modern {
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .pet-options {
+        flex-direction: column;
+    }
+    
+    .pet-option {
+        min-width: 100%;
+    }
+    
+    .form-header h3 {
+        font-size: 1.5rem;
+    }
+    
+    .modern-submit-btn {
+        padding: 0.875rem 2rem;
+        font-size: 1rem;
+        min-width: 180px;
+    }
+}
+
+/* Animation for form elements */
+.form-group {
+    position: relative;
+}
+
+.modern-input,
+.modern-select,
+.modern-textarea {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.form-group:hover .modern-input,
+.form-group:hover .modern-select,
+.form-group:hover .modern-textarea {
+    border-color: #fa441d;
+    box-shadow: 0 2px 8px rgba(250, 68, 29, 0.1);
+}
+
+/* Loading state for submit button */
+.modern-submit-btn.loading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.modern-submit-btn.loading::after {
+    content: '';
+    width: 16px;
+    height: 16px;
+    margin-left: 10px;
+    border: 2px solid transparent;
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+@endpush

@@ -12,8 +12,7 @@
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=DynaPuff:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Anybody:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary-color: #fa441d;
@@ -51,13 +50,17 @@
         }
 
         body {
-            font-family: 'Anybody', sans-serif;
+            font-family: 'Poppins', sans-serif;
             background-color: var(--bg-light);
             color: var(--text-dark);
             line-height: 1.6;
         }
 
-        /* Frontend-matching font styles */
+        /* Poppins font for all elements */
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+
         h1, h2, h3, h4, h5, h6,
         .brand-text,
         .brand-subtitle,
@@ -66,9 +69,39 @@
         .sidebar-brand .brand-text,
         .btn,
         .badge,
-        .alert {
-            font-family: 'DynaPuff', cursive;
-            font-weight: 500;
+        .alert,
+        p, span, div, td, th, input, textarea, select,
+        .form-control, .form-label, .nav-text,
+        .dropdown-item, .nav-link, .sidebar-link,
+        .table, .modal-title, .modal-body,
+        .breadcrumb, .pagination,
+        .toast, .toast-header, .toast-body,
+        .navbar, .navbar-brand, .nav-item,
+        .list-group-item, .card-title, .card-text,
+        .accordion, .collapse, .offcanvas,
+        .progress, .spinner-border, .alert-link,
+        .close, .btn-close, label, legend,
+        .form-check-label, .form-text, .invalid-feedback,
+        .valid-feedback, .input-group-text,
+        .dropdown-menu, .dropdown-header, .dropdown-divider,
+        .tab-content, .tab-pane, .nav-tabs, .nav-pills,
+        .carousel, .carousel-caption, .carousel-item,
+        .tooltip, .popover, .popover-header, .popover-body,
+        .sidebar, .main-content, .footer,
+        .stat-number, .stat-label, .widget-title,
+        .page-title, .page-subtitle, .section-title,
+        .data-table, .table-responsive, .table-bordered,
+        .form-floating, .form-control-plaintext,
+        .btn-group, .btn-toolbar, .input-group,
+        .list-group, .card-group, .card-deck,
+        .jumbotron, .media, .media-body, .media-object,
+        code, pre, kbd, samp, var, mark, small, sub, sup,
+        blockquote, cite, q, abbr, dfn, time,
+        .slug-preview, #content, textarea.form-control,
+        .tox, .tox-editor-header, .tox-toolbar, .tox-menubar,
+        .select2, .select2-container, .select2-selection,
+        .dataTables_wrapper, .dataTables_info, .dataTables_paginate {
+            font-family: 'Poppins', sans-serif !important;
         }
 
         .brand-text {
@@ -85,12 +118,6 @@
         h4 { font-size: 1.5rem; font-weight: 500; }
         h5 { font-size: 1.25rem; font-weight: 500; }
         h6 { font-size: 1rem; font-weight: 500; }
-
-        /* Keep body text in Anybody for readability */
-        p, span, div, td, th, input, textarea, select,
-        .form-control, .form-label, .nav-text {
-            font-family: 'Anybody', sans-serif;
-        }
 
         /* Enhanced styling to match frontend aesthetics */
         .card {
@@ -159,7 +186,7 @@
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             min-width: 350px;
             border-left: 4px solid var(--primary-color);
-            font-family: 'Anybody', sans-serif;
+            font-family: 'Poppins', sans-serif;
         }
 
         .toast.success {
@@ -185,7 +212,7 @@
         }
 
         .toast-header strong {
-            font-family: 'DynaPuff', cursive;
+            font-family: 'Poppins', sans-serif;
             font-weight: 600;
             color: var(--text-dark);
         }
@@ -900,7 +927,19 @@
 
             <!-- Analytics -->
             <div class="nav-section">
-                <div class="nav-section-title">Manage Website</div>
+                <div class="nav-section-title">Website Management</div>
+                <div class="nav-item">
+                    <a href="{{ route('admin.website.settings.index') }}" class="nav-link {{ request()->routeIs('admin.website.settings.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-cog"></i>
+                        <span class="nav-text">Website Settings</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ route('admin.website.contact.index') }}" class="nav-link {{ request()->routeIs('admin.website.contact.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-phone"></i>
+                        <span class="nav-text">Contact Page</span>
+                    </a>
+                </div>
                 <div class="nav-item">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-chart-bar"></i>
@@ -1144,7 +1183,7 @@
                                 <div class="mb-3">
                                     <i class="fas fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
                                 </div>
-                                <h4 class="mb-3" style="font-family: 'poppins', cursive;">Are you sure?</h4>
+                                <h4 class="mb-3" style="font-family: 'Poppins', sans-serif;">Are you sure?</h4>
                                 <p class="text-muted mb-4">You are about to delete this ${itemName}. This action cannot be undone.</p>
                                 <div class="d-flex gap-3 justify-content-center">
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>

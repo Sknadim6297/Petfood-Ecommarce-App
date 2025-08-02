@@ -4,10 +4,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'PetNet - Pet Food Ecommerce')</title>
+    @php
+        $websiteSettings = \App\Models\WebsiteSetting::getSettings();
+    @endphp
+    <title>@yield('title', ($websiteSettings['company_name'] ?? 'PetNet') . ' - ' . ($websiteSettings['tagline'] ?? 'Pet Food Ecommerce'))</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    @if(!empty($websiteSettings['favicon']))
+        <link rel="icon" type="image/x-icon" href="{{ asset('storage/' . $websiteSettings['favicon']) }}">
+    @else
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    @endif
     
     <!-- CSS Files -->
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
@@ -16,8 +23,149 @@
     <link rel="stylesheet" href="{{ asset('assets/css/jquery.fancybox.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/jquery.nice-select.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/fontawesome.min.css') }}">
+    <!-- Font Awesome CDN as backup -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}">
+    
+    <!-- Poppins Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Custom Dynamic Logo Styles -->
+    <style>
+        /* Poppins Font Override for All Frontend Elements - Excluding Icons */
+        body, p, span:not([class*="fa-"]):not([class*="icon"]), div:not([class*="fa-"]):not([class*="icon"]), 
+        section, article, aside, nav, header, footer,
+        h1, h2, h3, h4, h5, h6,
+        a:not([class*="fa-"]):not([class*="icon"]), button, input, textarea, select, option,
+        table, td, th, tr, thead, tbody,
+        ul, ol, li:not([class*="fa-"]):not([class*="icon"]), dl, dt, dd,
+        form, fieldset, legend, label,
+        blockquote, cite, q, code, pre, kbd, samp, var,
+        small, big, sub, sup, strong, em, b:not([class*="fa-"]):not([class*="icon"]), 
+        i:not([class*="fa-"]):not([class*="icon"]), u, s,
+        .btn, .form-control, .nav-link, .dropdown-item,
+        .card, .card-title, .card-text, .card-header, .card-footer,
+        .modal, .modal-title, .modal-body, .modal-footer,
+        .alert, .badge, .breadcrumb, .pagination,
+        .navbar, .navbar-brand, .nav-item, .nav-text,
+        .carousel, .carousel-caption, .carousel-item,
+        .accordion, .collapse, .offcanvas,
+        .toast, .tooltip, .popover,
+        .list-group, .list-group-item,
+        .progress, .spinner-border,
+        .tab-content, .tab-pane, .nav-tabs, .nav-pills,
+        .sidebar, .main-content, .container, .row, .col,
+        .hero-section, .section-title, .widget-title,
+        .footer, .header, .navigation, .menu,
+        .product-card, .product-title, .product-price,
+        .blog-post, .blog-title, .blog-content,
+        .testimonial, .client-review, .rating,
+        .contact-form, .form-group, .form-label,
+        .slider, .carousel-control, .owl-carousel,
+        .price-tag, .discount-badge, .sale-badge,
+        .social-icons, .social-link,
+        .search-form, .search-input, .search-btn,
+        .category-card, .category-title,
+        .product-grid, .product-list,
+        .checkout-form, .payment-form,
+        .user-profile, .account-info,
+        .order-summary, .cart-item,
+        .shipping-info, .billing-info,
+        .newsletter, .subscription-form,
+        .team-member, .team-info,
+        .service-card, .service-title,
+        .faq-item, .faq-question, .faq-answer,
+        .gallery-item, .gallery-caption,
+        .video-player, .video-caption,
+        .map-container, .location-info,
+        .counter, .statistic, .achievement,
+        .feature-box, .feature-title,
+        .call-to-action, .cta-text,
+        .error-message, .success-message,
+        .loading-text, .placeholder-text {
+            font-family: 'Poppins', sans-serif !important;
+        }
+        
+        /* Ensure Font Awesome icons work properly */
+        i[class*="fa-"], 
+        i[class*="fab"], 
+        i[class*="fas"], 
+        i[class*="far"], 
+        i[class*="fal"], 
+        i[class*="fad"],
+        .fa, .fab, .fad, .fal, .far, .fas,
+        [class^="fa-"], [class*=" fa-"],
+        [class^="fab"], [class*=" fab"],
+        [class^="fad"], [class*=" fad"],
+        [class^="fal"], [class*=" fal"],
+        [class^="far"], [class*=" far"],
+        [class^="fas"], [class*=" fas"] {
+            font-family: "Font Awesome 6 Free", "Font Awesome 6 Pro", "Font Awesome 6 Brands", "FontAwesome", "Font Awesome 5 Free", "Font Awesome 5 Pro" !important;
+            font-weight: 900 !important;
+            font-style: normal !important;
+            font-variant: normal !important;
+            text-transform: none !important;
+            line-height: 1 !important;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+        }
+        
+        /* Brand icons have different weight */
+        .fab, [class^="fab"], [class*=" fab"] {
+            font-weight: 400 !important;
+        }
+        
+        /* Main Logo Styles */
+        .main-logo {
+       max-height: 76px;
+        width: 103px;
+            transition: all 0.3s ease;
+        }
+        
+        /* Footer Logo Styles */
+        .footer-logo {
+           max-height: 142px;
+            width: auto;
+            transition: all 0.3s ease;
+        }
+        
+        /* Mobile Logo Styles */
+        .mobile-logo {
+            max-height: 50px;
+            width: auto;
+            transition: all 0.3s ease;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-logo {
+                max-height: 45px;
+            }
+            
+            .footer-logo {
+                max-height: 60px;
+            }
+            
+            .mobile-logo {
+                max-height: 40px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .main-logo {
+                max-height: 40px;
+            }
+            
+            .footer-logo {
+                max-height: 128px;
+            }
+            
+            .mobile-logo {
+                max-height: 35px;
+            }
+        }
+    </style>
     
     @yield('styles')
     @stack('styles')
@@ -244,7 +392,7 @@
     margin: 0 0 5px 0;
     font-size: 20px;
     font-weight: 700;
-    font-family: 'DynaPuff', cursive;
+    font-family: 'Poppins', sans-serif;
 }
 
 .cart-items-count {
@@ -375,7 +523,7 @@
     font-weight: 700;
     color: #2c3e50;
     margin: 0 0 10px 0;
-    font-family: 'DynaPuff', cursive;
+    font-family: 'Poppins', sans-serif;
 }
 
 .empty-cart-state p {
@@ -1411,10 +1559,6 @@ $(document).ready(function() {
     });
 });
 </script>
-        e.stopPropagation();
-    });
-});
-</script>
 
 <!-- Toast notification styles -->
 <style>
@@ -1776,7 +1920,7 @@ $(document).ready(function() {
     line-height: 1;
     border: 2px solid white;
     box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Poppins', sans-serif;
     z-index: 10;
 }
 
@@ -1930,7 +2074,7 @@ $(document).ready(function() {
     line-height: 1;
     border: 2px solid white;
     box-shadow: 0 4px 15px rgba(250, 68, 29, 0.4);
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Poppins', sans-serif;
     z-index: 10;
     transition: all 0.3s ease;
     animation: pulse 2s infinite;
@@ -2129,7 +2273,7 @@ $(document).ready(function() {
 }
 
 .login-modal-header h3 {
-    font-family: 'DynaPuff', cursive;
+    font-family: 'Poppins', sans-serif;
     font-size: 28px;
     font-weight: 700;
     margin-bottom: 10px;
@@ -2189,7 +2333,7 @@ $(document).ready(function() {
 }
 
 .join-message h4 {
-    font-family: 'DynaPuff', cursive;
+    font-family: 'Poppins', sans-serif;
     color: #2c3e50;
     font-size: 22px;
     font-weight: 600;
@@ -2275,7 +2419,7 @@ $(document).ready(function() {
     box-shadow: 0 8px 25px rgba(250, 68, 29, 0.3);
     position: relative;
     overflow: hidden;
-    font-family: 'DynaPuff', cursive;
+    font-family: 'Poppins', sans-serif;
 }
 
 .btn-login::before {

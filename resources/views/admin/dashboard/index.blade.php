@@ -91,7 +91,7 @@
     font-weight: 700;
     color: #2c3e50;
     margin-bottom: 5px;
-    font-family: 'DynaPuff', cursive;
+    font-family: 'Poppins', sans-serif;
 }
 
 .stat-label {
