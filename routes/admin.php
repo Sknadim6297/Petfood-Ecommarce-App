@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\ImageLibraryController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\CookedFoodController;
 use App\Http\Controllers\Admin\ContactController;
+use App\Http\Controllers\Admin\ContactQueryController;
 use App\Http\Controllers\Admin\WebsiteSettingsController;
 
 // Admin Authentication
@@ -167,5 +168,14 @@ Route::middleware('admin')->group(function () {
         Route::post('/settings', [WebsiteSettingsController::class, 'store'])->name('settings.store');
         Route::put('/settings/{key}', [WebsiteSettingsController::class, 'update'])->name('settings.update');
         Route::delete('/settings/{key}', [WebsiteSettingsController::class, 'destroy'])->name('settings.destroy');
+    });
+    
+    // Contact Query Management
+    Route::prefix('contact-queries')->name('admin.contact-queries.')->group(function () {
+        Route::get('/', [ContactQueryController::class, 'index'])->name('index');
+        Route::get('/{contactQuery}', [ContactQueryController::class, 'show'])->name('show');
+        Route::patch('/{contactQuery}/status', [ContactQueryController::class, 'updateStatus'])->name('update-status');
+        Route::delete('/{contactQuery}', [ContactQueryController::class, 'destroy'])->name('destroy');
+        Route::post('/bulk-action', [ContactQueryController::class, 'bulkAction'])->name('bulk-action');
     });
 });

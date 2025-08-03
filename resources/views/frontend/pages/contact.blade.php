@@ -147,12 +147,41 @@
             </div>
             <div class="col-lg-6">
                 <div class="contact-form-modern">
+                    @if(session('success'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+                    
+                    @if(session('error'))
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            {{ session('error') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+                    
+                    @if($errors->any())
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Please fix the following errors:</strong>
+                            <ul class="mb-0 mt-2">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+                    
                     <div class="form-header">
                         <h3>{{ $contactSettings->form_title ?? 'Book Your Place or Find out More' }}</h3>
                         <p>We'd love to hear from you! Send us a message and we'll respond as soon as possible.</p>
                     </div>
                     
-                    <form class="modern-contact-form" action="#" method="POST">
+                    <form class="modern-contact-form" action="{{ route('contact.store') }}" method="POST">
                         @csrf
                         
                         <!-- Pet Type Selection -->
@@ -160,41 +189,41 @@
                             <label class="form-label">I'm interested in services for:</label>
                             <div class="pet-options">
                                 <div class="pet-option">
-                                    <input type="radio" id="dog-option" name="pet_type" value="dog" class="pet-radio">
+                                    <input type="radio" id="dog-option" name="pet_type" value="dog" class="pet-radio" {{ old('pet_type') == 'dog' ? 'checked' : '' }}>
                                     <label for="dog-option" class="pet-label">
                                         <i class="fas fa-dog"></i>
                                         <span>Dog</span>
                                     </label>
                                 </div>
                                 <div class="pet-option">
-                                    <input type="radio" id="cat-option" name="pet_type" value="cat" class="pet-radio">
+                                    <input type="radio" id="cat-option" name="pet_type" value="cat" class="pet-radio" {{ old('pet_type') == 'cat' ? 'checked' : '' }}>
                                     <label for="cat-option" class="pet-label">
                                         <i class="fas fa-cat"></i>
                                         <span>Cat</span>
                                     </label>
                                 </div>
                                 <div class="pet-option">
-                                    <input type="radio" id="both-option" name="pet_type" value="both" class="pet-radio">
+                                    <input type="radio" id="both-option" name="pet_type" value="both" class="pet-radio" {{ old('pet_type') == 'both' ? 'checked' : '' }}>
                                     <label for="both-option" class="pet-label">
                                         <i class="fas fa-paw"></i>
                                         <span>Both</span>
                                     </label>
                                 </div>
                             </div>
+                            @error('pet_type')
+                                <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <!-- Personal Information -->
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-12 mb-3">
                                 <div class="form-group">
-                                    <label for="first_name" class="form-label">First Name *</label>
-                                    <input type="text" id="first_name" name="first_name" class="form-control modern-input" required>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="form-group">
-                                    <label for="last_name" class="form-label">Last Name *</label>
-                                    <input type="text" id="last_name" name="last_name" class="form-control modern-input" required>
+                                    <label for="name" class="form-label">Full Name *</label>
+                                    <input type="text" id="name" name="name" class="form-control modern-input" value="{{ old('name') }}" required>
+                                    @error('name')
+                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -203,14 +232,31 @@
                             <div class="col-md-6 mb-3">
                                 <div class="form-group">
                                     <label for="email" class="form-label">Email Address *</label>
-                                    <input type="email" id="email" name="email" class="form-control modern-input" required>
+                                    <input type="email" id="email" name="email" class="form-control modern-input" value="{{ old('email') }}" required>
+                                    @error('email')
+                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <div class="form-group">
                                     <label for="phone" class="form-label">Phone Number</label>
-                                    <input type="tel" id="phone" name="phone" class="form-control modern-input">
+                                    <input type="tel" id="phone" name="phone" class="form-control modern-input" value="{{ old('phone') }}">
+                                    @error('phone')
+                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                    @enderror
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- Subject Field -->
+                        <div class="mb-3">
+                            <div class="form-group">
+                                <label for="subject" class="form-label">Subject *</label>
+                                <input type="text" id="subject" name="subject" class="form-control modern-input" value="{{ old('subject') }}" placeholder="What is this message about?" required>
+                                @error('subject')
+                                    <div class="text-danger mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
@@ -220,14 +266,17 @@
                                 <label for="service" class="form-label">Service Interested In *</label>
                                 <select id="service" name="service" class="form-control modern-select" required>
                                     <option value="">Select a Service</option>
-                                    <option value="dog-walking">Dog Walking</option>
-                                    <option value="pet-sitting">Pet Sitting</option>
-                                    <option value="pet-grooming">Pet Grooming</option>
-                                    <option value="veterinary">Veterinary Care</option>
-                                    <option value="training">Pet Training</option>
-                                    <option value="daycare">Pet Daycare</option>
-                                    <option value="other">Other</option>
+                                    <option value="dog-walking" {{ old('service') == 'dog-walking' ? 'selected' : '' }}>Dog Walking</option>
+                                    <option value="pet-sitting" {{ old('service') == 'pet-sitting' ? 'selected' : '' }}>Pet Sitting</option>
+                                    <option value="pet-grooming" {{ old('service') == 'pet-grooming' ? 'selected' : '' }}>Pet Grooming</option>
+                                    <option value="veterinary" {{ old('service') == 'veterinary' ? 'selected' : '' }}>Veterinary Care</option>
+                                    <option value="training" {{ old('service') == 'training' ? 'selected' : '' }}>Pet Training</option>
+                                    <option value="daycare" {{ old('service') == 'daycare' ? 'selected' : '' }}>Pet Daycare</option>
+                                    <option value="other" {{ old('service') == 'other' ? 'selected' : '' }}>Other</option>
                                 </select>
+                                @error('service')
+                                    <div class="text-danger mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
@@ -236,7 +285,10 @@
                             <div class="col-md-6 mb-3">
                                 <div class="form-group">
                                     <label for="preferred_date" class="form-label">Preferred Date</label>
-                                    <input type="date" id="preferred_date" name="preferred_date" class="form-control modern-input">
+                                    <input type="date" id="preferred_date" name="preferred_date" class="form-control modern-input" value="{{ old('preferred_date') }}">
+                                    @error('preferred_date')
+                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -244,11 +296,14 @@
                                     <label for="preferred_time" class="form-label">Preferred Time</label>
                                     <select id="preferred_time" name="preferred_time" class="form-control modern-select">
                                         <option value="">Select Time</option>
-                                        <option value="morning">Morning (8AM - 12PM)</option>
-                                        <option value="afternoon">Afternoon (12PM - 5PM)</option>
-                                        <option value="evening">Evening (5PM - 8PM)</option>
-                                        <option value="flexible">I'm Flexible</option>
+                                        <option value="morning" {{ old('preferred_time') == 'morning' ? 'selected' : '' }}>Morning (8AM - 12PM)</option>
+                                        <option value="afternoon" {{ old('preferred_time') == 'afternoon' ? 'selected' : '' }}>Afternoon (12PM - 5PM)</option>
+                                        <option value="evening" {{ old('preferred_time') == 'evening' ? 'selected' : '' }}>Evening (5PM - 8PM)</option>
+                                        <option value="flexible" {{ old('preferred_time') == 'flexible' ? 'selected' : '' }}>I'm Flexible</option>
                                     </select>
+                                    @error('preferred_time')
+                                        <div class="text-danger mt-1">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -258,18 +313,24 @@
                             <div class="form-group">
                                 <label for="message" class="form-label">Additional Information</label>
                                 <textarea id="message" name="message" rows="4" class="form-control modern-textarea" 
-                                          placeholder="{{ $contactSettings->form_textarea_placeholder ?? 'Please let us know which day package you\'re interested in, any specific requirements, or questions you might have...' }}"></textarea>
+                                          placeholder="{{ $contactSettings->form_textarea_placeholder ?? 'Please let us know which day package you\'re interested in, any specific requirements, or questions you might have...' }}">{{ old('message') }}</textarea>
+                                @error('message')
+                                    <div class="text-danger mt-1">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
 
                         <!-- Newsletter Subscription -->
                         <div class="mb-4">
                             <div class="form-check modern-checkbox">
-                                <input type="checkbox" id="newsletter" name="newsletter" class="form-check-input">
+                                <input type="checkbox" id="newsletter" name="newsletter" class="form-check-input" {{ old('newsletter') ? 'checked' : '' }}>
                                 <label for="newsletter" class="form-check-label">
                                     I'd like to receive updates and special offers via email
                                 </label>
                             </div>
+                            @error('newsletter')
+                                <div class="text-danger mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         <!-- Submit Button -->

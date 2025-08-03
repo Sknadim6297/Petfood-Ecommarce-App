@@ -11,6 +11,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Frontend\PageController;
 use App\Http\Controllers\CouponController;
+use App\Http\Controllers\ContactController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,6 +23,7 @@ Route::get('/about', [PageController::class, 'about'])->name('about');
 Route::get('/services', [PageController::class, 'services'])->name('services');
 Route::get('/services/details', [PageController::class, 'serviceDetails'])->name('services.details');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');
+Route::post('/contact', [ContactController::class, 'store'])->name('contact.store');
 Route::get('/how-we-work', [PageController::class, 'howWeWork'])->name('how-we-work');
 Route::get('/gallery', [PageController::class, 'gallery'])->name('gallery');
 Route::get('/team', [PageController::class, 'team'])->name('team');

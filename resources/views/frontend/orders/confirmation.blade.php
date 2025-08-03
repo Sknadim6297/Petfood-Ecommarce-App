@@ -241,7 +241,7 @@
                                     <h6 class="mb-1">{{ $item->cookedFood->name }}</h6>
                                     <span class="badge bg-success mb-1">Cooked Food</span>
                                     <p class="text-muted mb-1">Quantity: {{ $item->quantity }}</p>
-                                    <p class="text-muted mb-0">₹{{ number_format($item->price, 2) }} each</p>
+                                    <p class="text-muted mb-0">Unit Price: ₹{{ number_format($item->price, 2) }}</p>
                                 </div>
                             @elseif($item->product)
                                 {{-- Regular Product Item --}}
@@ -251,7 +251,7 @@
                                     <h6 class="mb-1">{{ $item->product->name }}</h6>
                                     <span class="badge bg-primary mb-1">Product</span>
                                     <p class="text-muted mb-1">Quantity: {{ $item->quantity }}</p>
-                                    <p class="text-muted mb-0">₹{{ number_format($item->price, 2) }} each</p>
+                                    <p class="text-muted mb-0">Unit Price: ₹{{ number_format($item->price, 2) }}</p>
                                 </div>
                             @else
                                 {{-- Fallback for items with no valid product/cooked food --}}
@@ -261,7 +261,7 @@
                                     <h6 class="mb-1">Unknown Item</h6>
                                     <span class="badge bg-warning mb-1">Error</span>
                                     <p class="text-muted mb-1">Quantity: {{ $item->quantity }}</p>
-                                    <p class="text-muted mb-0">₹{{ number_format($item->price, 2) }} each</p>
+                                    <p class="text-muted mb-0">Unit Price: ₹{{ number_format($item->price, 2) }}</p>
                                 </div>
                             @endif
                             <div class="text-end">

@@ -132,9 +132,25 @@
         
         /* Mobile Logo Styles */
         .mobile-logo {
-            max-height: 50px;
+            max-height: 60px;
             width: auto;
             transition: all 0.3s ease;
+            object-fit: contain;
+        }
+        
+        /* Mobile Navigation Logo Container */
+        .res-log {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .res-log .mobile-logo {
+            max-height: 80px;
+            max-width: 200px;
+            width: auto;
+            height: auto;
         }
         
         /* Responsive adjustments */
@@ -148,7 +164,11 @@
             }
             
             .mobile-logo {
-                max-height: 40px;
+                max-height: 50px;
+            }
+            
+            .res-log .mobile-logo {
+                max-height: 123px;
             }
         }
         
@@ -158,12 +178,154 @@
             }
             
             .footer-logo {
-                max-height: 128px;
+                max-height: 100px;
             }
             
             .mobile-logo {
-                max-height: 35px;
+                max-height: 45px;
             }
+            
+            .res-log {
+                padding: 15px;
+            }
+        }
+        
+        /* User Profile Dropdown Styling */
+        .login .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #fa441d, #ff6b47);
+            color: white !important;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 2px 10px rgba(250, 68, 29, 0.3);
+            white-space: nowrap;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .dropdown-toggle:hover {
+            background: linear-gradient(135deg, #e8381a, #fa441d);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(250, 68, 29, 0.4);
+            color: white !important;
+        }
+        
+        .dropdown-toggle i {
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            min-width: 200px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            padding: 8px 0;
+            margin-top: 8px;
+        }
+        
+        .dropdown.show .dropdown-menu,
+        .dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            right: 20px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid white;
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: #374151 !important;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, #fa441d, #ff6b47);
+            color: white !important;
+        }
+        
+        .dropdown-item i {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        /* Mobile User Dropdown */
+        #mobileUserDropdown .dropdown-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white !important;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        #mobileUserDropdown .dropdown-menu {
+            position: static;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        
+        #mobileUserDropdown .dropdown-menu::before {
+            display: none;
+        }
+        
+        #mobileUserDropdown .dropdown-item {
+            color: white !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #mobileUserDropdown .dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        #mobileUserDropdown .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
     </style>
     
@@ -2676,6 +2838,40 @@ body.modal-open {
     }
 }
 </style>
+
+<script>
+// User Profile Dropdown Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Desktop dropdown
+    const userDropdown = document.getElementById('userDropdown');
+    const userDropdownToggle = document.getElementById('userDropdownToggle');
+    
+    if (userDropdownToggle) {
+        userDropdownToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            userDropdown.classList.toggle('show');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!userDropdown.contains(e.target)) {
+                userDropdown.classList.remove('show');
+            }
+        });
+    }
+    
+    // Mobile dropdown
+    const mobileUserDropdown = document.getElementById('mobileUserDropdown');
+    const mobileUserDropdownToggle = document.getElementById('mobileUserDropdownToggle');
+    
+    if (mobileUserDropdownToggle) {
+        mobileUserDropdownToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            mobileUserDropdown.classList.toggle('show');
+        });
+    }
+});
+</script>
 
 </body>
 </html>

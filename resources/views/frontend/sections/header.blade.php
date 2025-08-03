@@ -50,7 +50,7 @@
                     <div class="dropdown" id="userDropdown">
                         <a href="#" class="dropdown-toggle" id="userDropdownToggle">
                             <i class="fa-solid fa-user"></i>
-                            {{ Auth::user()->name }}
+                            {{ explode(' ', Auth::user()->name)[0] }}
                         </a>
                         <ul class="dropdown-menu">
                             <li>
@@ -215,7 +215,7 @@
                   <div class="dropdown" id="mobileUserDropdown">
                       <a href="#" class="dropdown-toggle" id="mobileUserDropdownToggle">
                           <i class="fa-solid fa-user"></i>
-                          {{ Auth::user()->name }}
+                          {{ explode(' ', Auth::user()->name)[0] }}
                       </a>
                       <ul class="dropdown-menu">
                           <li>

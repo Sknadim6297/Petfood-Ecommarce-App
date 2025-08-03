@@ -941,6 +941,18 @@
                     </a>
                 </div>
                 <div class="nav-item">
+                    <a href="{{ route('admin.contact-queries.index') }}" class="nav-link {{ request()->routeIs('admin.contact-queries.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-envelope"></i>
+                        <span class="nav-text">Contact Queries</span>
+                        @php
+                            $unreadCount = \App\Models\ContactQuery::where('status', 'unread')->count();
+                        @endphp
+                        @if($unreadCount > 0)
+                            <span class="badge bg-warning ms-auto">{{ $unreadCount }}</span>
+                        @endif
+                    </a>
+                </div>
+                <div class="nav-item">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-chart-bar"></i>
                         <span class="nav-text">Home Page</span>

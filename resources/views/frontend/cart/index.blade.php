@@ -377,9 +377,19 @@ $(document).ready(function() {
         const discountAmount = parseFloat(response.discount_amount) || 0;
         const finalTotal = parseFloat(response.final_total) || 0;
         
-        // Update product subtotal
+        // Format the subtotal properly - ensure it's a number
+        let formattedSubtotal = newSubtotal;
+        if (typeof newSubtotal === 'string' && newSubtotal.includes(':')) {
+            // If subtotal comes in wrong format like "1:00", fix it
+            formattedSubtotal = parseFloat(newSubtotal.replace(':', '')) || 0;
+            formattedSubtotal = formattedSubtotal.toFixed(2);
+        } else if (typeof newSubtotal === 'number') {
+            formattedSubtotal = newSubtotal.toFixed(2);
+        }
+        
+        // Update product subtotal with proper formatting
         row.find('.item-subtotal').html(
-            `<bdi><span class="woocommerce-Price-currencySymbol">₹</span>${newSubtotal}</bdi>`
+            `<bdi><span class="woocommerce-Price-currencySymbol">₹</span>${formattedSubtotal}</bdi>`
         );
         
         // Update quantity input

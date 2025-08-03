@@ -632,7 +632,6 @@ a.search-btn svg {
 }
 
 .login .dropdown-toggle::after {
-    content: '\f107';
     font-family: 'Font Awesome 6 Free';
     font-weight: 900;
     font-size: 12px;
