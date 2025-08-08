@@ -245,8 +245,7 @@
             margin-top: 8px;
         }
         
-        .dropdown.show .dropdown-menu,
-        .dropdown:hover .dropdown-menu {
+        .dropdown.show .dropdown-menu {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
@@ -309,6 +308,16 @@
             backdrop-filter: blur(10px);
             margin-top: 0;
             margin-bottom: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+        
+        #mobileUserDropdown.show .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
         }
         
         #mobileUserDropdown .dropdown-menu::before {
@@ -1698,25 +1707,31 @@ $(document).ready(function() {
             window.cartWishlistManager.showToast(message, type);
         } else {
             // Fallback if cart-wishlist.js isn't loaded
-            console.log(type.toUpperCase() + ': ' + message);a
+            console.log(type.toUpperCase() + ': ' + message);
         }
     }
     
     // User dropdown functionality
-    $('#userDropdownToggle, #mobileUserDropdownToggle').click(function(e) {
+    $(document).on('click', '#userDropdownToggle, #mobileUserDropdownToggle', function(e) {
         e.preventDefault();
+        e.stopPropagation();
+        
+        // Close all other dropdowns first
+        $('.dropdown').not($(this).parent()).removeClass('show');
+        
+        // Toggle current dropdown
         $(this).parent('.dropdown').toggleClass('show');
     });
     
     // Close dropdown when clicking outside
-    $(document).click(function(e) {
+    $(document).on('click', function(e) {
         if (!$(e.target).closest('.dropdown').length) {
             $('.dropdown').removeClass('show');
         }
     });
     
-    // Prevent dropdown from closing when clicking inside
-    $('.dropdown-menu').click(function(e) {
+    // Prevent dropdown from closing when clicking inside the menu
+    $(document).on('click', '.dropdown-menu', function(e) {
         e.stopPropagation();
     });
 });
@@ -2839,39 +2854,7 @@ body.modal-open {
 }
 </style>
 
-<script>
-// User Profile Dropdown Functionality
-document.addEventListener('DOMContentLoaded', function() {
-    // Desktop dropdown
-    const userDropdown = document.getElementById('userDropdown');
-    const userDropdownToggle = document.getElementById('userDropdownToggle');
-    
-    if (userDropdownToggle) {
-        userDropdownToggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            userDropdown.classList.toggle('show');
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!userDropdown.contains(e.target)) {
-                userDropdown.classList.remove('show');
-            }
-        });
-    }
-    
-    // Mobile dropdown
-    const mobileUserDropdown = document.getElementById('mobileUserDropdown');
-    const mobileUserDropdownToggle = document.getElementById('mobileUserDropdownToggle');
-    
-    if (mobileUserDropdownToggle) {
-        mobileUserDropdownToggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            mobileUserDropdown.classList.toggle('show');
-        });
-    }
-});
-</script>
+
 
 </body>
 </html>

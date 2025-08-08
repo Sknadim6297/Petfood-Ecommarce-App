@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\CookedFoodController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\ContactQueryController;
 use App\Http\Controllers\Admin\WebsiteSettingsController;
+use App\Http\Controllers\Admin\AboutContentController;
 
 // Admin Authentication
 Route::get('login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
@@ -104,8 +105,30 @@ Route::middleware('admin')->group(function () {
         Route::patch('/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('update-status');
     });
 
+    // About Content Management (standalone routes for sidebar compatibility)
+    Route::prefix('about-content')->name('admin.about-content.')->group(function () {
+        Route::get('/', [AboutContentController::class, 'index'])->name('index');
+        Route::get('/create', [AboutContentController::class, 'create'])->name('create');
+        Route::post('/', [AboutContentController::class, 'store'])->name('store');
+        Route::get('/{aboutContent}', [AboutContentController::class, 'show'])->name('show');
+        Route::get('/{aboutContent}/edit', [AboutContentController::class, 'edit'])->name('edit');
+        Route::put('/{aboutContent}', [AboutContentController::class, 'update'])->name('update');
+        Route::delete('/{aboutContent}', [AboutContentController::class, 'destroy'])->name('destroy');
+    });
+
     // Content Management
     Route::prefix('content')->name('admin.content.')->group(function () {
+        // About Content Management
+        Route::prefix('about')->name('about.')->group(function () {
+            Route::get('/', [AboutContentController::class, 'index'])->name('index');
+            Route::get('/create', [AboutContentController::class, 'create'])->name('create');
+            Route::post('/', [AboutContentController::class, 'store'])->name('store');
+            Route::get('/{about}', [AboutContentController::class, 'show'])->name('show');
+            Route::get('/{about}/edit', [AboutContentController::class, 'edit'])->name('edit');
+            Route::put('/{about}', [AboutContentController::class, 'update'])->name('update');
+            Route::delete('/{about}', [AboutContentController::class, 'destroy'])->name('destroy');
+        });
+
         // Blog Categories Management
         Route::prefix('blog-categories')->name('blog-categories.')->group(function () {
             Route::get('/', [BlogCategoryController::class, 'index'])->name('index');

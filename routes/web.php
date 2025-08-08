@@ -7,6 +7,7 @@ use App\Http\Controllers\Frontend\WishlistController;
 use App\Http\Controllers\Frontend\CookedFoodController;
 use App\Http\Controllers\Frontend\AddressController;
 use App\Http\Controllers\Frontend\BlogController;
+use App\Http\Controllers\Frontend\AboutController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Frontend\PageController;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Auth;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
 // Static pages routes
-Route::get('/about', [PageController::class, 'about'])->name('about');
+Route::get('/about', [AboutController::class, 'index'])->name('about');
 Route::get('/services', [PageController::class, 'services'])->name('services');
 Route::get('/services/details', [PageController::class, 'serviceDetails'])->name('services.details');
 Route::get('/contact', [PageController::class, 'contact'])->name('contact');

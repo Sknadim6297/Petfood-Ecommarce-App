@@ -905,6 +905,13 @@
                         <span class="nav-badge">{{ \App\Models\ImageLibrary::count() }}</span>
                     </a>
                 </div>
+                <div class="nav-item">
+                    <a href="{{ route('admin.about-content.index') }}" class="nav-link {{ request()->routeIs('admin.about-content.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-info-circle"></i>
+                        <span class="nav-text">About Content</span>
+                        <span class="nav-badge">{{ \App\Models\AboutContent::count() }}</span>
+                    </a>
+                </div>
             </div>
 
             <!-- User Management -->
