@@ -14,7 +14,10 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::withCount('products')->ordered()->paginate(10);
+        $categories = Category::with(['parent', 'children'])
+            ->withCount('products')
+            ->ordered()
+            ->paginate(15);
         return view('admin.categories.index', compact('categories'));
     }
 
@@ -23,7 +26,8 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        return view('admin.categories.create');
+        $parentCategories = Category::mainCategories()->active()->ordered()->get();
+        return view('admin.categories.create', compact('parentCategories'));
     }
 
     /**
@@ -35,11 +39,12 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255|unique:categories,name',
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'parent_id' => 'nullable|exists:categories,id',
             'is_active' => 'boolean',
             'sort_order' => 'nullable|integer|min:0'
         ]);
 
-        $data = $request->only(['name', 'description', 'is_active', 'sort_order']);
+        $data = $request->only(['name', 'description', 'parent_id', 'is_active', 'sort_order']);
         $data['slug'] = Str::slug($request->name);
         
         // Handle image upload
@@ -69,7 +74,8 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        return view('admin.categories.edit', compact('category'));
+        $parentCategories = Category::mainCategories()->active()->where('id', '!=', $category->id)->ordered()->get();
+        return view('admin.categories.edit', compact('category', 'parentCategories'));
     }
 
     /**
@@ -81,11 +87,12 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'parent_id' => 'nullable|exists:categories,id|not_in:' . $category->id,
             'is_active' => 'boolean',
             'sort_order' => 'nullable|integer|min:0'
         ]);
 
-        $data = $request->only(['name', 'description', 'is_active', 'sort_order']);
+        $data = $request->only(['name', 'description', 'parent_id', 'is_active', 'sort_order']);
         $data['slug'] = Str::slug($request->name);
         
         // Handle image upload
@@ -118,6 +125,12 @@ class CategoryController extends Controller
                 ->with('error', 'Cannot delete category that has products. Please reassign products first.');
         }
 
+        // Check if category has subcategories
+        if ($category->children()->count() > 0) {
+            return redirect()->route('admin.categories.index')
+                ->with('error', 'Cannot delete category that has subcategories. Please delete subcategories first.');
+        }
+
         // Delete image if exists
         if ($category->image && file_exists(public_path($category->image))) {
             unlink(public_path($category->image));
@@ -127,5 +140,19 @@ class CategoryController extends Controller
 
         return redirect()->route('admin.categories.index')
             ->with('success', 'Category deleted successfully.');
+    }
+
+    /**
+     * Get subcategories for a given category
+     */
+    public function getSubcategories(Request $request)
+    {
+        $categoryId = $request->get('category_id');
+        $subcategories = Category::where('parent_id', $categoryId)
+            ->active()
+            ->ordered()
+            ->get(['id', 'name']);
+        
+        return response()->json($subcategories);
     }
 }

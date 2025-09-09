@@ -337,10 +337,151 @@
     transform: translateY(-2px);
 }
 
-.pagination-wrapper {
-    padding: 20px 25px;
-    background: #f8f9fa;
+/* Modern Pagination Styling */
+.admin-pagination-wrapper {
+    padding: 25px;
+    background: linear-gradient(145deg, #f8f9fa, #ffffff);
     border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.pagination-info {
+    color: #6c757d;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.pagination-info strong {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.admin-pagination {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.admin-pagination .page-item {
+    list-style: none;
+}
+
+.admin-pagination .page-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    height: 42px;
+    padding: 0 12px;
+    background: #ffffff;
+    color: #495057;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+    position: relative;
+    overflow: hidden;
+}
+
+.admin-pagination .page-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(254, 87, 22, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.admin-pagination .page-link:hover::before {
+    left: 100%;
+}
+
+.admin-pagination .page-link:hover {
+    background: #fff5f2;
+    color: #fe5716;
+    border-color: #fe5716;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 6px 20px rgba(254, 87, 22, 0.2);
+}
+
+.admin-pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, #fe5716, #ff7a3d);
+    color: #ffffff;
+    border-color: #fe5716;
+    box-shadow: 0 8px 25px rgba(254, 87, 22, 0.3);
+    transform: translateY(-1px);
+}
+
+.admin-pagination .page-item.active .page-link:hover {
+    background: linear-gradient(135deg, #e54e14, #fe5716);
+    transform: translateY(-2px) scale(1.05);
+}
+
+.admin-pagination .page-item.disabled .page-link {
+    opacity: 0.5;
+    pointer-events: none;
+    background: #f8f9fa;
+    color: #adb5bd;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+}
+
+.admin-pagination .page-link i {
+    font-size: 12px;
+}
+
+.admin-pagination .page-link[aria-label="Previous"] i {
+    margin-right: 4px;
+}
+
+.admin-pagination .page-link[aria-label="Next"] i {
+    margin-left: 4px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .admin-pagination-wrapper {
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+        gap: 12px;
+    }
+    
+    .admin-pagination .page-link {
+        min-width: 38px;
+        height: 38px;
+        font-size: 13px;
+        border-radius: 10px;
+    }
+    
+    .pagination-info {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-pagination {
+        gap: 4px;
+    }
+    
+    .admin-pagination .page-link {
+        min-width: 34px;
+        height: 34px;
+        font-size: 12px;
+        padding: 0 8px;
+    }
 }
 
 .empty-state {
@@ -624,9 +765,90 @@
             </tbody>
         </table>
 
-        <!-- Pagination -->
-        <div class="pagination-wrapper">
-            {{ $products->links() }}
+        <!-- Custom Admin Pagination -->
+        <div class="admin-pagination-wrapper">
+            <div class="pagination-info">
+                <span>Showing <strong>{{ $products->firstItem() }}</strong> to <strong>{{ $products->lastItem() }}</strong> of <strong>{{ $products->total() }}</strong> products</span>
+            </div>
+            
+            @if ($products->hasPages())
+            <nav aria-label="Product pagination">
+                <ul class="admin-pagination">
+                    {{-- Previous Page Link --}}
+                    @if ($products->onFirstPage())
+                        <li class="page-item disabled">
+                            <span class="page-link" aria-label="Previous">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </span>
+                        </li>
+                    @else
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $products->previousPageUrl() }}" aria-label="Previous">
+                                <i class="fas fa-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                    @endif
+
+                    {{-- Pagination Elements --}}
+                    @php
+                        $start = max(1, $products->currentPage() - 2);
+                        $end = min($products->lastPage(), $products->currentPage() + 2);
+                    @endphp
+
+                    {{-- First Page --}}
+                    @if($start > 1)
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $products->url(1) }}">1</a>
+                        </li>
+                        @if($start > 2)
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        @endif
+                    @endif
+
+                    {{-- Page Numbers --}}
+                    @for ($page = $start; $page <= $end; $page++)
+                        @if ($page == $products->currentPage())
+                            <li class="page-item active">
+                                <span class="page-link">{{ $page }}</span>
+                            </li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $products->url($page) }}">{{ $page }}</a>
+                            </li>
+                        @endif
+                    @endfor
+
+                    {{-- Last Page --}}
+                    @if($end < $products->lastPage())
+                        @if($end < $products->lastPage() - 1)
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        @endif
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $products->url($products->lastPage()) }}">{{ $products->lastPage() }}</a>
+                        </li>
+                    @endif
+
+                    {{-- Next Page Link --}}
+                    @if ($products->hasMorePages())
+                        <li class="page-item">
+                            <a class="page-link" href="{{ $products->nextPageUrl() }}" aria-label="Next">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    @else
+                        <li class="page-item disabled">
+                            <span class="page-link" aria-label="Next">
+                                Next <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </li>
+                    @endif
+                </ul>
+            </nav>
+            @endif
         </div>
         @else
         <div class="empty-state">

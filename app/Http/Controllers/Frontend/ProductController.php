@@ -12,8 +12,14 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        // Get all active categories with product counts
-        $categories = Category::active()
+        // Get all main categories with subcategories and product counts
+        $categories = Category::with(['children' => function($query) {
+                $query->active()->withCount(['products' => function ($q) {
+                    $q->active()->inStock();
+                }])->ordered();
+            }])
+            ->mainCategories()
+            ->active()
             ->withCount(['products' => function ($query) {
                 $query->active()->inStock();
             }])
@@ -29,13 +35,21 @@ class ProductController extends Controller
             ->get();
 
         // Build the products query
-        $query = Product::with(['category', 'brand'])->active();
+        $query = Product::with(['category', 'subcategory', 'brand'])->active();
 
         // Filter by category if specified
         if ($request->has('category') && $request->category) {
             $category = Category::where('slug', $request->category)->first();
             if ($category) {
                 $query->where('category_id', $category->id);
+            }
+        }
+
+        // Filter by subcategory if specified
+        if ($request->has('subcategory') && $request->subcategory) {
+            $subcategory = Category::where('slug', $request->subcategory)->first();
+            if ($subcategory) {
+                $query->where('subcategory_id', $subcategory->id);
             }
         }
 
@@ -88,7 +102,7 @@ class ProductController extends Controller
 
     public function show($slug)
     {
-        $product = Product::with(['category', 'brand', 'reviews' => function($query) {
+        $product = Product::with(['category', 'subcategory', 'brand', 'reviews' => function($query) {
                 $query->approved()->latest()->with('user');
             }])
             ->where('slug', $slug)
@@ -101,7 +115,7 @@ class ProductController extends Controller
         $product->reviews_count = $approvedReviews->count();
 
         // Get related products from same category
-        $relatedProducts = Product::with(['category', 'brand'])
+        $relatedProducts = Product::with(['category', 'subcategory', 'brand'])
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->active()
@@ -187,7 +201,21 @@ class ProductController extends Controller
             ->ordered()
             ->get();
 
-        return view('frontend.products.search', compact('products', 'categories', 'searchTerm'));
+        return view('frontend.products.search', compact('products', 'categories', 'brands', 'query'));
+    }
+
+    /**
+     * Get subcategories for AJAX requests
+     */
+    public function getSubcategories(Request $request)
+    {
+        $categoryId = $request->get('category_id');
+        $subcategories = Category::where('parent_id', $categoryId)
+            ->active()
+            ->ordered()
+            ->get(['id', 'name', 'slug']);
+        
+        return response()->json($subcategories);
     }
 
     /**

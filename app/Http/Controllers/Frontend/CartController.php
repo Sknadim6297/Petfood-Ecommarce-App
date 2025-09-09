@@ -10,7 +10,6 @@ use App\Services\CouponService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Log;
 
 class CartController extends Controller
 {
@@ -21,11 +20,10 @@ class CartController extends Controller
         $this->couponService = $couponService ?? app(CouponService::class);
     }
     /**
-     * Get cart items - use session for coupon compatibility
+     * Get cart items from session
      */
     private function getCart()
     {
-        // Always use session cart for consistency with coupon system
         $sessionCart = Session::get('cart', []);
         
         // If authenticated user has empty session cart, try to load from database
@@ -33,6 +31,25 @@ class CartController extends Controller
             $this->loadDatabaseCartToSession();
             $sessionCart = Session::get('cart', []);
         }
+        
+        // Always refresh prices from database to ensure consistency
+        foreach ($sessionCart as $itemKey => &$item) {
+            if (($item['item_type'] ?? 'product') === 'cooked_food') {
+                $cookedFood = \App\Models\CookedFood::find($item['id']);
+                if ($cookedFood) {
+                    $item['price'] = (float) $cookedFood->price;
+                }
+            } else {
+                $product = \App\Models\Product::find($item['id']);
+                if ($product) {
+                    $item['price'] = (float) $product->effective_price;
+                    $item['original_price'] = (float) $product->price;
+                }
+            }
+        }
+        
+        // Update session with refreshed prices
+        Session::put('cart', $sessionCart);
         
         return $sessionCart;
     }
@@ -46,7 +63,7 @@ class CartController extends Controller
             return;
         }
         
-        $cartItems = Cart::with(['product.category', 'cookedFood'])
+        $cartItems = Cart::with(['product.category', 'product.subcategory', 'cookedFood'])
             ->where('user_id', Auth::id())
             ->get();
         
@@ -70,6 +87,10 @@ class CartController extends Controller
                 ];
             } elseif ($item->item_type === 'product' && $item->product) {
                 $itemKey = 'product_' . $item->product_id;
+                $categoryName = $item->product->category->name ?? 'Pet Product';
+                $subcategoryName = $item->product->subcategory->name ?? null;
+                $fullCategoryName = $subcategoryName ? $categoryName . ' > ' . $subcategoryName : $categoryName;
+                
                 $itemData = [
                     'id' => $item->product->id,
                     'name' => $item->product->name,
@@ -78,7 +99,7 @@ class CartController extends Controller
                     'original_price' => $item->product->price,
                     'image' => $item->product->image,
                     'quantity' => $item->quantity,
-                    'category' => $item->product->category->name ?? 'Pet Product',
+                    'category' => $fullCategoryName,
                     'item_type' => 'product'
                 ];
             }
@@ -166,7 +187,7 @@ class CartController extends Controller
                 'quantity' => 'required|integer|min:1'
             ]);
             
-            $item = Product::findOrFail($itemId);
+            $item = Product::with(['category', 'subcategory'])->findOrFail($itemId);
             $itemKey = 'product_' . $itemId;
             
             // Check product stock
@@ -198,6 +219,14 @@ class CartController extends Controller
             $cart[$itemKey]['quantity'] = $newQuantity;
         } else {
             // Add new item to cart
+            if ($itemType === 'cooked_food') {
+                $categoryName = ucfirst($item->category);
+            } else {
+                $categoryName = $item->category->name ?? 'Pet Product';
+                $subcategoryName = $item->subcategory->name ?? null;
+                $categoryName = $subcategoryName ? $categoryName . ' > ' . $subcategoryName : $categoryName;
+            }
+            
             $cart[$itemKey] = [
                 'id' => $item->id,
                 'name' => $item->name,
@@ -206,7 +235,7 @@ class CartController extends Controller
                 'original_price' => $itemType === 'cooked_food' ? $item->price : $item->price,
                 'image' => $item->image,
                 'quantity' => $quantity,
-                'category' => $itemType === 'cooked_food' ? ucfirst($item->category) : ($item->category->name ?? 'Pet Product'),
+                'category' => $categoryName,
                 'item_type' => $itemType
             ];
         }
@@ -216,7 +245,7 @@ class CartController extends Controller
         return response()->json([
             'success' => true,
             'message' => ($itemType === 'cooked_food' ? 'Cooked food' : 'Product') . ' added to cart successfully!',
-            'cart_count' => array_sum(array_column($cart, 'quantity')),
+            'cart_count' => count($cart),
             'cart_total' => $this->getCartTotal($cart),
             'cart_html' => $this->getCartPopupHtml($cart)
         ]);
@@ -313,7 +342,7 @@ class CartController extends Controller
 
         return response()->json([
             'success' => true,
-            'cart_count' => array_sum(array_column($cart, 'quantity')),
+            'cart_count' => count($cart),
             'cart_total' => $totals['subtotal'],
             'new_total' => $totals['subtotal'],
             'new_subtotal' => $newSubtotal,
@@ -371,7 +400,7 @@ class CartController extends Controller
         return response()->json([
             'success' => true,
             'message' => $itemRemoved ? 'Item removed from cart' : 'Item was not in cart',
-            'cart_count' => array_sum(array_column($cart, 'quantity')),
+            'cart_count' => count($cart),
             'cart_total' => $totals['subtotal'],
             'shipping' => $totals['shipping'],
             'final_total' => $totals['final_total'],
@@ -396,9 +425,16 @@ class CartController extends Controller
         // Calculate final total: subtotal + shipping - discount
         $finalTotal = max(0, $totals['subtotal'] + $totals['shipping'] - $discountAmount);
         
-        // Prepare cart items with calculated subtotals
+        // Prepare cart items with fresh prices (already refreshed by getCart())
         foreach ($cart as $itemKey => $item) {
-            $item['current_price'] = $item['price']; // Use consistent naming
+            $quantity = isset($item['quantity']) ? (int)$item['quantity'] : 0;
+            $price = isset($item['price']) ? (float)$item['price'] : 0;
+            
+            if ($quantity <= 0 || $price <= 0) {
+                continue;
+            }
+            
+            $item['current_price'] = $price; // Use fresh price
             $item['subtotal'] = $totals['item_subtotals'][$itemKey];
             $cartItems[] = $item;
         }
@@ -425,11 +461,7 @@ class CartController extends Controller
 
         $user = Auth::user();
         $cart = $this->getCart();
-        
-        // Debug: Check addresses
-        Log::info('User addresses count: ' . $user->addresses->count());
-        Log::info('Cart items: ' . json_encode($cart));
-        
+
         if (empty($cart)) {
             return view('frontend.cart.checkout', [
                 'cartItems' => [],
@@ -464,17 +496,24 @@ class CartController extends Controller
         // Recalculate final total with discount
         $finalTotal = $totals['subtotal'] + $totals['shipping'] - $discountAmount;
         
-        // Prepare cart items for display with proper data structure
+        // Prepare cart items for display (prices are already fresh from getCart())
         $cartItems = [];
         foreach ($cart as $itemKey => $item) {
+            $quantity = isset($item['quantity']) ? (int)$item['quantity'] : 0;
+            $price = isset($item['price']) ? (float)$item['price'] : 0;
+            
+            if ($quantity <= 0 || $price <= 0) {
+                continue;
+            }
+            
             // Handle both product and cooked food items
             $cartItem = [
                 'id' => $item['id'],
                 'name' => $item['name'],
                 'image' => $item['image'],
-                'price' => $item['price'],
-                'quantity' => $item['quantity'],
-                'total' => $item['price'] * $item['quantity'],
+                'price' => $price, // Fresh price from getCart()
+                'quantity' => $quantity,
+                'total' => $price * $quantity, // Calculate total with fresh price
                 'item_type' => $item['item_type'] ?? 'product',
                 'category' => $item['category'] ?? 'Pet Product'
             ];
@@ -500,7 +539,7 @@ class CartController extends Controller
     {
         $cart = $this->getCart();
         return response()->json([
-            'count' => array_sum(array_column($cart, 'quantity'))
+            'count' => count($cart)
         ]);
     }
 
@@ -512,7 +551,7 @@ class CartController extends Controller
         $cart = $this->getCart();
         return response()->json([
             'html' => $this->getCartPopupHtml($cart),
-            'count' => array_sum(array_column($cart, 'quantity')),
+            'count' => count($cart), // Fixed: count unique products, not total quantity
             'total' => $this->getCartTotal($cart)
         ]);
     }
@@ -566,9 +605,12 @@ class CartController extends Controller
         $itemSubtotals = [];
         
         foreach ($cart as $itemKey => $item) {
-            // Ensure required keys exist with safe defaults
-            $price = isset($item['price']) ? (float)$item['price'] : 0;
             $quantity = isset($item['quantity']) ? (int)$item['quantity'] : 0;
+            $price = isset($item['price']) ? (float)$item['price'] : 0;
+            
+            if ($quantity <= 0 || $price <= 0) {
+                continue;
+            }
             
             $itemSubtotal = $price * $quantity;
             $subtotal += $itemSubtotal;
@@ -608,12 +650,15 @@ class CartController extends Controller
         }
 
         foreach ($cart as $itemKey => $item) {
-            // Ensure all required keys exist with safe defaults
-            $price = isset($item['price']) ? (float)$item['price'] : 0;
             $quantity = isset($item['quantity']) ? (int)$item['quantity'] : 1;
+            $price = isset($item['price']) ? (float)$item['price'] : 0;
             $name = isset($item['name']) ? $item['name'] : 'Unknown Item';
             $image = isset($item['image']) ? $item['image'] : null;
             $id = isset($item['id']) ? $item['id'] : 0;
+            
+            if ($quantity <= 0 || $price <= 0) {
+                continue;
+            }
             
             $subtotal = $price * $quantity;
             $total += $subtotal;
@@ -690,10 +735,10 @@ class CartController extends Controller
     public function getCartCount()
     {
         if (Auth::check()) {
-            return Cart::where('user_id', Auth::id())->sum('quantity');
+            return Cart::where('user_id', Auth::id())->count();
         } else {
             $cart = Session::get('cart', []);
-            return array_sum(array_column($cart, 'quantity'));
+            return count($cart);
         }
     }
 }

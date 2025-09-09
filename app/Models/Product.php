@@ -23,6 +23,7 @@ class Product extends Model
         'image',
         'gallery',
         'category_id',
+        'subcategory_id',
         'brand_id',
         'is_featured',
         'is_active',
@@ -66,6 +67,12 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    // Relationship with subcategory
+    public function subcategory()
+    {
+        return $this->belongsTo(Category::class, 'subcategory_id');
     }
 
     // Relationship with brand

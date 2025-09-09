@@ -82,6 +82,29 @@
     font-size: 10px;
 }
 
+/* Subcategory Styling */
+.subcategory-list {
+    background: #f8f9fa;
+    border-radius: 5px;
+    padding: 8px;
+    border-left: 3px solid #fe5716;
+}
+
+.subcategory-list li a {
+    color: #555 !important;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.subcategory-list li a:hover,
+.subcategory-list li a.active {
+    color: #fe5716 !important;
+    background: rgba(254, 87, 22, 0.1);
+    border-radius: 3px;
+    padding: 3px 8px;
+}
+
 /* Mobile Responsive Styles */
 @media (max-width: 768px) {
     .active-filters {
@@ -223,6 +246,22 @@
                    {{ $category->name }}
                    <span>{{ $category->products_count }}</span>
                 </a>
+                
+                @if($category->children->count() > 0 && request('category') == $category->slug)
+                  <ul class="subcategory-list" style="margin-left: 20px; margin-top: 8px;">
+                    @foreach($category->children as $subcategory)
+                    <li style="margin-bottom: 5px;">
+                      <a href="{{ route('products.index', ['category' => $category->slug, 'subcategory' => $subcategory->slug]) }}" 
+                         class="{{ request('subcategory') == $subcategory->slug ? 'active' : '' }}"
+                         style="font-size: 14px; color: #666; padding-left: 15px; position: relative;">
+                         <i class="fas fa-arrow-right" style="position: absolute; left: 0; top: 50%; transform: translateY(-50%); font-size: 10px;"></i>
+                         {{ $subcategory->name }}
+                         <span>{{ $subcategory->products_count }}</span>
+                      </a>
+                    </li>
+                    @endforeach
+                  </ul>
+                @endif
               </li>
               @empty
               <li>
@@ -274,6 +313,9 @@
                 @if(request('category'))
                   <input type="hidden" name="category" value="{{ request('category') }}">
                 @endif
+                @if(request('subcategory'))
+                  <input type="hidden" name="subcategory" value="{{ request('subcategory') }}">
+                @endif
                 @if(request('brand'))
                   <input type="hidden" name="brand" value="{{ request('brand') }}">
                 @endif
@@ -312,6 +354,9 @@
               @if(request('category'))
                 <input type="hidden" name="category" value="{{ request('category') }}">
               @endif
+              @if(request('subcategory'))
+                <input type="hidden" name="subcategory" value="{{ request('subcategory') }}">
+              @endif
               @if(request('brand'))
                 <input type="hidden" name="brand" value="{{ request('brand') }}">
               @endif
@@ -333,7 +378,7 @@
         </div>
         
         <!-- Active Filters Display -->
-        @if(request('category') || request('brand') || request('min_price') || request('max_price'))
+        @if(request('category') || request('subcategory') || request('brand') || request('min_price') || request('max_price'))
         <div class="active-filters mb-4">
             <h6 class="mb-2">Active Filters:</h6>
             <div class="filter-tags d-flex flex-wrap gap-2">
@@ -344,6 +389,16 @@
                     <span class="filter-tag">
                         Category: {{ $categoryName }}
                         <a href="{{ route('products.index', request()->except('category')) }}" class="remove-filter">×</a>
+                    </span>
+                @endif
+                
+                @if(request('subcategory'))
+                    @php 
+                        $subcategoryName = \App\Models\Category::where('slug', request('subcategory'))->first()->name ?? request('subcategory');
+                    @endphp
+                    <span class="filter-tag">
+                        Subcategory: {{ $subcategoryName }}
+                        <a href="{{ route('products.index', request()->except('subcategory')) }}" class="remove-filter">×</a>
                     </span>
                 @endif
                 

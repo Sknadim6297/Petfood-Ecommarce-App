@@ -13,7 +13,8 @@ class Category extends Model
         'description',
         'image',
         'is_active',
-        'sort_order'
+        'sort_order',
+        'parent_id'
     ];
 
     protected $casts = [
@@ -36,6 +37,30 @@ class Category extends Model
     public function products()
     {
         return $this->hasMany(Product::class);
+    }
+
+    // Parent category relationship
+    public function parent()
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
+
+    // Children (subcategories) relationship
+    public function children()
+    {
+        return $this->hasMany(Category::class, 'parent_id');
+    }
+
+    // Scope for main categories (no parent)
+    public function scopeMainCategories($query)
+    {
+        return $query->whereNull('parent_id');
+    }
+
+    // Scope for subcategories (has parent)
+    public function scopeSubCategories($query)
+    {
+        return $query->whereNotNull('parent_id');
     }
 
     // Scope for active categories

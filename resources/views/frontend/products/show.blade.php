@@ -1167,7 +1167,15 @@
             <ul class="product_meta">
               <li>
                 <span class="theme-bg-clr">Category:</span> 
-                <span class="meta-value">{{ $product->category->name }}</span>
+                <span class="meta-value">
+                    @if($product->category && $product->subcategory)
+                        {{ $product->category->name }} > {{ $product->subcategory->name }}
+                    @elseif($product->category)
+                        {{ $product->category->name }}
+                    @else
+                        Uncategorized
+                    @endif
+                </span>
               </li>
               @if($product->brand)
               <li>
@@ -1245,7 +1253,15 @@
             </div>
             <div class="info-item">
               <h6><i class="fa-solid fa-tag me-2"></i>Category</h6>
-              <span>{{ $product->category->name }}</span>
+              <span>
+                  @if($product->category && $product->subcategory)
+                      {{ $product->category->name }} > {{ $product->subcategory->name }}
+                  @elseif($product->category)
+                      {{ $product->category->name }}
+                  @else
+                      Uncategorized
+                  @endif
+              </span>
             </div>
             @if($product->brand)
             <div class="info-item">
@@ -1427,7 +1443,15 @@
                       @endif
                   </div>
                   <div class="product-content">
-                      <div class="product-category">{{ $related->category->name }}</div>
+                      <div class="product-category">
+                          @if($related->category && $related->subcategory)
+                              {{ $related->category->name }} > {{ $related->subcategory->name }}
+                          @elseif($related->category)
+                              {{ $related->category->name }}
+                          @else
+                              Uncategorized
+                          @endif
+                      </div>
                       @if($related->brand)
                           <div class="product-brand">{{ $related->brand->name }}</div>
                       @endif

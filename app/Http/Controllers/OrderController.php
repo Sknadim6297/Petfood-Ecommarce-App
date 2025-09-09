@@ -293,7 +293,11 @@ class OrderController extends Controller
         }
 
         // Load the relationships if not already loaded
-        $order->load(['orderItems.product', 'orderItems.cookedFood']);
+        $order->load([
+            'orderItems.product.category',
+            'orderItems.product.subcategory', 
+            'orderItems.cookedFood'
+        ]);
 
         return view('frontend.orders.confirmation', compact('order'));
     }

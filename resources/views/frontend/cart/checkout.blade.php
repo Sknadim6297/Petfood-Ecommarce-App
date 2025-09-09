@@ -382,6 +382,17 @@
     line-height: 1.4;
 }
 
+.order-item-details .item-category {
+    color: #888;
+    font-size: 12px;
+    font-weight: 500;
+    margin-bottom: 5px;
+    background: #f8f9fa;
+    padding: 3px 8px;
+    border-radius: 12px;
+    display: inline-block;
+}
+
 .order-item-details .item-qty {
     color: #6c757d;
     font-size: 13px;
@@ -970,6 +981,7 @@
                                          alt="{{ $item['name'] }}" class="order-item-image">
                                     <div class="order-item-details">
                                         <h6>{{ $item['name'] }}</h6>
+                                        <div class="item-category">{{ $item['category'] ?? 'Pet Product' }}</div>
                                         <div class="item-qty">Qty: {{ $item['quantity'] }}</div>
                                     </div>
                                     <div class="order-item-price">₹{{ number_format($item['total'], 2) }}</div>

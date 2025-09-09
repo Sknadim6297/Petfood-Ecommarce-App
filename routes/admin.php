@@ -30,6 +30,7 @@ Route::middleware('admin')->group(function () {
     
     // Category Management
     Route::resource('categories', CategoryController::class, ['as' => 'admin']);
+    Route::get('categories/subcategories/{categoryId}', [CategoryController::class, 'getSubcategories'])->name('admin.categories.subcategories');
     
     // Brand Management
     Route::resource('brands', BrandController::class, ['as' => 'admin']);

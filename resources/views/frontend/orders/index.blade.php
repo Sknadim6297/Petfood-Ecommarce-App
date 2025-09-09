@@ -519,7 +519,18 @@
                                  alt="{{ $item->product->name }}" class="order-item-image">
                             <div class="order-item-details">
                                 <h6>{{ $item->product->name }} <span class="badge bg-primary ms-1">Product</span></h6>
-                                <div class="item-info">Qty: {{ $item->quantity }} × ₹{{ number_format($item->price, 2) }}</div>
+                                <div class="item-info">
+                                    @if($item->product->category || $item->product->subcategory)
+                                        <small class="text-muted d-block">
+                                            @if($item->product->category && $item->product->subcategory)
+                                                {{ $item->product->category->name }} > {{ $item->product->subcategory->name }}
+                                            @elseif($item->product->category)
+                                                {{ $item->product->category->name }}
+                                            @endif
+                                        </small>
+                                    @endif
+                                    Qty: {{ $item->quantity }} × ₹{{ number_format($item->price, 2) }}
+                                </div>
                             </div>
                         @else
                             {{-- Fallback for items with no valid product/cooked food --}}

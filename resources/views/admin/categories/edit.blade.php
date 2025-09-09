@@ -29,7 +29,28 @@
                                 @enderror
                             </div>
                         </div>
-                        
+
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="parent_id" class="form-label">Parent Category</label>
+                                <select class="form-control @error('parent_id') is-invalid @enderror" 
+                                        id="parent_id" name="parent_id">
+                                    <option value="">-- Main Category --</option>
+                                    @foreach($parentCategories as $parent)
+                                        <option value="{{ $parent->id }}" {{ old('parent_id', $category->parent_id) == $parent->id ? 'selected' : '' }}>
+                                            {{ $parent->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('parent_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="form-text text-muted">Leave empty to create a main category</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="sort_order" class="form-label">Sort Order</label>

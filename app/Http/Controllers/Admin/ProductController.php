@@ -26,7 +26,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $categories = Category::active()->ordered()->get();
+        $categories = Category::mainCategories()->active()->ordered()->get();
         $brands = Brand::active()->ordered()->get();
         return view('admin.products.create', compact('categories', 'brands'));
     }
@@ -49,6 +49,7 @@ class ProductController extends Controller
             'manufactured_date' => 'nullable|date',
             'expiry_date' => 'nullable|date|after:manufactured_date',
             'category_id' => 'required|exists:categories,id',
+            'subcategory_id' => 'nullable|exists:categories,id',
             'brand_id' => 'nullable|exists:brands,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'gallery.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -104,9 +105,10 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        $categories = Category::active()->ordered()->get();
+        $categories = Category::mainCategories()->active()->ordered()->get();
+        $subcategories = $product->category_id ? Category::where('parent_id', $product->category_id)->active()->ordered()->get() : collect();
         $brands = Brand::active()->ordered()->get();
-        return view('admin.products.edit', compact('product', 'categories', 'brands'));
+        return view('admin.products.edit', compact('product', 'categories', 'subcategories', 'brands'));
     }
 
     /**
@@ -127,6 +129,7 @@ class ProductController extends Controller
             'manufactured_date' => 'nullable|date',
             'expiry_date' => 'nullable|date|after:manufactured_date',
             'category_id' => 'required|exists:categories,id',
+            'subcategory_id' => 'nullable|exists:categories,id',
             'brand_id' => 'nullable|exists:brands,id',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'gallery.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',

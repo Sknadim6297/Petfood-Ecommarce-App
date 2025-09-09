@@ -99,7 +99,19 @@
                                         @endif
                                     </div>
                                     
-                                    <span>{{ $itemType === 'cooked_food' ? ucfirst($itemData->category) : ($itemData->category->name ?? 'Uncategorized') }}</span>
+                                    <span>
+                                        @if($itemType === 'cooked_food')
+                                            {{ ucfirst($itemData->category) }}
+                                        @else
+                                            @if($itemData->category && $itemData->subcategory)
+                                                {{ $itemData->category->name }} > {{ $itemData->subcategory->name }}
+                                            @elseif($itemData->category)
+                                                {{ $itemData->category->name }}
+                                            @else
+                                                Uncategorized
+                                            @endif
+                                        @endif
+                                    </span>
                                     <a href="{{ route($showRoute, $itemSlug) }}">{{ $itemName }}</a>
                                     
                                     @if($itemType === 'product' && $itemData->is_on_sale)

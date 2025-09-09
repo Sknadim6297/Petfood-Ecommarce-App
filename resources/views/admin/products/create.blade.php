@@ -30,7 +30,7 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-lg-6">
+                            <div class="col-lg-4">
                                 <div class="mb-3">
                                     <label for="category_id" class="form-label">Product Category *</label>
                                     <select class="form-select @error('category_id') is-invalid @enderror" 
@@ -47,7 +47,19 @@
                                     @enderror
                                 </div>
                             </div>
-                            <div class="col-lg-6">
+                            <div class="col-lg-4">
+                                <div class="mb-3">
+                                    <label for="subcategory_id" class="form-label">Subcategory</label>
+                                    <select class="form-select @error('subcategory_id') is-invalid @enderror" 
+                                            id="subcategory_id" name="subcategory_id">
+                                        <option value="">Select Subcategory</option>
+                                    </select>
+                                    @error('subcategory_id')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
                                 <div class="mb-3">
                                     <label for="brand_id" class="form-label">Brand *</label>
                                     <select class="form-select @error('brand_id') is-invalid @enderror" 
@@ -406,6 +418,33 @@ document.addEventListener('DOMContentLoaded', function() {
     
     manufacturedDateInput.addEventListener('change', validateDates);
     expiryDateInput.addEventListener('change', validateDates);
+
+    // Handle category change to load subcategories
+    const categorySelect = document.getElementById('category_id');
+    const subcategorySelect = document.getElementById('subcategory_id');
+
+    categorySelect.addEventListener('change', function() {
+        const categoryId = this.value;
+        
+        // Clear subcategory options
+        subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>';
+        
+        if (categoryId) {
+            fetch(`{{ url('admin/categories/subcategories') }}/${categoryId}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(subcategory => {
+                        const option = document.createElement('option');
+                        option.value = subcategory.id;
+                        option.textContent = subcategory.name;
+                        subcategorySelect.appendChild(option);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading subcategories:', error);
+                });
+        }
+    });
 });
 </script>
 @endsection

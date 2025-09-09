@@ -57,6 +57,7 @@ Route::get('/products', [ProductController::class, 'index'])->name('products.ind
 Route::get('/product/{slug}', [ProductController::class, 'show'])->name('product.show');
 Route::get('/product-details/{id}', [ProductController::class, 'showById'])->name('product.details');
 Route::post('/products/search', [ProductController::class, 'search'])->name('products.search');
+Route::get('/products/subcategories/{categoryId}', [ProductController::class, 'getSubcategories'])->name('products.subcategories');
 
 // Review routes
 Route::post('/reviews', [App\Http\Controllers\ReviewController::class, 'store'])->name('reviews.store');

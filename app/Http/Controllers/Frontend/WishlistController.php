@@ -22,7 +22,7 @@ class WishlistController extends Controller
         }
 
         $wishlistItems = Wishlist::where('user_id', Auth::id())
-            ->with(['product.category', 'cookedFood'])
+            ->with(['product.category', 'product.subcategory', 'cookedFood'])
             ->latest()
             ->get();
         

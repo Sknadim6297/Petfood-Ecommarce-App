@@ -676,6 +676,16 @@
                                      alt="{{ $item->product->name }}" class="order-item-image">
                                 <div class="order-item-details">
                                     <h6>{{ $item->product->name }} <span class="badge bg-primary ms-2">Product</span></h6>
+                                    @if($item->product->category || $item->product->subcategory)
+                                        <div class="item-meta">
+                                            <strong>Category:</strong> 
+                                            @if($item->product->category && $item->product->subcategory)
+                                                {{ $item->product->category->name }} > {{ $item->product->subcategory->name }}
+                                            @elseif($item->product->category)
+                                                {{ $item->product->category->name }}
+                                            @endif
+                                        </div>
+                                    @endif
                                     <div class="item-meta">
                                         <strong>Quantity:</strong> {{ $item->quantity }}
                                     </div>

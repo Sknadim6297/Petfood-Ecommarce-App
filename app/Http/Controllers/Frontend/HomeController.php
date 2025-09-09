@@ -11,14 +11,31 @@ class HomeController extends Controller
 {
     public function index()
     {
-        // Get active categories for "Browse By Categories" section
-        $categories = Category::active()
+        // Get main categories only for "Browse By Categories" section
+        $categories = Category::whereNull('parent_id') // Only main categories
+            ->active()
             ->withCount(['products' => function ($query) {
                 $query->active();
             }])
             ->ordered()
             ->limit(6)
             ->get();
+
+        // Get main categories with their subcategories for "Shop By Pet Type" section
+        $petTypes = Category::with(['children' => function ($query) {
+                $query->active()
+                    ->withCount(['products' => function ($productQuery) {
+                        $productQuery->active();
+                    }])
+                    ->ordered(); // Order subcategories
+            }])
+            ->whereNull('parent_id') // Only main categories
+            ->active()
+            ->withCount(['products' => function ($query) {
+                $query->active();
+            }])
+            ->ordered()
+            ->get(); // Get all main categories with subcategories
 
         // Get featured products for "Healthy Products" section
         $featuredProducts = Product::with(['category', 'brand'])
@@ -29,7 +46,7 @@ class HomeController extends Controller
             ->get();
 
         // Get healthy products for "Healthy Products" section
-        $healthyProducts = Product::with(['category', 'brand'])
+        $healthyProducts = Product::with(['category', 'subcategory', 'brand'])
             ->active()
             ->inStock()
             ->healthy()
@@ -37,7 +54,7 @@ class HomeController extends Controller
             ->get();
 
         // Get deal of the week
-        $dealOfWeek = Product::with(['category', 'brand'])
+        $dealOfWeek = Product::with(['category', 'subcategory', 'brand'])
             ->active()
             ->inStock()
             ->dealOfWeek()
@@ -45,7 +62,7 @@ class HomeController extends Controller
 
         // If no deal of week product, get one with highest discount
         if (!$dealOfWeek) {
-            $dealOfWeek = Product::with(['category', 'brand'])
+            $dealOfWeek = Product::with(['category', 'subcategory', 'brand'])
                 ->active()
                 ->inStock()
                 ->whereNotNull('sale_price')
@@ -53,6 +70,6 @@ class HomeController extends Controller
                 ->first();
         }
 
-        return view('frontend.index', compact('categories', 'featuredProducts', 'healthyProducts', 'dealOfWeek'));
+        return view('frontend.index', compact('categories', 'petTypes', 'featuredProducts', 'healthyProducts', 'dealOfWeek'));
     }
 }

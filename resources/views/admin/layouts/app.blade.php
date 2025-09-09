@@ -874,45 +874,7 @@
                 </div>
             </div>
 
-            <!-- Content Management -->
-            <div class="nav-section">
-                <div class="nav-section-title">Content Management</div>
-                <div class="nav-item">
-                    <a href="{{ route('admin.content.blog-categories.index') }}" class="nav-link {{ request()->routeIs('admin.content.blog-categories.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-folder"></i>
-                        <span class="nav-text">Blog Categories</span>
-                        <span class="nav-badge">{{ \App\Models\BlogCategory::count() }}</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a href="{{ route('admin.content.blogs.index') }}" class="nav-link {{ request()->routeIs('admin.content.blogs.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-blog"></i>
-                        <span class="nav-text">Manage Blogs</span>
-                        <span class="nav-badge">{{ \App\Models\Blog::count() }}</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a href="{{ route('admin.content.blog-comments.index') }}" class="nav-link {{ request()->routeIs('admin.content.blog-comments.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-comments"></i>
-                        <span class="nav-text">Blog Comments</span>
-                        <span class="nav-badge">{{ \App\Models\BlogComment::count() }}</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a href="{{ route('admin.content.image-library.index') }}" class="nav-link {{ request()->routeIs('admin.content.image-library.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-images"></i>
-                        <span class="nav-text">Image Library</span>
-                        <span class="nav-badge">{{ \App\Models\ImageLibrary::count() }}</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a href="{{ route('admin.about-content.index') }}" class="nav-link {{ request()->routeIs('admin.about-content.*') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-info-circle"></i>
-                        <span class="nav-text">About Content</span>
-                        <span class="nav-badge">{{ \App\Models\AboutContent::count() }}</span>
-                    </a>
-                </div>
-            </div>
+            <!-- Merge Content Management into Website Management -->
 
             <!-- User Management -->
             <div class="nav-section">
@@ -960,15 +922,44 @@
                     </a>
                 </div>
                 <div class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-chart-bar"></i>
-                        <span class="nav-text">Home Page</span>
+                    <a href="{{ route('admin.content.blog-categories.index') }}" class="nav-link {{ request()->routeIs('admin.content.blog-categories.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-folder"></i>
+                        <span class="nav-text">Blog Categories</span>
+                        <span class="nav-badge">{{ \App\Models\BlogCategory::count() }}</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ route('admin.content.blogs.index') }}" class="nav-link {{ request()->routeIs('admin.content.blogs.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-blog"></i>
+                        <span class="nav-text">Manage Blogs</span>
+                        <span class="nav-badge">{{ \App\Models\Blog::count() }}</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ route('admin.content.blog-comments.index') }}" class="nav-link {{ request()->routeIs('admin.content.blog-comments.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-comments"></i>
+                        <span class="nav-text">Blog Comments</span>
+                        <span class="nav-badge">{{ \App\Models\BlogComment::count() }}</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ route('admin.content.image-library.index') }}" class="nav-link {{ request()->routeIs('admin.content.image-library.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-images"></i>
+                        <span class="nav-text">Image Library</span>
+                        <span class="nav-badge">{{ \App\Models\ImageLibrary::count() }}</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="{{ route('admin.about-content.index') }}" class="nav-link {{ request()->routeIs('admin.about-content.*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-info-circle"></i>
+                        <span class="nav-text">About Content</span>
+                        <span class="nav-badge">{{ \App\Models\AboutContent::count() }}</span>
                     </a>
                 </div>
                 <div class="nav-item">
                     <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-chart-pie"></i>
-                        <span class="nav-text">About Page</span>
+                        <i class="nav-icon fas fa-chart-bar"></i>
+                        <span class="nav-text">Home Page</span>
                     </a>
                 </div>
             </div>
@@ -976,12 +967,6 @@
             <!-- System -->
             <div class="nav-section">
                 <div class="nav-section-title">System</div>
-                <div class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-cog"></i>
-                        <span class="nav-text">Settings</span>
-                    </a>
-                </div>
                 <div class="nav-item">
                     <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-file-alt"></i>

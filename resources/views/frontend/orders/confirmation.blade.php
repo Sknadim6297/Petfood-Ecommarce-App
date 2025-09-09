@@ -249,7 +249,12 @@
                                      alt="{{ $item->product->name }}" class="item-image">
                                 <div class="flex-grow-1">
                                     <h6 class="mb-1">{{ $item->product->name }}</h6>
-                                    <span class="badge bg-primary mb-1">Product</span>
+                                    @php
+                                        $categoryName = $item->product->category->name ?? 'Pet Product';
+                                        $subcategoryName = $item->product->subcategory->name ?? null;
+                                        $fullCategoryName = $subcategoryName ? $categoryName . ' > ' . $subcategoryName : $categoryName;
+                                    @endphp
+                                    <span class="badge bg-primary mb-1">{{ $fullCategoryName }}</span>
                                     <p class="text-muted mb-1">Quantity: {{ $item->quantity }}</p>
                                     <p class="text-muted mb-0">Unit Price: ₹{{ number_format($item->price, 2) }}</p>
                                 </div>

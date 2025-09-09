@@ -20,12 +20,12 @@ class HeaderComposer
 
         if (Auth::check()) {
             // For authenticated users, get counts from database
-            $cartCount = Cart::where('user_id', Auth::id())->sum('quantity');
+            $cartCount = Cart::where('user_id', Auth::id())->count();
             $wishlistCount = Wishlist::where('user_id', Auth::id())->count();
         } else {
             // For guests, get cart count from session
             $cart = Session::get('cart', []);
-            $cartCount = array_sum(array_column($cart, 'quantity'));
+            $cartCount = count($cart);
         }
 
         $view->with([
