@@ -5,28 +5,45 @@
 @push('styles')
 <style>
 .active-filters {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    border-left: 4px solid #fe5716;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 20px;
+    border-radius: 12px;
+    border-left: 4px solid #fa441d;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.active-filters h6 {
+    color: #374151;
+    font-weight: 600;
+    margin-bottom: 15px;
+    font-size: 14px;
 }
 
 .filter-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
+    align-items: center;
 }
 
 .filter-tag {
-    background: #fe5716;
+    background: linear-gradient(135deg, #fa441d 0%, #ff6b47 100%);
     color: white;
-    padding: 6px 12px;
-    border-radius: 20px;
+    padding: 8px 16px;
+    border-radius: 25px;
     font-size: 12px;
     font-weight: 500;
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    box-shadow: 0 2px 4px rgba(250, 68, 29, 0.2);
+    transition: all 0.2s ease;
+}
+
+.filter-tag:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(250, 68, 29, 0.3);
 }
 
 .remove-filter {
@@ -35,36 +52,41 @@
     font-weight: bold;
     font-size: 14px;
     line-height: 1;
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     background: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.2s ease;
 }
 
 .remove-filter:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.4);
     color: white;
     text-decoration: none;
+    transform: scale(1.1);
 }
 
 .clear-all-filters {
-    color: #fe5716;
+    color: #fa441d;
     text-decoration: none;
     font-size: 12px;
     font-weight: 600;
-    border: 1px solid #fe5716;
-    padding: 6px 12px;
-    border-radius: 20px;
+    border: 2px solid #fa441d;
+    padding: 8px 16px;
+    border-radius: 25px;
     background: white;
+    transition: all 0.2s ease;
 }
 
 .clear-all-filters:hover {
-    background: #fe5716;
+    background: #fa441d;
     color: white;
     text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(250, 68, 29, 0.2);
 }
 
 /* Product Brand Styling */
@@ -306,9 +328,9 @@
         </div>
         
         <div class="sidebar">
-            <h3>Price range</h3>
+            <h3>Price</h3>
             <div class="boder-bar"></div>
-            <div class="wrapper">
+            <div class="modern-price-filter">
               <form method="GET" action="{{ route('products.index') }}">
                 @if(request('category'))
                   <input type="hidden" name="category" value="{{ request('category') }}">
@@ -319,27 +341,94 @@
                 @if(request('brand'))
                   <input type="hidden" name="brand" value="{{ request('brand') }}">
                 @endif
-                <fieldset class="filter-price">
-                 <div class="price-wrap">
-                    <span class="price-title">Price</span>
-                    <div class="price-wrap-1">
-                      <input id="one" name="min_price" value="{{ request('min_price', 0) }}">
-                      <label for="one">₹</label>
-                    </div>
-                    <div class="price-wrap_line">-</div>
-                    <div class="price-wrap-2">
-                      <input id="two" name="max_price" value="{{ request('max_price', 1000) }}">
-                      <label for="two">₹</label>
-                    </div>
+                @if(request('in_stock'))
+                  <input type="hidden" name="in_stock" value="{{ request('in_stock') }}">
+                @endif
+                
+                <!-- Price Range Visual -->
+                <div class="price-range-visual">
+                  <div class="price-bars">
+                    <div class="price-bar" style="height: 25px;"></div>
+                    <div class="price-bar" style="height: 12.5px;"></div>
+                    <div class="price-bar" style="height: 12.5px;"></div>
+                    <div class="price-bar" style="height: 12.5px;"></div>
+                    <div class="price-bar" style="height: 12.5px;"></div>
+                    <div class="price-bar" style="height: 12.5px;"></div>
                   </div>
-                  <div class="price-field">
-                    <input type="range" min="0" max="1000" value="{{ request('min_price', 0) }}" id="lower" name="min_range">
-                    <input type="range" min="0" max="1000" value="{{ request('max_price', 1000) }}" id="upper" name="max_range">
+                </div>
+                
+                <!-- Range Slider -->
+                <div class="modern-range-slider">
+                  <div class="range-container">
+                    <div class="range-track">
+                      <div class="range-fill" id="rangeFill"></div>
+                    </div>
+                    <input type="range" min="0" max="1000" value="{{ request('min_price', 0) }}" 
+                           id="minRange" name="min_range" class="range-input">
+                    <input type="range" min="0" max="1000" value="{{ request('max_price', 1000) }}" 
+                           id="maxRange" name="max_range" class="range-input">
                   </div>
-                  <button type="submit" class="w-100 button">Filter</button>
-                </fieldset>
+                  <div class="range-labels">
+                    <span>₹0</span>
+                    <span>₹200</span>
+                    <span>₹400</span>
+                    <span>₹600</span>
+                    <span>₹800</span>
+                    <span>₹1000</span>
+                  </div>
+                </div>
+                
+                <!-- Price Dropdowns -->
+                <div class="price-dropdowns">
+                  <div class="price-select-group">
+                    <select class="modern-select" name="min_price" id="minPrice">
+                      <option value="" {{ !request('min_price') ? 'selected' : '' }}>Min</option>
+                      <option value="0" {{ request('min_price') == '0' ? 'selected' : '' }}>₹0</option>
+                      <option value="100" {{ request('min_price') == '100' ? 'selected' : '' }}>₹100</option>
+                      <option value="200" {{ request('min_price') == '200' ? 'selected' : '' }}>₹200</option>
+                      <option value="300" {{ request('min_price') == '300' ? 'selected' : '' }}>₹300</option>
+                      <option value="500" {{ request('min_price') == '500' ? 'selected' : '' }}>₹500</option>
+                      <option value="750" {{ request('min_price') == '750' ? 'selected' : '' }}>₹750</option>
+                    </select>
+                  </div>
+                  <span class="price-separator">to</span>
+                  <div class="price-select-group">
+                    <select class="modern-select" name="max_price" id="maxPrice">
+                      <option value="100" {{ request('max_price') == '100' ? 'selected' : '' }}>₹100</option>
+                      <option value="200" {{ request('max_price') == '200' ? 'selected' : '' }}>₹200</option>
+                      <option value="300" {{ request('max_price') == '300' ? 'selected' : '' }}>₹300</option>
+                      <option value="500" {{ request('max_price') == '500' ? 'selected' : '' }}>₹500</option>
+                      <option value="750" {{ request('max_price') == '750' ? 'selected' : '' }}>₹750</option>
+                      <option value="1000" {{ request('max_price') == '1000' ? 'selected' : '' }}>₹1000</option>
+                      <option value="" {{ !request('max_price') ? 'selected' : '' }}>Max</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <button type="submit" class="modern-filter-btn">Apply Filter</button>
               </form>
             </div>
+        </div>
+        
+        <div class="sidebar">
+            <h3>Availability</h3>
+            <div class="boder-bar"></div>
+            <ul class="category">
+              <li>
+                <a href="{{ route('products.index', array_merge(request()->query(), ['in_stock' => '1'])) }}" 
+                   class="{{ request('in_stock') == '1' ? 'active' : '' }}">
+                   In Stock Only
+                   <span>{{ \App\Models\Product::active()->inStock()->count() }}</span>
+                </a>
+              </li>
+              <li>
+                <a href="{{ route('products.index', request()->except('in_stock')) }}" 
+                   class="{{ !request('in_stock') ? 'active' : '' }}">
+                   All Products
+                   <span>{{ \App\Models\Product::active()->count() }}</span>
+                </a>
+              </li>
+            </ul>
         </div>
         
 
@@ -378,7 +467,7 @@
         </div>
         
         <!-- Active Filters Display -->
-        @if(request('category') || request('subcategory') || request('brand') || request('min_price') || request('max_price'))
+        @if(request('category') || request('subcategory') || request('brand') || request('min_price') || request('max_price') || request('in_stock'))
         <div class="active-filters mb-4">
             <h6 class="mb-2">Active Filters:</h6>
             <div class="filter-tags d-flex flex-wrap gap-2">
@@ -416,6 +505,13 @@
                     <span class="filter-tag">
                         Price: ₹{{ request('min_price', 0) }} - ₹{{ request('max_price', 1000) }}
                         <a href="{{ route('products.index', request()->except(['min_price', 'max_price'])) }}" class="remove-filter">×</a>
+                    </span>
+                @endif
+                
+                @if(request('in_stock'))
+                    <span class="filter-tag">
+                        In Stock Only
+                        <a href="{{ route('products.index', request()->except('in_stock')) }}" class="remove-filter">×</a>
                     </span>
                 @endif
                 
@@ -495,11 +591,51 @@
 </section>
 
 <style>
+/* Remove old range styles that conflict with new design */
+.price-field {
+  position: relative;
+  width: 100%;
+  height: auto;
+  background: none;
+  padding: 0;
+}
+
+.price-field input[type="range"] {
+  display: none; /* Hide old range inputs */
+}
+
+.filter-price {
+  width: 100%;
+  border: none;
+  padding: 0;
+}
+
+.price-wrap {
+  display: none; /* Hide old price wrap */
+}
+
+.price-field button.button {
+  display: none; /* Hide old button */
+}
+
+.wrapper {
+  padding: 0;
+}
+
+/* Ensure new styles take precedence */
+.modern-price-filter * {
+  box-sizing: border-box;
+}
+
+/* Enhanced category active state */
 .category li a.active {
-  background-color: var(--primary-color, #fa441d);
-  color: white;
-  border-radius: 5px;
-  padding: 5px 10px;
+  background: linear-gradient(135deg, #fa441d 0%, #ff6b47 100%);
+  color: white !important;
+  border-radius: 8px;
+  padding: 8px 15px;
+  font-weight: 500;
+  transform: translateX(5px);
+  box-shadow: 0 4px 8px rgba(250, 68, 29, 0.2);
 }
 
 .out-of-stock {
@@ -579,97 +715,138 @@
 </style>
 
 <script>
-// Enhanced Price range functionality
+// Modern Price Filter Functionality
 document.addEventListener('DOMContentLoaded', function() {
-  const lowerRange = document.getElementById('lower');
-  const upperRange = document.getElementById('upper');
-  const minPriceInput = document.getElementById('one');
-  const maxPriceInput = document.getElementById('two');
+  const minRange = document.getElementById('minRange');
+  const maxRange = document.getElementById('maxRange');
+  const minSelect = document.getElementById('minPrice');
+  const maxSelect = document.getElementById('maxPrice');
+  const rangeFill = document.getElementById('rangeFill');
 
-  if (lowerRange && upperRange && minPriceInput && maxPriceInput) {
+  if (minRange && maxRange && rangeFill) {
     
-    // Function to update the visual range bar
-    function updateRangeVisual() {
-      const min = parseInt(lowerRange.min);
-      const max = parseInt(lowerRange.max);
-      const lowerVal = parseInt(lowerRange.value);
-      const upperVal = parseInt(upperRange.value);
+    // Function to update the visual range fill
+    function updateRangeFill() {
+      const min = parseInt(minRange.min);
+      const max = parseInt(minRange.max);
+      const minVal = parseInt(minRange.value);
+      const maxVal = parseInt(maxRange.value);
       
       // Calculate percentages
-      const lowerPercent = ((lowerVal - min) / (max - min)) * 100;
-      const upperPercent = ((upperVal - min) / (max - min)) * 100;
+      const minPercent = ((minVal - min) / (max - min)) * 100;
+      const maxPercent = ((maxVal - min) / (max - min)) * 100;
       
-      // Update the visual track
-      if (!document.querySelector('.range-track')) {
-        const track = document.createElement('div');
-        track.className = 'range-track';
-        track.innerHTML = '<div class="range-fill"></div>';
-        document.querySelector('.price-field').appendChild(track);
-      }
-      
-      const fill = document.querySelector('.range-fill');
-      if (fill) {
-        fill.style.left = lowerPercent + '%';
-        fill.style.width = (upperPercent - lowerPercent) + '%';
-      }
+      // Update the range fill
+      rangeFill.style.left = minPercent + '%';
+      rangeFill.style.width = (maxPercent - minPercent) + '%';
     }
     
-    // Ensure lower range doesn't exceed upper range
+    // Ensure minimum doesn't exceed maximum
     function validateRanges() {
-      const lowerVal = parseInt(lowerRange.value);
-      const upperVal = parseInt(upperRange.value);
+      const minVal = parseInt(minRange.value);
+      const maxVal = parseInt(maxRange.value);
       
-      if (lowerVal >= upperVal) {
-        lowerRange.value = upperVal - 1;
-        minPriceInput.value = upperVal - 1;
+      if (minVal >= maxVal) {
+        minRange.value = maxVal - 50;
       }
       
-      if (upperVal <= lowerVal) {
-        upperRange.value = lowerVal + 1;
-        maxPriceInput.value = lowerVal + 1;
+      if (maxVal <= minVal) {
+        maxRange.value = minVal + 50;
       }
     }
     
-    // Lower range input event
-    lowerRange.addEventListener('input', function() {
+    // Update range from sliders
+    minRange.addEventListener('input', function() {
       validateRanges();
-      minPriceInput.value = this.value;
-      updateRangeVisual();
+      updateRangeFill();
+      // Update select dropdown
+      const closestOption = findClosestOption(minSelect, this.value);
+      if (closestOption) minSelect.value = closestOption;
     });
 
-    // Upper range input event
-    upperRange.addEventListener('input', function() {
+    maxRange.addEventListener('input', function() {
       validateRanges();
-      maxPriceInput.value = this.value;
-      updateRangeVisual();
-    });
-
-    // Min price input event
-    minPriceInput.addEventListener('input', function() {
-      const value = parseInt(this.value) || 0;
-      lowerRange.value = Math.max(0, Math.min(value, parseInt(upperRange.value) - 1));
-      validateRanges();
-      updateRangeVisual();
-    });
-
-    // Max price input event
-    maxPriceInput.addEventListener('input', function() {
-      const value = parseInt(this.value) || 1000;
-      upperRange.value = Math.min(1000, Math.max(value, parseInt(lowerRange.value) + 1));
-      validateRanges();
-      updateRangeVisual();
+      updateRangeFill();
+      // Update select dropdown
+      const closestOption = findClosestOption(maxSelect, this.value);
+      if (closestOption) maxSelect.value = closestOption;
     });
     
-    // Initialize visual range
-    updateRangeVisual();
+    // Update range from select dropdowns
+    if (minSelect) {
+      minSelect.addEventListener('change', function() {
+        if (this.value) {
+          minRange.value = this.value;
+          validateRanges();
+          updateRangeFill();
+        }
+      });
+    }
+    
+    if (maxSelect) {
+      maxSelect.addEventListener('change', function() {
+        if (this.value) {
+          maxRange.value = this.value;
+          validateRanges();
+          updateRangeFill();
+        }
+      });
+    }
+    
+    // Helper function to find closest option value
+    function findClosestOption(selectElement, targetValue) {
+      let closest = null;
+      let minDiff = Infinity;
+      
+      for (let option of selectElement.options) {
+        if (option.value && !isNaN(option.value)) {
+          const diff = Math.abs(parseInt(option.value) - parseInt(targetValue));
+          if (diff < minDiff) {
+            minDiff = diff;
+            closest = option.value;
+          }
+        }
+      }
+      
+      return closest;
+    }
+    
+    // Initialize on page load
+    updateRangeFill();
   }
+  
+  // Add hover effects to price bars
+  const priceBars = document.querySelectorAll('.price-bar');
+  priceBars.forEach((bar, index) => {
+    bar.addEventListener('mouseenter', function() {
+      this.style.transform = 'scaleY(1.2)';
+      this.style.opacity = '1';
+    });
+    
+    bar.addEventListener('mouseleave', function() {
+      this.style.transform = 'scaleY(1)';
+      this.style.opacity = '0.8';
+    });
+  });
 });
 
-// Add to cart functionality (placeholder)
+// Add to cart functionality (enhanced)
 document.addEventListener('click', function(e) {
   if (e.target.classList.contains('add-to-cart-btn')) {
     e.preventDefault();
     const productId = e.target.getAttribute('data-product-id');
+    
+    // Add loading state
+    const originalText = e.target.textContent;
+    e.target.textContent = 'Adding...';
+    e.target.disabled = true;
+    
+    // Simulate API call (replace with actual AJAX call)
+    setTimeout(() => {
+      e.target.textContent = originalText;
+      e.target.disabled = false;
+      // Show success message or update cart count
+    }, 1000);
   }
 });
 </script>

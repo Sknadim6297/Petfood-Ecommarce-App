@@ -76,6 +76,11 @@ class ProductController extends Controller
             });
         }
 
+        // Filter by stock availability
+        if ($request->has('in_stock') && $request->in_stock == '1') {
+            $query->inStock();
+        }
+
         // Apply sorting
         switch ($request->get('sort', 'created_at')) {
             case 'name':

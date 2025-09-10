@@ -28,12 +28,77 @@
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/responsive.css') }}">
     
-    <!-- Poppins Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Quicksand Font -->
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
     
     <!-- Custom Dynamic Logo Styles -->
     <style>
-        /* Poppins Font Override for All Frontend Elements - Excluding Icons */
+    /* Global Quicksand Font Family */
+    * {
+        font-family: "Quicksand", sans-serif !important;
+        font-optical-sizing: auto;
+        font-style: normal;
+    }
+    
+    body {
+        font-family: "Quicksand", sans-serif !important;
+        font-weight: 400;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-family: "Quicksand", sans-serif !important;
+        font-weight: 600;
+    }
+    
+    .quicksand-light {
+        font-family: "Quicksand", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 300;
+        font-style: normal;
+    }
+    
+    .quicksand-regular {
+        font-family: "Quicksand", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 400;
+        font-style: normal;
+    }
+    
+    .quicksand-medium {
+        font-family: "Quicksand", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 500;
+        font-style: normal;
+    }
+    
+    .quicksand-semibold {
+        font-family: "Quicksand", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 600;
+        font-style: normal;
+    }
+    
+    .quicksand-bold {
+        font-family: "Quicksand", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 700;
+        font-style: normal;
+    }
+    
+    /* Override any existing font families */
+    .btn, button, input, select, textarea {
+        font-family: "Quicksand", sans-serif !important;
+    }
+    
+    .nav-link, .navbar-nav, .menu {
+        font-family: "Quicksand", sans-serif !important;
+        font-weight: 500;
+    }
+    
+    .card, .card-body, .card-title, .card-text {
+        font-family: "Quicksand", sans-serif !important;
+    }
+        /* Quicksand Font Override for All Frontend Elements - Excluding Icons */
         body, p, span:not([class*="fa-"]):not([class*="icon"]), div:not([class*="fa-"]):not([class*="icon"]), 
         section, article, aside, nav, header, footer,
         h1, h2, h3, h4, h5, h6,
@@ -84,7 +149,7 @@
         .call-to-action, .cta-text,
         .error-message, .success-message,
         .loading-text, .placeholder-text {
-            font-family: 'Poppins', sans-serif !important;
+            font-family: 'Quicksand', sans-serif !important;
         }
         
         /* Ensure Font Awesome icons work properly */
@@ -344,11 +409,21 @@
 <body>
 
 <!-- loader -->
-<div class="preloader"> 
-    <div class="container">
-        <div class="dot dot-1"></div>
-        <div class="dot dot-2"></div>
-        <div class="dot dot-3"></div>
+<div class="preloader d-flex align-items-center justify-content-center">
+    <svg id="svg-sprite">
+        <symbol id="paw" viewBox="0 0 249 209.32">
+            <ellipse cx="27.917" cy="106.333" stroke-width="0" rx="27.917" ry="35.833"/>
+            <ellipse cx="84.75" cy="47.749" stroke-width="0" rx="34.75" ry="47.751"/>
+            <ellipse cx="162" cy="47.749" stroke-width="0" rx="34.75" ry="47.751"/>
+            <ellipse cx="221.083" cy="106.333" stroke-width="0" rx="27.917" ry="35.833"/>
+            <path stroke-width="0" d="M43.98 165.39s9.76-63.072 76.838-64.574c0 0 71.082-6.758 83.096 70.33 0 0 2.586 19.855-12.54 31.855 0 0-15.75 17.75-43.75-6.25 0 0-7.124-8.374-24.624-7.874 0 0-12.75-.125-21.5 6.625 0 0-16.375 18.376-37.75 12.75 0 0-28.29-7.72-19.77-42.86z"/>
+        </symbol>
+    </svg>
+    <div class="walking-paws">
+        <div class="paw paw-1"><svg class="icon"><use xlink:href="#paw" /></svg></div>
+        <div class="paw paw-2"><svg class="icon"><use xlink:href="#paw" /></svg></div>
+        <div class="paw paw-3"><svg class="icon"><use xlink:href="#paw" /></svg></div>
+        <div class="paw paw-4"><svg class="icon"><use xlink:href="#paw" /></svg></div>
     </div>
 </div>
 
@@ -563,7 +638,7 @@
     margin: 0 0 5px 0;
     font-size: 20px;
     font-weight: 700;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Quicksand', sans-serif;
 }
 
 .cart-items-count {
@@ -694,7 +769,7 @@
     font-weight: 700;
     color: #2c3e50;
     margin: 0 0 10px 0;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Quicksand', sans-serif;
 }
 
 .empty-cart-state p {
@@ -2097,7 +2172,7 @@ $(document).ready(function() {
     line-height: 1;
     border: 2px solid white;
     box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Quicksand', sans-serif;
     z-index: 10;
 }
 
@@ -2251,7 +2326,7 @@ $(document).ready(function() {
     line-height: 1;
     border: 2px solid white;
     box-shadow: 0 4px 15px rgba(250, 68, 29, 0.4);
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Quicksand', sans-serif;
     z-index: 10;
     transition: all 0.3s ease;
     animation: pulse 2s infinite;
@@ -2450,7 +2525,7 @@ $(document).ready(function() {
 }
 
 .login-modal-header h3 {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Quicksand', sans-serif;
     font-size: 28px;
     font-weight: 700;
     margin-bottom: 10px;
@@ -2510,7 +2585,7 @@ $(document).ready(function() {
 }
 
 .join-message h4 {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Quicksand', sans-serif;
     color: #2c3e50;
     font-size: 22px;
     font-weight: 600;
@@ -2596,7 +2671,7 @@ $(document).ready(function() {
     box-shadow: 0 8px 25px rgba(250, 68, 29, 0.3);
     position: relative;
     overflow: hidden;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Quicksand', sans-serif;
 }
 
 .btn-login::before {

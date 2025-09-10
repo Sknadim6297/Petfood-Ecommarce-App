@@ -104,29 +104,10 @@
     text-decoration: none;
     transition: color 0.3s ease;
     display: block;
-    margin-top: 10px;
 }
 
 .food-categorie:hover a {
     color: #fa441d;
-}
-
-.category-image-wrapper {
-    margin-bottom: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.category-product-count {
-    margin-top: 8px;
-    opacity: 0.8;
-}
-
-.category-product-count small {
-    font-size: 12px;
-    color: #6c757d;
-    font-weight: 500;
 }
 
 /* Responsive adjustments for categories */
@@ -149,11 +130,11 @@
 /* Pet Types Section Styles */
 .pet-types-section {
     background: #f8f9fa;
-    padding: 80px 0;
+    padding: 60px 0;
 }
 
 .pet-type-tabs {
-    margin-bottom: 50px;
+    margin-bottom: 40px;
 }
 
 .pet-type-tabs .nav-tabs {
@@ -166,21 +147,22 @@
     border: 2px solid #e9ecef;
     background: white;
     color: #6c757d;
-    padding: 15px 30px;
+    padding: 12px 25px;
     border-radius: 50px;
-    margin: 0 10px 10px 0;
+    margin: 0 8px 8px 0;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    font-size: 14px;
 }
 
 .pet-type-tabs .nav-link .pet-icon {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     object-fit: cover;
 }
@@ -198,33 +180,34 @@
 }
 
 .pet-type-tabs .nav-link .product-count {
-    font-size: 12px;
-    margin-left: 5px;
+    font-size: 11px;
+    margin-left: 3px;
     opacity: 0.8;
 }
 
 .subcategory-grid {
-    margin-top: 40px;
+    margin-top: 30px;
 }
 
 .subcategory-card {
     background: white;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     overflow: hidden;
     border: 1px solid #f0f0f0;
+    height: 280px;
 }
 
 .subcategory-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
     border-color: #fa441d;
 }
 
 .subcategory-image {
-    height: 200px;
+    height: 140px;
     background: #f8f9fa;
     display: flex;
     align-items: center;
@@ -234,7 +217,7 @@
 }
 
 .subcategory-card.featured .subcategory-image {
-    height: 250px;
+    height: 160px;
 }
 
 .subcategory-image img {
@@ -250,30 +233,40 @@
 
 .subcategory-image .placeholder {
     color: #6c757d;
-    font-size: 18px;
+    font-size: 14px;
     text-align: center;
 }
 
 .subcategory-content {
-    padding: 25px;
+    padding: 15px;
+    height: calc(100% - 140px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.subcategory-card.featured .subcategory-content {
+    height: calc(100% - 160px);
 }
 
 .subcategory-count {
     display: inline-block;
     background: #fa441d;
     color: white;
-    padding: 5px 12px;
-    border-radius: 15px;
-    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
     font-weight: 600;
-    margin-bottom: 15px;
+    margin-bottom: 8px;
+    width: fit-content;
 }
 
 .subcategory-content h3 {
-    font-size: 22px;
+    font-size: 16px;
     font-weight: 700;
     color: #2c3e50;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    line-height: 1.3;
 }
 
 .subcategory-content h3 a {
@@ -288,27 +281,35 @@
 
 .subcategory-content p {
     color: #6c757d;
-    font-size: 14px;
-    line-height: 1.6;
-    margin-bottom: 20px;
+    font-size: 12px;
+    line-height: 1.4;
+    margin-bottom: 12px;
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 }
 
 .subcategory-button {
     display: inline-block;
     background: #fa441d;
     color: white;
-    padding: 10px 20px;
-    border-radius: 25px;
+    padding: 8px 16px;
+    border-radius: 20px;
     text-decoration: none;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 12px;
     transition: all 0.3s ease;
+    text-align: center;
+    width: fit-content;
 }
 
 .subcategory-button:hover {
     background: #e63612;
     color: white;
-    transform: translateY(-2px);
+    transform: translateY(-1px);
     text-decoration: none;
 }
 
@@ -370,25 +371,27 @@
 /* Responsive Design */
 @media (max-width: 992px) {
     .pet-type-tabs .nav-link {
-        padding: 12px 20px;
-        font-size: 14px;
+        padding: 10px 18px;
+        font-size: 13px;
+        margin: 0 5px 8px 0;
     }
     
     .subcategory-card {
-        height: 250px;
-        margin-bottom: 20px;
+        height: 260px;
+        margin-bottom: 15px;
     }
     
-    .subcategory-card.featured {
-        height: 300px;
+    .subcategory-image {
+        height: 120px;
     }
     
     .subcategory-content {
-        padding: 20px;
+        padding: 12px;
+        height: calc(100% - 120px);
     }
     
     .subcategory-content h3 {
-        font-size: 20px;
+        font-size: 15px;
     }
 }
 
@@ -401,22 +404,33 @@
     .pet-type-tabs .nav-link {
         margin: 5px 0;
         justify-content: center;
+        padding: 10px 15px;
     }
     
     .subcategory-card {
-        height: 200px;
+        height: 240px;
     }
     
-    .subcategory-card.featured {
-        height: 250px;
+    .subcategory-image {
+        height: 100px;
+    }
+    
+    .subcategory-content {
+        height: calc(100% - 100px);
+        padding: 10px;
     }
     
     .subcategory-content h3 {
-        font-size: 18px;
+        font-size: 14px;
     }
     
     .subcategory-content p {
-        font-size: 13px;
+        font-size: 11px;
+    }
+    
+    .subcategory-button {
+        padding: 6px 12px;
+        font-size: 11px;
     }
 }
 </style>
@@ -531,48 +545,51 @@
     <div class="container">
         <div class="heading">
             <img src="{{ asset('assets/img/heading-img.png') }}" alt="heading-img">
-            <h6>Find Products By Main Category</h6>
+            <h6>Find Healthy Product By Category</h6>
             <h2>Browse By Categories</h2>
         </div>
         <div class="row slider-categorie owl-carousel owl-theme">
             @forelse($categories as $category)
             <div class="col-lg-12 item">
                 <div class="food-categorie">
-                    <div class="category-image-wrapper">
-                        @if($category->image)
-                            <img src="{{ asset($category->image) }}" alt="{{ $category->name }}" onerror="this.src='{{ asset('assets/img/food-categorie-' . (($loop->index % 5) + 1) . '.png') }}'">
-                        @else
-                            <img src="{{ asset('assets/img/food-categorie-' . (($loop->index % 5) + 1) . '.png') }}" alt="{{ $category->name }}">
-                        @endif
-                    </div>
+                    @if($category->image)
+                        <img src="{{ asset($category->image) }}" alt="{{ $category->name }}" onerror="this.src='{{ asset('assets/img/food-categorie-' . (($loop->index % 5) + 1) . '.png') }}'">
+                    @else
+                        <img src="{{ asset('assets/img/food-categorie-' . (($loop->index % 5) + 1) . '.png') }}" alt="{{ $category->name }}">
+                    @endif
                     <a href="{{ route('products.index', ['category' => $category->slug]) }}">{{ $category->name }}</a>
-                    <div class="category-product-count">
-                        <small class="text-muted">{{ $category->products_count ?? 0 }} products</small>
-                    </div>
                 </div>
             </div>
             @empty
             <!-- Fallback static categories if no dynamic data -->
             <div class="col-lg-12 item">
                 <div class="food-categorie">
-                    <div class="category-image-wrapper">
-                        <img src="{{ asset('assets/img/food-categorie-1.png') }}" alt="food-categorie">
-                    </div>
-                    <a href="{{ route('products.index') }}">Pet Supplies</a>
-                    <div class="category-product-count">
-                        <small class="text-muted">Available products</small>
-                    </div>
+                    <img src="{{ asset('assets/img/food-categorie-1.png') }}" alt="food-categorie">
+                    <a href="{{ route('products.index') }}">Cat Supplies</a>
                 </div>
             </div>
             <div class="col-lg-12 item">
                 <div class="food-categorie">
-                    <div class="category-image-wrapper">
-                        <img src="{{ asset('assets/img/food-categorie-2.png') }}" alt="food-categorie">
-                    </div>
+                    <img src="{{ asset('assets/img/food-categorie-2.png') }}" alt="food-categorie">
                     <a href="{{ route('products.index') }}">Dog Supplies</a>
-                    <div class="category-product-count">
-                        <small class="text-muted">Available products</small>
-                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 item">
+                <div class="food-categorie">
+                    <img src="{{ asset('assets/img/food-categorie-3.png') }}" alt="food-categorie">
+                    <a href="{{ route('products.index') }}">Animal Feed</a>
+                </div>
+            </div>
+            <div class="col-lg-12 item">
+                <div class="food-categorie">
+                    <img src="{{ asset('assets/img/food-categorie-4.png') }}" alt="food-categorie">
+                    <a href="{{ route('products.index') }}">Accessories</a>
+                </div>
+            </div>
+            <div class="col-lg-12 item">
+                <div class="food-categorie">
+                    <img src="{{ asset('assets/img/food-categorie-5.png') }}" alt="food-categorie">
+                    <a href="{{ route('products.index') }}">Horse Care</a>
                 </div>
             </div>
             @endforelse
@@ -580,110 +597,7 @@
     </div>
 </section>
 
-<!-- Pet Types & Subcategories Section -->
-<section class="gap pet-types-section">
-    <div class="container">
-        <div class="heading">
-            <img src="{{ asset('assets/img/heading-img.png') }}" alt="heading-img">
-            <h6>Shop By Pet Type</h6>
-            <h2>Explore Subcategories by Pet Type</h2>
-        </div>
-        
-        @if($petTypes->count() > 0)
-        <!-- Pet Type Tabs Navigation -->
-        <div class="pet-type-tabs">
-            <ul class="nav nav-tabs justify-content-center mb-5" id="petTypeTab" role="tablist">
-                @foreach($petTypes as $petType)
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link {{ $loop->first ? 'active' : '' }}" id="{{ strtolower(str_replace(' ', '-', $petType->name)) }}-tab" 
-                            data-bs-toggle="tab" data-bs-target="#{{ strtolower(str_replace(' ', '-', $petType->name)) }}" 
-                            type="button" role="tab" aria-controls="{{ strtolower(str_replace(' ', '-', $petType->name)) }}" 
-                            aria-selected="{{ $loop->first ? 'true' : 'false' }}">
-                        @if($petType->image)
-                            <img src="{{ asset($petType->image) }}" alt="{{ $petType->name }}" class="pet-icon">
-                        @endif
-                        {{ $petType->name }}
-                        <span class="product-count">({{ $petType->products_count }} products)</span>
-                    </button>
-                </li>
-                @endforeach
-            </ul>
-        </div>
 
-        <!-- Pet Type Tab Content -->
-        <div class="tab-content" id="petTypeTabContent">
-            @foreach($petTypes as $petType)
-            <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}" id="{{ strtolower(str_replace(' ', '-', $petType->name)) }}" 
-                 role="tabpanel" aria-labelledby="{{ strtolower(str_replace(' ', '-', $petType->name)) }}-tab">
-                <div class="subcategory-grid">
-                    @if($petType->children->count() > 0)
-                    <div class="row">
-                        @foreach($petType->children as $subcategory)
-                        <div class="col-lg-{{ $subcategory->products_count > 50 ? '6' : '4' }} col-md-6 mb-4">
-                            <div class="subcategory-card {{ $subcategory->products_count > 50 ? 'featured' : '' }}">
-                                <div class="subcategory-image">
-                                    @if($subcategory->image)
-                                        <img src="{{ asset($subcategory->image) }}" alt="{{ $subcategory->name }}">
-                                    @else
-                                        <div class="placeholder">
-                                            <i class="fas fa-image fa-3x mb-2 d-block"></i>
-                                            {{ $subcategory->name }}
-                                        </div>
-                                    @endif
-                                    @if($subcategory->products_count > 50)
-                                        <div class="popular-badge">Most Popular</div>
-                                    @endif
-                                </div>
-                                <div class="subcategory-content">
-                                    <span class="subcategory-count">
-                                        <i class="fas fa-box"></i> {{ $subcategory->products_count }} Products
-                                    </span>
-                                    <h3>
-                                        <a href="{{ route('products.index', ['category' => $petType->slug, 'subcategory' => $subcategory->slug]) }}">
-                                            {{ $subcategory->name }}
-                                        </a>
-                                    </h3>
-                                    @if($subcategory->description)
-                                        <p>{{ strlen($subcategory->description) > 100 ? substr($subcategory->description, 0, 100) . '...' : $subcategory->description }}</p>
-                                    @endif
-                                    <a href="{{ route('products.index', ['category' => $petType->slug, 'subcategory' => $subcategory->slug]) }}" 
-                                       class="subcategory-button">
-                                        Shop Now <i class="fas fa-arrow-right ms-1"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                    @else
-                    <div class="text-center py-5">
-                        <div class="empty-state">
-                            <i class="fas fa-paw fa-3x text-muted mb-3"></i>
-                            <h4 class="text-muted">No subcategories available</h4>
-                            <p class="text-muted">Subcategories for {{ $petType->name }} will be added soon.</p>
-                            <a href="{{ route('products.index', ['category' => $petType->slug]) }}" class="btn btn-primary">
-                                View All {{ $petType->name }} Products
-                            </a>
-                        </div>
-                    </div>
-                    @endif
-                </div>
-            </div>
-            @endforeach
-        </div>
-        @else
-        <!-- Fallback if no pet types available -->
-        <div class="text-center py-5">
-            <div class="empty-state">
-                <i class="fas fa-heart fa-3x text-muted mb-3"></i>
-                <h4 class="text-muted">Pet categories coming soon</h4>
-                <p class="text-muted">We're setting up our pet product categories. Check back soon!</p>
-                <a href="{{ route('products.index') }}" class="btn btn-primary">View All Products</a>
-            </div>
-        </div>
-        @endif
-    </div>
-</section>
 
 <section class="gap section-healthy-product" style="background-image: url({{ asset('assets/img/healthy-product.png') }}); background-color: #f5f5f5;">
     <div class="container">
@@ -805,6 +719,109 @@
         </div>
     </div>
 </section> 
+<!-- Pet Types & Subcategories Section -->
+<section class="gap pet-types-section">
+    <div class="container">
+        <div class="heading">
+            <img src="{{ asset('assets/img/heading-img.png') }}" alt="heading-img">
+            <h6>Shop By Pet Type</h6>
+            <h2>Explore Subcategories by Pet Type</h2>
+        </div>
+        
+        @if($petTypes->count() > 0)
+        <!-- Pet Type Tabs Navigation -->
+        <div class="pet-type-tabs">
+            <ul class="nav nav-tabs justify-content-center mb-5" id="petTypeTab" role="tablist">
+                @foreach($petTypes as $petType)
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {{ $loop->first ? 'active' : '' }}" id="{{ strtolower(str_replace(' ', '-', $petType->name)) }}-tab" 
+                            data-bs-toggle="tab" data-bs-target="#{{ strtolower(str_replace(' ', '-', $petType->name)) }}" 
+                            type="button" role="tab" aria-controls="{{ strtolower(str_replace(' ', '-', $petType->name)) }}" 
+                            aria-selected="{{ $loop->first ? 'true' : 'false' }}">
+                        @if($petType->image)
+                            <img src="{{ asset($petType->image) }}" alt="{{ $petType->name }}" class="pet-icon">
+                        @endif
+                        {{ $petType->name }}
+                        <span class="product-count">({{ $petType->products_count }} products)</span>
+                    </button>
+                </li>
+                @endforeach
+            </ul>
+        </div>
+
+        <!-- Pet Type Tab Content -->
+        <div class="tab-content" id="petTypeTabContent">
+            @foreach($petTypes as $petType)
+            <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}" id="{{ strtolower(str_replace(' ', '-', $petType->name)) }}" 
+                 role="tabpanel" aria-labelledby="{{ strtolower(str_replace(' ', '-', $petType->name)) }}-tab">
+                <div class="subcategory-grid">
+                    @if($petType->children->count() > 0)
+                    <div class="row">
+                        @foreach($petType->children as $subcategory)
+                        <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+                            <div class="subcategory-card">
+                                <div class="subcategory-image">
+                                    @if($subcategory->image)
+                                        <img src="{{ asset($subcategory->image) }}" alt="{{ $subcategory->name }}">
+                                    @else
+                                        <div class="placeholder">
+                                            <i class="fas fa-image fa-2x mb-2 d-block"></i>
+                                            {{ $subcategory->name }}
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="subcategory-content">
+                                    @if($subcategory->products_count > 0)
+                                        <span class="subcategory-count">
+                                            <i class="fas fa-box"></i> {{ $subcategory->products_count }} Products
+                                        </span>
+                                    @endif
+                                    <h3>
+                                        <a href="{{ route('products.index', ['category' => $petType->slug, 'subcategory' => $subcategory->slug]) }}">
+                                            {{ $subcategory->name }}
+                                        </a>
+                                    </h3>
+                                    @if($subcategory->description)
+                                        <p>{{ strlen($subcategory->description) > 80 ? substr($subcategory->description, 0, 80) . '...' : $subcategory->description }}</p>
+                                    @endif
+                                    <a href="{{ route('products.index', ['category' => $petType->slug, 'subcategory' => $subcategory->slug]) }}" 
+                                       class="subcategory-button">
+                                        Shop Now <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    @else
+                    <div class="text-center py-5">
+                        <div class="empty-state">
+                            <i class="fas fa-paw fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">No subcategories available</h4>
+                            <p class="text-muted">Subcategories for {{ $petType->name }} will be added soon.</p>
+                            <a href="{{ route('products.index', ['category' => $petType->slug]) }}" class="btn btn-primary">
+                                View All {{ $petType->name }} Products
+                            </a>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+            </div>
+            @endforeach
+        </div>
+        @else
+        <!-- Fallback if no pet types available -->
+        <div class="text-center py-5">
+            <div class="empty-state">
+                <i class="fas fa-heart fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">Pet categories coming soon</h4>
+                <p class="text-muted">We're setting up our pet product categories. Check back soon!</p>
+                <a href="{{ route('products.index') }}" class="btn btn-primary">View All Products</a>
+            </div>
+        </div>
+        @endif
+    </div>
+</section>
 <section class="gap">
     <div class="container">
         <div class="row">

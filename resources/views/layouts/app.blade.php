@@ -7,12 +7,36 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <!-- Quicksand Font -->
+        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        
+        <!-- Global Quicksand Font Styles -->
+        <style>
+        * {
+            font-family: "Quicksand", sans-serif !important;
+            font-optical-sizing: auto;
+            font-style: normal;
+        }
+        
+        body {
+            font-family: "Quicksand", sans-serif !important;
+            font-weight: 400;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: "Quicksand", sans-serif !important;
+            font-weight: 600;
+        }
+        
+        .quicksand-light { font-weight: 300; }
+        .quicksand-regular { font-weight: 400; }
+        .quicksand-medium { font-weight: 500; }
+        .quicksand-semibold { font-weight: 600; }
+        .quicksand-bold { font-weight: 700; }
+        </style>
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">

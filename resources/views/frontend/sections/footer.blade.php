@@ -139,3 +139,163 @@
     <img src="{{ asset('assets/img/dabal-foot-1.png') }}" alt="hero-shaps" class="img-3">
     <img src="{{ asset('assets/img/hero-shaps-1.png') }}" alt="hero-shaps" class="img-4">
 </footer>
+
+<!-- Progress Scroll to Top Button -->
+<div class="progress-wrap" id="progress-wrap">
+    <svg class="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
+        <path d="m50,1a49,49 0 0,1 0,98a49,49 0 0,1 0,-98" style="transition: stroke-dashoffset 10ms linear 0s; stroke-dasharray: 307.919, 307.919; stroke-dashoffset: 307.919;"></path>
+    </svg>
+    <span id="progress-value"><i class="fa-solid fa-up-long"></i></span>
+</div>
+
+<style>
+/* Progress Scroll to Top Button */
+.progress-wrap {
+    position: fixed;
+    right: 30px;
+    bottom: 30px;
+    height: 55px;
+    width: 55px;
+    cursor: pointer;
+    display: block;
+    border-radius: 50px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(15px);
+    transition: all 200ms linear;
+    background: linear-gradient(45deg, #fa441d, #e63612);
+}
+
+.progress-wrap.active-progress {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.progress-wrap::after {
+    position: absolute;
+    font-family: "Font Awesome 6 Free";
+    content: "\f077";
+    text-align: center;
+    line-height: 55px;
+    font-size: 16px;
+    color: white;
+    left: 0;
+    top: 0;
+    height: 55px;
+    width: 55px;
+    cursor: pointer;
+    display: block;
+    z-index: 1;
+    transition: all 200ms linear;
+    font-weight: 900;
+}
+
+.progress-wrap:hover::after {
+    opacity: 0;
+}
+
+.progress-wrap svg path {
+    fill: none;
+    stroke: #fa441d;
+    stroke-width: 3;
+    box-sizing: border-box;
+    transition: all 200ms linear;
+}
+
+.progress-wrap svg.progress-circle path {
+    stroke: white;
+    stroke-dasharray: 307.919;
+    stroke-dashoffset: 307.919;
+}
+
+.progress-wrap #progress-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 16px;
+    opacity: 0;
+    transition: all 200ms linear;
+    z-index: 2;
+    font-weight: 900;
+}
+
+.progress-wrap:hover #progress-value {
+    opacity: 1;
+}
+
+.progress-wrap:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(250, 68, 29, 0.4);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .progress-wrap {
+        right: 20px;
+        bottom: 20px;
+        height: 45px;
+        width: 45px;
+    }
+    
+    .progress-wrap::after {
+        line-height: 45px;
+        height: 45px;
+        width: 45px;
+        font-size: 14px;
+    }
+    
+    .progress-wrap #progress-value {
+        font-size: 14px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Progress scroll to top
+    const progressPath = document.querySelector('.progress-wrap path');
+    const pathLength = progressPath.getTotalLength();
+    const progressWrap = document.querySelector('.progress-wrap');
+    
+    progressPath.style.transition = progressPath.style.WebkitTransition = 'none';
+    progressPath.style.strokeDasharray = pathLength + ' ' + pathLength;
+    progressPath.style.strokeDashoffset = pathLength;
+    progressPath.getBoundingClientRect();
+    progressPath.style.transition = progressPath.style.WebkitTransition = 'stroke-dashoffset 10ms linear';
+    
+    const updateProgress = function() {
+        const scroll = window.pageYOffset;
+        const height = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = pathLength - (scroll * pathLength / height);
+        progressPath.style.strokeDashoffset = progress;
+    }
+    
+    updateProgress();
+    
+    window.addEventListener('scroll', updateProgress);
+    
+    // Show/hide progress wrap
+    window.addEventListener('scroll', function() {
+        if (window.pageYOffset > 150) {
+            progressWrap.classList.add('active-progress');
+        } else {
+            progressWrap.classList.remove('active-progress');
+        }
+    });
+    
+    // Click to scroll to top
+    progressWrap.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+        return false;
+    });
+});
+</script>

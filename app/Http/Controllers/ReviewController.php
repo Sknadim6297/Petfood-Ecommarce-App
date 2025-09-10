@@ -30,7 +30,7 @@ class ReviewController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|max:255',
                 'rating' => 'required|integer|min:1|max:5',
-                'comment' => 'required|string|min:10|max:1000'
+                'comment' => 'required|string|max:1000'
             ]);
 
             $product = Product::findOrFail($request->product_id);
@@ -38,9 +38,9 @@ class ReviewController extends Controller
             // Check if user already reviewed this product
             if (Auth::check()) {
                 $existingReview = Review::where('product_id', $request->product_id)
-                                      ->where('user_id', Auth::id())
-                                      ->first();
-                
+                    ->where('user_id', Auth::id())
+                    ->first();
+
                 if ($existingReview) {
                     return response()->json([
                         'success' => false,
@@ -50,10 +50,10 @@ class ReviewController extends Controller
             } else {
                 // For guest users, check by email and product
                 $existingReview = Review::where('product_id', $request->product_id)
-                                      ->where('email', $request->email)
-                                      ->whereNull('user_id')
-                                      ->first();
-                
+                    ->where('email', $request->email)
+                    ->whereNull('user_id')
+                    ->first();
+
                 if ($existingReview) {
                     return response()->json([
                         'success' => false,
@@ -87,7 +87,6 @@ class ReviewController extends Controller
                 'message' => 'Thank you for your review! It will be published after approval.',
                 'review' => $review
             ]);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Review validation failed', ['errors' => $e->errors()]);
             return response()->json([
@@ -115,10 +114,10 @@ class ReviewController extends Controller
     public function getProductReviews($productId)
     {
         $reviews = Review::where('product_id', $productId)
-                        ->where('is_approved', true)
-                        ->with('user')
-                        ->orderBy('created_at', 'desc')
-                        ->paginate(10);
+            ->where('is_approved', true)
+            ->with('user')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
         return response()->json($reviews);
     }
@@ -130,7 +129,7 @@ class ReviewController extends Controller
     {
         $approvedReviews = $product->reviews()->where('is_approved', true)->get();
         $totalReviews = $product->reviews()->count();
-        
+
         if ($approvedReviews->count() > 0) {
             $averageRating = $approvedReviews->avg('rating');
             $product->update([
